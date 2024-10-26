@@ -1,0 +1,19 @@
+openapi: 3.0.3
+info:
+  title: Smart Home SDK - Models shared across smart home services
+  description: Smart Home SDK
+  version: 1.0.0
+
+tags:
+  - name: Smart Home
+    description: SDK Smart Home
+
+paths: {}
+
+components:
+  schemas:
+    RoomName:
+      type: string
+      enum:
+        - "Wardrobe"
+        - "Bedroom"
