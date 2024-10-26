@@ -17,3 +17,31 @@ components:
       enum:
         - "Wardrobe"
         - "Bedroom"
+        - "Livia"
+        - "Tobi"
+        - "Office"
+        - "BathroomUp"
+        - "HallUp"
+        - "Stairs"
+        - "Kitchen"
+        - "LivingRoom"
+        - "Cinema"
+        - "HallDown"
+        - "BathroomDown"
+        - "Entrance"
+        - "Garage"
+        - "Boiler"
+        - "Garden"
+        - "Sauna"
+        - "Sanctum"
+    IotType:
+      type: string
+      enum:
+        - "Shelly"
+        - "Eaton"
+        - "Other"
+    EatonGateway:
+      type: string
+      enum:
+        - "Blinds"
+        - "Light"

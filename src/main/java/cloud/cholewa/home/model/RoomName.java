@@ -8,7 +8,41 @@ public enum RoomName {
 
     WARDROBE("Wardrobe"),
 
-    BEDROOM("Bedroom");
+    BEDROOM("Bedroom"),
+
+    LIVIA("Livia"),
+
+    TOBI("Tobi"),
+
+    OFFICE("Office"),
+
+    BATHROOM_UP("BathroomUp"),
+
+    HALL_UP("HallUp"),
+
+    STAIRS("Stairs"),
+
+    KITCHEN("Kitchen"),
+
+    LIVING_ROOM("LivingRoom"),
+
+    CINEMA("Cinema"),
+
+    HALL_DOWN("HallDown"),
+
+    BATHROOM_DOWN("BathroomDown"),
+
+    ENTRANCE("Entrance"),
+
+    GARAGE("Garage"),
+
+    BOILER("Boiler"),
+
+    GARDEN("Garden"),
+
+    SAUNA("Sauna"),
+
+    SANCTUM("Sanctum");
 
     private String value;
 
