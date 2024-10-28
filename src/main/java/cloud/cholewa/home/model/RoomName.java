@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum RoomName {
 
+    LOFT("Loft"),
+
     WARDROBE("Wardrobe"),
 
     BEDROOM("Bedroom"),
@@ -63,7 +65,7 @@ public enum RoomName {
     @JsonCreator
     public static RoomName fromValue(String value) {
         for (RoomName b : RoomName.values()) {
-            if (b.value.equals(value)) {
+            if (b.value.equalsIgnoreCase(value)) {
                 return b;
             }
         }
