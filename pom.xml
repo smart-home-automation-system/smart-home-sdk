@@ -187,6 +187,7 @@
 								<useJakartaEe>true</useJakartaEe>
 								<hideGenerationTimestamp>true</hideGenerationTimestamp>
 								<useBeanValidation>true</useBeanValidation>
+								<useEnumCaseInsensitive>true</useEnumCaseInsensitive>
 							</configOptions>
 
 							<generateApis>false</generateApis>

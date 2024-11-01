@@ -4,7 +4,7 @@ package cloud.cholewa.home.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum IotType {
+public enum IotVendor {
 
     SHELLY("Shelly"),
 
@@ -14,7 +14,7 @@ public enum IotType {
 
     private String value;
 
-    IotType(String value) {
+    IotVendor(String value) {
         this.value = value;
     }
 
@@ -29,9 +29,9 @@ public enum IotType {
     }
 
     @JsonCreator
-    public static IotType fromValue(String value) {
-        for (IotType b : IotType.values()) {
-            if (b.value.equals(value)) {
+    public static IotVendor fromValue(String value) {
+        for (IotVendor b : IotVendor.values()) {
+            if (b.value.equalsIgnoreCase(value)) {
                 return b;
             }
         }

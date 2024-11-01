@@ -47,7 +47,10 @@ import java.util.Arrays;
 {{#useBeanValidation}}
     import jakarta.annotation.Nullable;
     import jakarta.validation.Valid;
+    import jakarta.validation.constraints.Max;
+    import jakarta.validation.constraints.Min;
     import jakarta.validation.constraints.Pattern;
+    import jakarta.validation.constraints.Size;
 {{/useBeanValidation}}
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;

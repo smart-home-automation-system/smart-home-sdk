@@ -4,15 +4,19 @@ package cloud.cholewa.home.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum EatonGateway {
+public enum DeviceType {
+
+    TEMPERATURE_SENSOR("TemperatureSensor"),
 
     BLINDS("Blinds"),
 
-    LIGHTS("Lights");
+    LIGHT("Light"),
+
+    DIMMER("Dimmer");
 
     private String value;
 
-    EatonGateway(String value) {
+    DeviceType(String value) {
         this.value = value;
     }
 
@@ -27,8 +31,8 @@ public enum EatonGateway {
     }
 
     @JsonCreator
-    public static EatonGateway fromValue(String value) {
-        for (EatonGateway b : EatonGateway.values()) {
+    public static DeviceType fromValue(String value) {
+        for (DeviceType b : DeviceType.values()) {
             if (b.value.equalsIgnoreCase(value)) {
                 return b;
             }
