@@ -46,11 +46,14 @@ import java.util.Arrays;
 {{/parcelableModel}}
 {{#useBeanValidation}}
     import jakarta.annotation.Nullable;
+    import jakarta.annotation.Nonnull;
     import jakarta.validation.Valid;
     import jakarta.validation.constraints.Max;
     import jakarta.validation.constraints.Min;
     import jakarta.validation.constraints.Pattern;
     import jakarta.validation.constraints.Size;
+    import jakarta.validation.constraints.NotNull;
+    import jakarta.validation.constraints.NotEmpty;
 {{/useBeanValidation}}
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
