@@ -109,3 +109,16 @@ components:
         address:
           type: string
           pattern: '^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$'
+    DeviceStatusUpdate:
+      type: object
+      properties:
+        roomName:
+          $ref: '#/components/schemas/RoomName'
+        deviceType:
+          $ref: '#/components/schemas/DeviceType'
+        value:
+          type: string
+      required:
+        - roomName
+        - deviceType
+        - value
