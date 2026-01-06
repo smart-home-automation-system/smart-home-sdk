@@ -3,15 +3,10 @@ package cloud.cholewa.home.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum SmartVendor {
-
-    SHELLY("shelly"),
-    EATON("eaton"),
-    OTHER("other");
-
+public enum EatonGateway {
+    BLINDS("Blinds"), LIGHTS("Lights");
     private String value;
-
-    SmartVendor(String value) {
+    EatonGateway(String value) {
         this.value = value;
     }
 
@@ -26,8 +21,8 @@ public enum SmartVendor {
     }
 
     @JsonCreator
-    public static SmartVendor fromValue(String value) {
-        for (SmartVendor b : SmartVendor.values()) {
+    public static EatonGateway fromValue(String value) {
+        for (EatonGateway b : EatonGateway.values()) {
             if (b.value.equalsIgnoreCase(value)) {
                 return b;
             }
