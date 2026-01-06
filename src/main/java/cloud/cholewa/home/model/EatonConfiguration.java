@@ -1,4 +1,3 @@
-
 package cloud.cholewa.home.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -12,7 +11,7 @@ import java.util.Objects;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@JsonPropertyOrder({ EatonConfiguration.JSON_PROPERTY_DATA_POINT, EatonConfiguration.JSON_PROPERTY_EATON_GATEWAY })
+@JsonPropertyOrder({EatonConfiguration.JSON_PROPERTY_DATA_POINT, EatonConfiguration.JSON_PROPERTY_EATON_GATEWAY})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -21,18 +20,14 @@ public class EatonConfiguration {
     private Integer dataPoint;
     public static final String JSON_PROPERTY_EATON_GATEWAY = "eatonGateway";
     private EatonGateway eatonGateway;
-
     public EatonConfiguration dataPoint(Integer dataPoint) {
-
         this.dataPoint = dataPoint;
         return this;
     }
 
     @Nullable
-
     @Min(1)
     @Max(99)
-
     @JsonProperty(JSON_PROPERTY_DATA_POINT)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
     public Integer getDataPoint() {
@@ -46,14 +41,12 @@ public class EatonConfiguration {
     }
 
     public EatonConfiguration eatonGateway(EatonGateway eatonGateway) {
-
         this.eatonGateway = eatonGateway;
         return this;
     }
 
     @Nullable
     @Valid
-
     @JsonProperty(JSON_PROPERTY_EATON_GATEWAY)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
     public EatonGateway getEatonGateway() {
@@ -100,5 +93,4 @@ public class EatonConfiguration {
         }
         return o.toString().replace("\n", "\n    ");
     }
-
 }

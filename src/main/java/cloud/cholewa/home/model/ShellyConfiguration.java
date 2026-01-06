@@ -1,4 +1,3 @@
-
 package cloud.cholewa.home.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -10,23 +9,20 @@ import java.util.Objects;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@JsonPropertyOrder({ ShellyConfiguration.JSON_PROPERTY_ADDRESS })
+@JsonPropertyOrder({ShellyConfiguration.JSON_PROPERTY_ADDRESS})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
 public class ShellyConfiguration {
     public static final String JSON_PROPERTY_ADDRESS = "address";
     private String address;
-
     public ShellyConfiguration address(String address) {
-
         this.address = address;
         return this;
     }
 
     @Nullable
     @Pattern(regexp = "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}$")
-
     @JsonProperty(JSON_PROPERTY_ADDRESS)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
     public String getAddress() {
@@ -71,5 +67,4 @@ public class ShellyConfiguration {
         }
         return o.toString().replace("\n", "\n    ");
     }
-
 }

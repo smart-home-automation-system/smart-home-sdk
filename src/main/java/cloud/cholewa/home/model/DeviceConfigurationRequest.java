@@ -1,4 +1,3 @@
-
 package cloud.cholewa.home.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -14,9 +13,9 @@ import java.util.Objects;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@JsonPropertyOrder({ DeviceConfigurationRequest.JSON_PROPERTY_ROOM_NAME,
+@JsonPropertyOrder({DeviceConfigurationRequest.JSON_PROPERTY_ROOM_NAME,
         DeviceConfigurationRequest.JSON_PROPERTY_IOT_VENDOR, DeviceConfigurationRequest.JSON_PROPERTY_DEVICE_TYPE,
-        DeviceConfigurationRequest.JSON_PROPERTY_DEVICE_CONFIGURATION })
+        DeviceConfigurationRequest.JSON_PROPERTY_DEVICE_CONFIGURATION})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -30,19 +29,14 @@ public class DeviceConfigurationRequest {
     private String deviceType;
     public static final String JSON_PROPERTY_DEVICE_CONFIGURATION = "deviceConfiguration";
     private DeviceConfiguration deviceConfiguration;
-
     public DeviceConfigurationRequest roomName(String roomName) {
-
         this.roomName = roomName;
         return this;
     }
 
     @Nonnull
-
     @NotNull
-
     @Size(min = 3, max = 20)
-
     @JsonProperty(JSON_PROPERTY_ROOM_NAME)
     @JsonInclude(value = JsonInclude.Include.ALWAYS)
     public String getRoomName() {
@@ -56,17 +50,13 @@ public class DeviceConfigurationRequest {
     }
 
     public DeviceConfigurationRequest iotVendor(String iotVendor) {
-
         this.iotVendor = iotVendor;
         return this;
     }
 
     @Nonnull
-
     @NotNull
-
     @Size(min = 3, max = 20)
-
     @JsonProperty(JSON_PROPERTY_IOT_VENDOR)
     @JsonInclude(value = JsonInclude.Include.ALWAYS)
     public String getIotVendor() {
@@ -80,15 +70,12 @@ public class DeviceConfigurationRequest {
     }
 
     public DeviceConfigurationRequest deviceType(String deviceType) {
-
         this.deviceType = deviceType;
         return this;
     }
 
     @Nullable
-
     @Size(min = 3, max = 20)
-
     @JsonProperty(JSON_PROPERTY_DEVICE_TYPE)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
     public String getDeviceType() {
@@ -102,16 +89,13 @@ public class DeviceConfigurationRequest {
     }
 
     public DeviceConfigurationRequest deviceConfiguration(DeviceConfiguration deviceConfiguration) {
-
         this.deviceConfiguration = deviceConfiguration;
         return this;
     }
 
     @Nonnull
-
     @NotNull
     @Valid
-
     @JsonProperty(JSON_PROPERTY_DEVICE_CONFIGURATION)
     @JsonInclude(value = JsonInclude.Include.ALWAYS)
     public DeviceConfiguration getDeviceConfiguration() {
@@ -162,5 +146,4 @@ public class DeviceConfigurationRequest {
         }
         return o.toString().replace("\n", "\n    ");
     }
-
 }

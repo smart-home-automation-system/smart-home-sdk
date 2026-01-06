@@ -1,17 +1,11 @@
-
 package cloud.cholewa.home.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum EatonGateway {
-
-    BLINDS("Blinds"),
-
-    LIGHTS("Lights");
-
+    BLINDS("Blinds"), LIGHTS("Lights");
     private String value;
-
     EatonGateway(String value) {
         this.value = value;
     }

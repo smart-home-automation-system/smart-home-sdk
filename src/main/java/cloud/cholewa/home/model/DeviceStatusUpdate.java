@@ -1,4 +1,3 @@
-
 package cloud.cholewa.home.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -11,8 +10,8 @@ import java.util.Objects;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@JsonPropertyOrder({ DeviceStatusUpdate.JSON_PROPERTY_ROOM_NAME, DeviceStatusUpdate.JSON_PROPERTY_DEVICE_TYPE,
-        DeviceStatusUpdate.JSON_PROPERTY_VALUE })
+@JsonPropertyOrder({DeviceStatusUpdate.JSON_PROPERTY_ROOM_NAME, DeviceStatusUpdate.JSON_PROPERTY_DEVICE_TYPE,
+        DeviceStatusUpdate.JSON_PROPERTY_VALUE})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -23,18 +22,14 @@ public class DeviceStatusUpdate {
     private DeviceType deviceType;
     public static final String JSON_PROPERTY_VALUE = "value";
     private String value;
-
     public DeviceStatusUpdate roomName(RoomName roomName) {
-
         this.roomName = roomName;
         return this;
     }
 
     @Nonnull
-
     @NotNull
     @Valid
-
     @JsonProperty(JSON_PROPERTY_ROOM_NAME)
     @JsonInclude(value = JsonInclude.Include.ALWAYS)
     public RoomName getRoomName() {
@@ -48,16 +43,13 @@ public class DeviceStatusUpdate {
     }
 
     public DeviceStatusUpdate deviceType(DeviceType deviceType) {
-
         this.deviceType = deviceType;
         return this;
     }
 
     @Nonnull
-
     @NotNull
     @Valid
-
     @JsonProperty(JSON_PROPERTY_DEVICE_TYPE)
     @JsonInclude(value = JsonInclude.Include.ALWAYS)
     public DeviceType getDeviceType() {
@@ -71,15 +63,12 @@ public class DeviceStatusUpdate {
     }
 
     public DeviceStatusUpdate value(String value) {
-
         this.value = value;
         return this;
     }
 
     @Nonnull
-
     @NotNull
-
     @JsonProperty(JSON_PROPERTY_VALUE)
     @JsonInclude(value = JsonInclude.Include.ALWAYS)
     public String getValue() {
@@ -128,5 +117,4 @@ public class DeviceStatusUpdate {
         }
         return o.toString().replace("\n", "\n    ");
     }
-
 }

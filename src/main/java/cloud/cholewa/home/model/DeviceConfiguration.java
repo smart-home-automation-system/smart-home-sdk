@@ -1,4 +1,3 @@
-
 package cloud.cholewa.home.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -10,8 +9,8 @@ import java.util.Objects;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@JsonPropertyOrder({ DeviceConfiguration.JSON_PROPERTY_EATON_CONFIGURATION,
-        DeviceConfiguration.JSON_PROPERTY_SHELLY_CONFIGURATION })
+@JsonPropertyOrder({DeviceConfiguration.JSON_PROPERTY_EATON_CONFIGURATION,
+        DeviceConfiguration.JSON_PROPERTY_SHELLY_CONFIGURATION})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -20,16 +19,13 @@ public class DeviceConfiguration {
     private EatonConfiguration eatonConfiguration;
     public static final String JSON_PROPERTY_SHELLY_CONFIGURATION = "shellyConfiguration";
     private ShellyConfiguration shellyConfiguration;
-
     public DeviceConfiguration eatonConfiguration(EatonConfiguration eatonConfiguration) {
-
         this.eatonConfiguration = eatonConfiguration;
         return this;
     }
 
     @Nullable
     @Valid
-
     @JsonProperty(JSON_PROPERTY_EATON_CONFIGURATION)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
     public EatonConfiguration getEatonConfiguration() {
@@ -43,14 +39,12 @@ public class DeviceConfiguration {
     }
 
     public DeviceConfiguration shellyConfiguration(ShellyConfiguration shellyConfiguration) {
-
         this.shellyConfiguration = shellyConfiguration;
         return this;
     }
 
     @Nullable
     @Valid
-
     @JsonProperty(JSON_PROPERTY_SHELLY_CONFIGURATION)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
     public ShellyConfiguration getShellyConfiguration() {
@@ -97,5 +91,4 @@ public class DeviceConfiguration {
         }
         return o.toString().replace("\n", "\n    ");
     }
-
 }

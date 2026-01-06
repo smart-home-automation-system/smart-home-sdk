@@ -1,4 +1,3 @@
-
 package cloud.cholewa.home.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -12,8 +11,8 @@ import java.util.Objects;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@JsonPropertyOrder({ EatonConfigurationResponse.JSON_PROPERTY_DATA_POINT,
-        EatonConfigurationResponse.JSON_PROPERTY_DEVICE_TYPE, EatonConfigurationResponse.JSON_PROPERTY_ROOM_NAME })
+@JsonPropertyOrder({EatonConfigurationResponse.JSON_PROPERTY_DATA_POINT,
+        EatonConfigurationResponse.JSON_PROPERTY_DEVICE_TYPE, EatonConfigurationResponse.JSON_PROPERTY_ROOM_NAME})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -24,18 +23,14 @@ public class EatonConfigurationResponse {
     private DeviceType deviceType;
     public static final String JSON_PROPERTY_ROOM_NAME = "roomName";
     private RoomName roomName;
-
     public EatonConfigurationResponse dataPoint(Integer dataPoint) {
-
         this.dataPoint = dataPoint;
         return this;
     }
 
     @Nullable
-
     @Min(1)
     @Max(99)
-
     @JsonProperty(JSON_PROPERTY_DATA_POINT)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
     public Integer getDataPoint() {
@@ -49,14 +44,12 @@ public class EatonConfigurationResponse {
     }
 
     public EatonConfigurationResponse deviceType(DeviceType deviceType) {
-
         this.deviceType = deviceType;
         return this;
     }
 
     @Nullable
     @Valid
-
     @JsonProperty(JSON_PROPERTY_DEVICE_TYPE)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
     public DeviceType getDeviceType() {
@@ -70,14 +63,12 @@ public class EatonConfigurationResponse {
     }
 
     public EatonConfigurationResponse roomName(RoomName roomName) {
-
         this.roomName = roomName;
         return this;
     }
 
     @Nullable
     @Valid
-
     @JsonProperty(JSON_PROPERTY_ROOM_NAME)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
     public RoomName getRoomName() {
@@ -126,5 +117,4 @@ public class EatonConfigurationResponse {
         }
         return o.toString().replace("\n", "\n    ");
     }
-
 }
