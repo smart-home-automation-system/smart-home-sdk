@@ -4,8 +4,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum IotVendor {
-    SHELLY("Shelly"), EATON("Eaton"), OTHER("Other");
+
+    SHELLY("shelly"),
+    EATON("eaton"),
+    OTHER("other");
+
     private String value;
+
     IotVendor(String value) {
         this.value = value;
     }

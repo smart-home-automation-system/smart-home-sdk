@@ -16,10 +16,12 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 public class EatonConfiguration {
+
     public static final String JSON_PROPERTY_DATA_POINT = "dataPoint";
     private Integer dataPoint;
     public static final String JSON_PROPERTY_EATON_GATEWAY = "eatonGateway";
     private EatonGateway eatonGateway;
+
     public EatonConfiguration dataPoint(Integer dataPoint) {
         this.dataPoint = dataPoint;
         return this;

@@ -15,10 +15,12 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 public class DeviceConfiguration {
+
     public static final String JSON_PROPERTY_EATON_CONFIGURATION = "eatonConfiguration";
     private EatonConfiguration eatonConfiguration;
     public static final String JSON_PROPERTY_SHELLY_CONFIGURATION = "shellyConfiguration";
     private ShellyConfiguration shellyConfiguration;
+
     public DeviceConfiguration eatonConfiguration(EatonConfiguration eatonConfiguration) {
         this.eatonConfiguration = eatonConfiguration;
         return this;

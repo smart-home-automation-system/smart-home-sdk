@@ -15,37 +15,37 @@ components:
     RoomName:
       type: string
       enum:
-        - "Loft"
-        - "Wardrobe"
-        - "Bedroom"
-        - "Livia"
-        - "Tobi"
-        - "Office"
-        - "BathroomUp"
-        - "HallUp"
-        - "Stairs"
-        - "Kitchen"
-        - "LivingRoom"
-        - "Cinema"
-        - "HallDown"
-        - "BathroomDown"
-        - "Entrance"
-        - "Garage"
-        - "Boiler"
-        - "Garden"
-        - "Sauna"
-        - "Sanctum"
+        - "loft"
+        - "wardrobe"
+        - "bedroom"
+        - "livia"
+        - "tobi"
+        - "office"
+        - "bathroom_up"
+        - "hall_up"
+        - "stairs"
+        - "kitchen"
+        - "living_room"
+        - "cinema"
+        - "hall_down"
+        - "bathroom_down"
+        - "entrance"
+        - "garage"
+        - "boiler"
+        - "garden"
+        - "sauna"
+        - "sanctum"
     IotVendor:
       type: string
       enum:
-        - "Shelly"
-        - "Eaton"
-        - "Other"
+        - "shelly"
+        - "eaton"
+        - "other"
     EatonGateway:
       type: string
       enum:
-        - "Blinds"
-        - "Lights"
+        - "blinds"
+        - "lights"
     DeviceConfiguration:
       type: object
       properties:
@@ -79,10 +79,10 @@ components:
     DeviceType:
       type: string
       enum:
-        - "TemperatureSensor"
-        - "Blinds"
-        - "Light"
-        - "Dimmer"
+        - "temperature_sensor"
+        - "blinds"
+        - "light"
+        - "dimmer"
     EatonDataPoint:
       type: integer
       minimum: 1
@@ -122,3 +122,21 @@ components:
         - roomName
         - deviceType
         - value
+    EatonStatusReply:
+      type: object
+      required:
+        - gateway
+        - message
+      properties:
+        gateway:
+          $ref: '#/components/schemas/EatonGateway'
+        message:
+          type: string
+          pattern: '^5A(,[0-9A-Fa-f]{1,2}){8,18},A5$'
+    EatonStatusResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string

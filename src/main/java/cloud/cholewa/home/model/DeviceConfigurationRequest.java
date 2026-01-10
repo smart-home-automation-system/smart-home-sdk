@@ -20,6 +20,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 public class DeviceConfigurationRequest {
+
     public static final String JSON_PROPERTY_ROOM_NAME = "roomName";
     @NotEmpty
     private String roomName;
@@ -29,6 +30,7 @@ public class DeviceConfigurationRequest {
     private String deviceType;
     public static final String JSON_PROPERTY_DEVICE_CONFIGURATION = "deviceConfiguration";
     private DeviceConfiguration deviceConfiguration;
+
     public DeviceConfigurationRequest roomName(String roomName) {
         this.roomName = roomName;
         return this;

@@ -4,11 +4,30 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum RoomName {
-    LOFT("Loft"), WARDROBE("Wardrobe"), BEDROOM("Bedroom"), LIVIA("Livia"), TOBI("Tobi"), OFFICE("Office"), BATHROOM_UP(
-            "BathroomUp"), HALL_UP("HallUp"), STAIRS("Stairs"), KITCHEN("Kitchen"), LIVING_ROOM("LivingRoom"), CINEMA(
-                    "Cinema"), HALL_DOWN("HallDown"), BATHROOM_DOWN("BathroomDown"), ENTRANCE("Entrance"), GARAGE(
-                            "Garage"), BOILER("Boiler"), GARDEN("Garden"), SAUNA("Sauna"), SANCTUM("Sanctum");
+
+    LOFT("loft"),
+    WARDROBE("wardrobe"),
+    BEDROOM("bedroom"),
+    LIVIA("livia"),
+    TOBI("tobi"),
+    OFFICE("office"),
+    BATHROOM_UP("bathroom_up"),
+    HALL_UP("hall_up"),
+    STAIRS("stairs"),
+    KITCHEN("kitchen"),
+    LIVING_ROOM("living_room"),
+    CINEMA("cinema"),
+    HALL_DOWN("hall_down"),
+    BATHROOM_DOWN("bathroom_down"),
+    ENTRANCE("entrance"),
+    GARAGE("garage"),
+    BOILER("boiler"),
+    GARDEN("garden"),
+    SAUNA("sauna"),
+    SANCTUM("sanctum");
+
     private String value;
+
     RoomName(String value) {
         this.value = value;
     }

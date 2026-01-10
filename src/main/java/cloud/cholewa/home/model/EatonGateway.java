@@ -4,8 +4,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum EatonGateway {
-    BLINDS("Blinds"), LIGHTS("Lights");
+
+    BLINDS("blinds"),
+    LIGHTS("lights");
+
     private String value;
+
     EatonGateway(String value) {
         this.value = value;
     }
