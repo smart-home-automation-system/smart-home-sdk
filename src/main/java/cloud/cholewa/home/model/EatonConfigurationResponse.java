@@ -11,76 +11,76 @@ import java.util.Objects;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@JsonPropertyOrder({EatonConfigurationResponse.JSON_PROPERTY_DATA_POINT,
-        EatonConfigurationResponse.JSON_PROPERTY_DEVICE_TYPE, EatonConfigurationResponse.JSON_PROPERTY_ROOM_NAME})
+@JsonPropertyOrder({EatonConfigurationResponse.JSON_PROPERTY_POINT, EatonConfigurationResponse.JSON_PROPERTY_TYPE,
+        EatonConfigurationResponse.JSON_PROPERTY_ROOM})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
 public class EatonConfigurationResponse {
 
-    public static final String JSON_PROPERTY_DATA_POINT = "dataPoint";
-    private Integer dataPoint;
-    public static final String JSON_PROPERTY_DEVICE_TYPE = "deviceType";
-    private DeviceType deviceType;
-    public static final String JSON_PROPERTY_ROOM_NAME = "roomName";
-    private RoomName roomName;
+    public static final String JSON_PROPERTY_POINT = "point";
+    private Integer point;
+    public static final String JSON_PROPERTY_TYPE = "type";
+    private SmartDeviceType type;
+    public static final String JSON_PROPERTY_ROOM = "room";
+    private RoomName room;
 
-    public EatonConfigurationResponse dataPoint(Integer dataPoint) {
-        this.dataPoint = dataPoint;
+    public EatonConfigurationResponse point(Integer point) {
+        this.point = point;
         return this;
     }
 
     @Nullable
     @Min(1)
     @Max(99)
-    @JsonProperty(JSON_PROPERTY_DATA_POINT)
+    @JsonProperty(JSON_PROPERTY_POINT)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-    public Integer getDataPoint() {
-        return dataPoint;
+    public Integer getPoint() {
+        return point;
     }
 
-    @JsonProperty(JSON_PROPERTY_DATA_POINT)
+    @JsonProperty(JSON_PROPERTY_POINT)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-    public void setDataPoint(Integer dataPoint) {
-        this.dataPoint = dataPoint;
+    public void setPoint(Integer point) {
+        this.point = point;
     }
 
-    public EatonConfigurationResponse deviceType(DeviceType deviceType) {
-        this.deviceType = deviceType;
+    public EatonConfigurationResponse type(SmartDeviceType type) {
+        this.type = type;
         return this;
     }
 
     @Nullable
     @Valid
-    @JsonProperty(JSON_PROPERTY_DEVICE_TYPE)
+    @JsonProperty(JSON_PROPERTY_TYPE)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-    public DeviceType getDeviceType() {
-        return deviceType;
+    public SmartDeviceType getType() {
+        return type;
     }
 
-    @JsonProperty(JSON_PROPERTY_DEVICE_TYPE)
+    @JsonProperty(JSON_PROPERTY_TYPE)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-    public void setDeviceType(DeviceType deviceType) {
-        this.deviceType = deviceType;
+    public void setType(SmartDeviceType type) {
+        this.type = type;
     }
 
-    public EatonConfigurationResponse roomName(RoomName roomName) {
-        this.roomName = roomName;
+    public EatonConfigurationResponse room(RoomName room) {
+        this.room = room;
         return this;
     }
 
     @Nullable
     @Valid
-    @JsonProperty(JSON_PROPERTY_ROOM_NAME)
+    @JsonProperty(JSON_PROPERTY_ROOM)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-    public RoomName getRoomName() {
-        return roomName;
+    public RoomName getRoom() {
+        return room;
     }
 
-    @JsonProperty(JSON_PROPERTY_ROOM_NAME)
+    @JsonProperty(JSON_PROPERTY_ROOM)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-    public void setRoomName(RoomName roomName) {
-        this.roomName = roomName;
+    public void setRoom(RoomName room) {
+        this.room = room;
     }
 
     @Override
@@ -92,23 +92,23 @@ public class EatonConfigurationResponse {
             return false;
         }
         EatonConfigurationResponse eatonConfigurationResponse = (EatonConfigurationResponse) o;
-        return Objects.equals(this.dataPoint, eatonConfigurationResponse.dataPoint)
-                && Objects.equals(this.deviceType, eatonConfigurationResponse.deviceType)
-                && Objects.equals(this.roomName, eatonConfigurationResponse.roomName);
+        return Objects.equals(this.point, eatonConfigurationResponse.point)
+                && Objects.equals(this.type, eatonConfigurationResponse.type)
+                && Objects.equals(this.room, eatonConfigurationResponse.room);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(dataPoint, deviceType, roomName);
+        return Objects.hash(point, type, room);
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("class EatonConfigurationResponse {\n");
-        sb.append("    dataPoint: ").append(toIndentedString(dataPoint)).append("\n");
-        sb.append("    deviceType: ").append(toIndentedString(deviceType)).append("\n");
-        sb.append("    roomName: ").append(toIndentedString(roomName)).append("\n");
+        sb.append("    point: ").append(toIndentedString(point)).append("\n");
+        sb.append("    type: ").append(toIndentedString(type)).append("\n");
+        sb.append("    room: ").append(toIndentedString(room)).append("\n");
         sb.append("}");
         return sb.toString();
     }
