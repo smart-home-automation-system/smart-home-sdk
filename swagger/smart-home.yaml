@@ -1,0 +1,29 @@
+openapi: 3.0.3
+info:
+  title: Smart Home SDK - Models shared across smart home services
+  description: Smart Home SDK
+  version: 1.0.0
+
+paths: {}
+
+components:
+  schemas:
+    # ======== Common Home Models ========
+    RoomName:
+      $ref: '../home.yaml/#/components/schemas/RoomName'
+
+    # ======== Common Models ========
+    SmartVendor:
+      $ref: '../device-commons.yaml/#/components/schemas/SmartVendor'
+    SmartDeviceType:
+      $ref: '../device-commons.yaml/#/components/schemas/SmartDeviceType'
+
+    # ======== Eaton Models ========
+    EatonGatewayType:
+      $ref: '../eaton.yaml/#/components/schemas/EatonGatewayType'
+    EatonDatagramReply:
+      $ref: '../eaton.yaml/#/components/schemas/EatonDatagramReply'
+    EatonDeviceConfiguration:
+      $ref: '../eaton.yaml/#/components/schemas/EatonDeviceConfiguration'
+    EatonConfigurationResponse:
+      $ref: '../eaton.yaml/#/components/schemas/EatonConfigurationResponse'

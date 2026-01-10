@@ -1,0 +1,58 @@
+openapi: 3.0.3
+info:
+  title: Smart Home SDK - common models
+  description: Smart Home SDK - common models
+  version: 1.0.0
+
+paths: {}
+
+components:
+  schemas:
+    SmartVendor:
+      type: string
+      enum:
+        - "shelly"
+        - "eaton"
+        - "other"
+    SmartDeviceType:
+      type: string
+      enum:
+        - "temperature sensor"
+        - "blinds"
+        - "light"
+        - "dimmer"
+        - "other"
+
+
+# not used yet
+
+    DeviceConfiguration:
+      type: object
+      properties:
+        eatonConfiguration:
+          $ref: '#/components/schemas/EatonConfiguration'
+        shellyConfiguration:
+          $ref: '#/components/schemas/ShellyConfiguration'
+    DeviceConfigurationRequest:
+      type: object
+      required:
+        - roomName
+        - iotVendor
+        - deviceConfiguration
+      properties:
+        roomName:
+          type: string
+          minLength: 3
+          maxLength: 20
+          nullable: false
+          x-field-extra-annotation: "@NotEmpty"
+        iotVendor:
+          type: string
+          minLength: 3
+          maxLength: 20
+        deviceType:
+          type: string
+          minLength: 3
+          maxLength: 20
+        deviceConfiguration:
+          $ref: '#/components/schemas/DeviceConfiguration'

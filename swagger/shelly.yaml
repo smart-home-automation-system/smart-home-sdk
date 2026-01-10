@@ -1,0 +1,19 @@
+openapi: 3.0.3
+info:
+  title: Smart Home SDK - Models for Eaton Products
+  description: Smart Home SDK
+  version: 1.0.0
+
+paths: {}
+
+components:
+  schemas:
+
+
+# not used yet
+    ShellyConfiguration:
+      type: object
+      properties:
+        address:
+          type: string
+          pattern: '^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$'
