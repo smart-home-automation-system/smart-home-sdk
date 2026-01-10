@@ -30,7 +30,7 @@
 		<lombok.version>1.18.42</lombok.version>
 		<jakarta.annotation.version>3.0.0</jakarta.annotation.version>
 		<jakarta.validation-api.version>3.1.1</jakarta.validation-api.version>
-		<junit-jupiter.version>6.0.1</junit-jupiter.version>
+		<junit-jupiter.version>6.0.2</junit-jupiter.version>
 
 		<!--  plugins versions-->
 		<maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
@@ -42,31 +42,7 @@
 		<impsort-maven-plugin.version>1.12.0</impsort-maven-plugin.version>
 		<formatter-maven-plugin.version>2.29.0</formatter-maven-plugin.version>
 		<maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
-		<formatter.configXmlContent><![CDATA[<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<profiles version="21">
-    <profile kind="CodeFormatterProfile" name="Custom" version="21">
-        <setting id="org.eclipse.jdt.core.formatter.number_of_empty_lines_to_preserve" value="0"/>
-        <setting id="org.eclipse.jdt.core.formatter.blank_lines_after_annotations_on_field" value="0"/>
-        <setting id="org.eclipse.jdt.core.formatter.blank_lines_after_annotations_on_method" value="0"/>
-        <setting id="org.eclipse.jdt.core.formatter.blank_lines_after_annotations_on_package" value="0"/>
-        <setting id="org.eclipse.jdt.core.formatter.blank_lines_after_annotations_on_type" value="0"/>
-        <setting id="org.eclipse.jdt.core.formatter.blank_lines_after_annotations_on_local_variable" value="0"/>
-        <setting id="org.eclipse.jdt.core.formatter.blank_lines_after_annotations_on_parameter" value="0"/>
-        <setting id="org.eclipse.jdt.core.formatter.blank_lines_after_package" value="1"/>
-        <setting id="org.eclipse.jdt.core.formatter.blank_lines_before_imports" value="1"/>
-        <setting id="org.eclipse.jdt.core.formatter.blank_lines_after_imports" value="1"/>
-        <setting id="org.eclipse.jdt.core.formatter.blank_lines_between_type_declarations" value="1"/>
-        <setting id="org.eclipse.jdt.core.formatter.blank_lines_before_first_class_body_declaration" value="0"/>
-        <setting id="org.eclipse.jdt.core.formatter.blank_lines_before_method" value="1"/>
-        <setting id="org.eclipse.jdt.core.formatter.blank_lines_before_field" value="0"/>
-        <setting id="org.eclipse.jdt.core.formatter.blank_lines_before_member_type" value="1"/>
-        <setting id="org.eclipse.jdt.core.formatter.indentation.character" value="space"/>
-        <setting id="org.eclipse.jdt.core.formatter.indentation.size" value="4"/>
-        <setting id="org.eclipse.jdt.core.formatter.tabulation.char" value="space"/>
-        <setting id="org.eclipse.jdt.core.formatter.tabulation.size" value="4"/>
-        <setting id="org.eclipse.jdt.core.formatter.lineSplit" value="120"/>
-    </profile>
-</profiles>]]></formatter.configXmlContent>
+		<maven-antrun-plugin.version>3.2.0</maven-antrun-plugin.version>
 	</properties>
 
 	<dependencies>
@@ -214,25 +190,6 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>3.1.0</version>
-				<executions>
-					<execution>
-						<id>create-formatter-config</id>
-						<phase>initialize</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<target>
-								<echo file="${project.build.directory}/formatter.xml">${formatter.configXmlContent}</echo>
-							</target>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>net.revelc.code.formatter</groupId>
 				<artifactId>formatter-maven-plugin</artifactId>
 				<version>${formatter-maven-plugin.version}</version>
@@ -243,7 +200,7 @@
 					<directories>
 						<directory>${project.basedir}/src/main/java/cloud/cholewa/home/model</directory>
 					</directories>
-					<configFile>${project.build.directory}/formatter.xml</configFile>
+					<configFile>${project.basedir}/formatter.xml</configFile>
 				</configuration>
 				<executions>
 					<execution>

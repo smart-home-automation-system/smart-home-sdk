@@ -14,8 +14,10 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 public class ShellyConfiguration {
+
     public static final String JSON_PROPERTY_ADDRESS = "address";
     private String address;
+
     public ShellyConfiguration address(String address) {
         this.address = address;
         return this;

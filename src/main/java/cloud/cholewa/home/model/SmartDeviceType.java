@@ -4,8 +4,14 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum DeviceType {
-    TEMPERATURE_SENSOR("TemperatureSensor"), BLINDS("Blinds"), LIGHT("Light"), DIMMER("Dimmer");
+
+    TEMPERATURE_SENSOR("temperature_sensor"),
+    BLINDS("blinds"),
+    LIGHT("light"),
+    DIMMER("dimmer");
+
     private String value;
+
     DeviceType(String value) {
         this.value = value;
     }

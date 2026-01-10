@@ -16,12 +16,14 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 public class DeviceStatusUpdate {
+
     public static final String JSON_PROPERTY_ROOM_NAME = "roomName";
     private RoomName roomName;
     public static final String JSON_PROPERTY_DEVICE_TYPE = "deviceType";
     private DeviceType deviceType;
     public static final String JSON_PROPERTY_VALUE = "value";
     private String value;
+
     public DeviceStatusUpdate roomName(RoomName roomName) {
         this.roomName = roomName;
         return this;

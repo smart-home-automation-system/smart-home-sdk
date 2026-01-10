@@ -17,12 +17,14 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 public class EatonConfigurationResponse {
+
     public static final String JSON_PROPERTY_DATA_POINT = "dataPoint";
     private Integer dataPoint;
     public static final String JSON_PROPERTY_DEVICE_TYPE = "deviceType";
     private DeviceType deviceType;
     public static final String JSON_PROPERTY_ROOM_NAME = "roomName";
     private RoomName roomName;
+
     public EatonConfigurationResponse dataPoint(Integer dataPoint) {
         this.dataPoint = dataPoint;
         return this;
