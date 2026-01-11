@@ -1,0 +1,87 @@
+openapi: 3.0.3
+info:
+  title: Smart Home SDK - Models for Eaton Products
+  description: Smart Home SDK
+  version: 1.0.0
+
+paths: {}
+
+components:
+  schemas:
+    EatonGatewayType:
+      type: string
+      enum:
+      - "blinds"
+      - "lights"
+
+    EatonDatagramReply:
+      type: object
+      required:
+        - gateway
+        - message
+      properties:
+        gateway:
+          $ref: '#/components/schemas/EatonGatewayType'
+        message:
+          type: string
+          pattern: '^5A(,[0-9A-Fa-f]{1,2}){8,18},A5$'
+
+    EatonConfigurationResponse:
+      type: object
+      properties:
+        point:
+          type: integer
+          minimum: 1
+          maximum: 99
+        type:
+          $ref: '../device-commons.yaml#/components/schemas/SmartDeviceType'
+        room:
+          $ref: '../home.yaml#/components/schemas/RoomName'
+
+    EatonDeviceConfiguration:
+      type: object
+      properties:
+        point:
+          type: integer
+          minimum: 1
+          maximum: 99
+        type:
+          $ref: '../device-commons.yaml#/components/schemas/SmartDeviceType'
+        gateway:
+          $ref: '#/components/schemas/EatonGatewayType'
+        room:
+          $ref: '../home.yaml#/components/schemas/RoomName'
+
+
+
+# not used
+    EatonStatusResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+
+    DeviceStatusUpdate:
+      type: object
+      properties:
+        roomName:
+          $ref: '#/components/schemas/RoomName'
+        deviceType:
+          $ref: '#/components/schemas/DeviceType'
+        value:
+          type: string
+      required:
+        - roomName
+        - deviceType
+        - value
+
+    EatonConfiguration:
+      type: object
+      properties:
+        dataPoint:
+          $ref: '#/components/schemas/EatonDataPoint'
+        eatonGateway:
+          $ref: '#/components/schemas/EatonGateway'
+

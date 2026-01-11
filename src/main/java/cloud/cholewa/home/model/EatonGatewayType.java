@@ -1,20 +1,16 @@
-
 package cloud.cholewa.home.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum IotVendor {
+public enum EatonGatewayType {
 
-    SHELLY("Shelly"),
-
-    EATON("Eaton"),
-
-    OTHER("Other");
+    BLINDS("blinds"),
+    LIGHTS("lights");
 
     private String value;
 
-    IotVendor(String value) {
+    EatonGatewayType(String value) {
         this.value = value;
     }
 
@@ -29,8 +25,8 @@ public enum IotVendor {
     }
 
     @JsonCreator
-    public static IotVendor fromValue(String value) {
-        for (IotVendor b : IotVendor.values()) {
+    public static EatonGatewayType fromValue(String value) {
+        for (EatonGatewayType b : EatonGatewayType.values()) {
             if (b.value.equalsIgnoreCase(value)) {
                 return b;
             }

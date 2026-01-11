@@ -1,22 +1,19 @@
-
 package cloud.cholewa.home.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum DeviceType {
+public enum SmartDeviceType {
 
-    TEMPERATURE_SENSOR("TemperatureSensor"),
-
-    BLINDS("Blinds"),
-
-    LIGHT("Light"),
-
-    DIMMER("Dimmer");
+    TEMPERATURE_SENSOR("temperature sensor"),
+    BLINDS("blinds"),
+    LIGHT("light"),
+    DIMMER("dimmer"),
+    OTHER("other");
 
     private String value;
 
-    DeviceType(String value) {
+    SmartDeviceType(String value) {
         this.value = value;
     }
 
@@ -31,8 +28,8 @@ public enum DeviceType {
     }
 
     @JsonCreator
-    public static DeviceType fromValue(String value) {
-        for (DeviceType b : DeviceType.values()) {
+    public static SmartDeviceType fromValue(String value) {
+        for (SmartDeviceType b : SmartDeviceType.values()) {
             if (b.value.equalsIgnoreCase(value)) {
                 return b;
             }

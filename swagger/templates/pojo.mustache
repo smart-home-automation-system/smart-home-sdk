@@ -166,9 +166,6 @@ public class {{classname}} {{#parent}}extends {{{.}}} {{/parent}}{{#vendorExtens
             }
         {{/isMap}}
     {{/isReadOnly}}
-    {{#deprecated}}
-        @Deprecated
-    {{/deprecated}}
     {{#required}}
         {{#isNullable}}
             @Nullable
@@ -178,21 +175,9 @@ public class {{classname}} {{#parent}}extends {{{.}}} {{/parent}}{{#vendorExtens
         {{/isNullable}}
     {{/required}}
     {{^required}}
-        @Nullable{{/required}}
-    {{#jsonb}}
-        @JsonbProperty("{{baseName}}")
-    {{/jsonb}}
-    {{#useBeanValidation}}
-        {{>beanValidation}}
-    {{/useBeanValidation}}
-    {{#vendorExtensions.x-extra-annotation}}
-        {{{vendorExtensions.x-extra-annotation}}}
-    {{/vendorExtensions.x-extra-annotation}}
-    {{#vendorExtensions.x-is-jackson-optional-nullable}}
-        @JsonIgnore
-    {{/vendorExtensions.x-is-jackson-optional-nullable}}
-    {{^vendorExtensions.x-is-jackson-optional-nullable}}{{#jackson}}{{> jackson_annotations}}{{/jackson}}{{/vendorExtensions.x-is-jackson-optional-nullable}}
-    public {{{datatypeWithEnum}}} {{getter}}() {
+        @Nullable{{/required}}{{#deprecated}}
+    @Deprecated{{/deprecated}}{{#useBeanValidation}}{{>beanValidation}}{{/useBeanValidation}}{{#vendorExtensions.x-extra-annotation}}
+    {{{vendorExtensions.x-extra-annotation}}}{{/vendorExtensions.x-extra-annotation}}{{#vendorExtensions.x-is-jackson-optional-nullable}}@JsonIgnore{{/vendorExtensions.x-is-jackson-optional-nullable}}{{^vendorExtensions.x-is-jackson-optional-nullable}}{{#jackson}}{{>jackson_annotations}}{{/jackson}}{{/vendorExtensions.x-is-jackson-optional-nullable}} public {{{datatypeWithEnum}}} {{getter}}() {
     {{#vendorExtensions.x-is-jackson-optional-nullable}}
         {{#isReadOnly}}{{! A readonly attribute doesn't have setter => jackson will set null directly if explicitly returned by API, so make sure we have an empty JsonNullable}}
             if ({{name}} == null) {

@@ -15,110 +15,23 @@ components:
     RoomName:
       type: string
       enum:
-        - "Loft"
-        - "Wardrobe"
-        - "Bedroom"
-        - "Livia"
-        - "Tobi"
-        - "Office"
-        - "BathroomUp"
-        - "HallUp"
-        - "Stairs"
-        - "Kitchen"
-        - "LivingRoom"
-        - "Cinema"
-        - "HallDown"
-        - "BathroomDown"
-        - "Entrance"
-        - "Garage"
-        - "Boiler"
-        - "Garden"
-        - "Sauna"
-        - "Sanctum"
-    IotVendor:
-      type: string
-      enum:
-        - "Shelly"
-        - "Eaton"
-        - "Other"
-    EatonGateway:
-      type: string
-      enum:
-        - "Blinds"
-        - "Lights"
-    DeviceConfiguration:
-      type: object
-      properties:
-        eatonConfiguration:
-          $ref: '#/components/schemas/EatonConfiguration'
-        shellyConfiguration:
-          $ref: '#/components/schemas/ShellyConfiguration'
-    DeviceConfigurationRequest:
-      type: object
-      required:
-        - roomName
-        - iotVendor
-        - deviceConfiguration
-      properties:
-        roomName:
-          type: string
-          minLength: 3
-          maxLength: 20
-          nullable: false
-          x-field-extra-annotation: "@NotEmpty"
-        iotVendor:
-          type: string
-          minLength: 3
-          maxLength: 20
-        deviceType:
-          type: string
-          minLength: 3
-          maxLength: 20
-        deviceConfiguration:
-          $ref: '#/components/schemas/DeviceConfiguration'
-    DeviceType:
-      type: string
-      enum:
-        - "TemperatureSensor"
-        - "Blinds"
-        - "Light"
-        - "Dimmer"
-    EatonDataPoint:
-      type: integer
-      minimum: 1
-      maximum: 99
-    EatonConfiguration:
-      type: object
-      properties:
-        dataPoint:
-          $ref: '#/components/schemas/EatonDataPoint'
-        eatonGateway:
-          $ref: '#/components/schemas/EatonGateway'
-    EatonConfigurationResponse:
-      type: object
-      properties:
-        dataPoint:
-          $ref: '#/components/schemas/EatonDataPoint'
-        deviceType:
-          $ref: '#/components/schemas/DeviceType'
-        roomName:
-          $ref: '#/components/schemas/RoomName'
-    ShellyConfiguration:
-      type: object
-      properties:
-        address:
-          type: string
-          pattern: '^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$'
-    DeviceStatusUpdate:
-      type: object
-      properties:
-        roomName:
-          $ref: '#/components/schemas/RoomName'
-        deviceType:
-          $ref: '#/components/schemas/DeviceType'
-        value:
-          type: string
-      required:
-        - roomName
-        - deviceType
-        - value
+        - "loft"
+        - "wardrobe"
+        - "bedroom"
+        - "livia"
+        - "tobi"
+        - "office"
+        - "bathroom up"
+        - "hall_up"
+        - "stairs"
+        - "kitchen"
+        - "living room"
+        - "cinema"
+        - "hall down"
+        - "bathroom down"
+        - "entrance"
+        - "garage"
+        - "boiler"
+        - "garden"
+        - "sauna"
+        - "sanctum"
