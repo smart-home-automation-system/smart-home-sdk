@@ -27,3 +27,7 @@ components:
       $ref: '../eaton.yaml/#/components/schemas/EatonDeviceConfiguration'
     EatonConfigurationResponse:
       $ref: '../eaton.yaml/#/components/schemas/EatonConfigurationResponse'
+
+    # ======== Rabbits Models ========
+    TemperatureMessage:
+      $ref: '../rabbit.yaml/#/components/schemas/TemperatureMessage'

@@ -1,0 +1,21 @@
+openapi: 3.0.3
+info:
+  title: Models related to Rabbit
+  description: Rabbit models
+  version: 1.0.0
+
+paths: {}
+
+components:
+  schemas:
+    TemperatureMessage:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        room:
+          $ref: '../home.yaml#/components/schemas/RoomName'
+        temperature:
+          type: number
+          format: double

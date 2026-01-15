@@ -179,6 +179,12 @@
 								<useBeanValidation>true</useBeanValidation>
 								<useEnumCaseInsensitive>true</useEnumCaseInsensitive>
 							</configOptions>
+							<typeMappings>
+								<typeMapping>DateTime=LocalDateTime</typeMapping>
+							</typeMappings>
+							<importMappings>
+								<importMapping>LocalDateTime=java.time.LocalDateTime</importMapping>
+							</importMappings>
 							<generateApis>false</generateApis>
 							<generateApiTests>false</generateApiTests>
 							<generateApiDocumentation>false</generateApiDocumentation>
