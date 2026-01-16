@@ -39,7 +39,7 @@
 		<versions-maven-plugin.version>2.20.1</versions-maven-plugin.version>
 
 		<openapi-generator-maven-plugin.version>7.18.0</openapi-generator-maven-plugin.version>
-		<impsort-maven-plugin.version>1.12.0</impsort-maven-plugin.version>
+		<impsort-maven-plugin.version>1.13.0</impsort-maven-plugin.version>
 		<formatter-maven-plugin.version>2.29.0</formatter-maven-plugin.version>
 		<maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
 		<maven-antrun-plugin.version>3.2.0</maven-antrun-plugin.version>
@@ -179,6 +179,12 @@
 								<useBeanValidation>true</useBeanValidation>
 								<useEnumCaseInsensitive>true</useEnumCaseInsensitive>
 							</configOptions>
+							<typeMappings>
+								<typeMapping>DateTime=LocalDateTime</typeMapping>
+							</typeMappings>
+							<importMappings>
+								<importMapping>LocalDateTime=java.time.LocalDateTime</importMapping>
+							</importMappings>
 							<generateApis>false</generateApis>
 							<generateApiTests>false</generateApiTests>
 							<generateApiDocumentation>false</generateApiDocumentation>
