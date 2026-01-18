@@ -35,3 +35,12 @@ components:
         - "garden"
         - "sauna"
         - "sanctum"
+
+    SystemActiveReply:
+      type: object
+      required:
+        - active
+      properties:
+        active:
+          type: boolean
+          description: Indicates if the system is active
