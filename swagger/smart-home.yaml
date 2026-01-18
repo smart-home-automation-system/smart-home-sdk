@@ -11,6 +11,8 @@ components:
     # ======== Common Home Models ========
     RoomName:
       $ref: '../home.yaml/#/components/schemas/RoomName'
+    SystemActiveReply:
+      $ref: '../home.yaml/#/components/schemas/SystemActiveReply'
 
     # ======== Common Models ========
     SmartVendor:
