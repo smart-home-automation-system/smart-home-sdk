@@ -5,7 +5,7 @@
 ![GitHub Release](https://img.shields.io/github/v/release/smart-home-automation-system/smart-home-sdk?style=plastic)
 
 ![GitHub top language](https://img.shields.io/github/languages/top/smart-home-automation-system/smart-home-sdk?style=plastic)
-![Java](https://img.shields.io/badge/java-17-yellow?style=plastic)
+![Java](https://img.shields.io/badge/java-21-yellow?style=plastic)
 
 ![GitHub issues](https://img.shields.io/github/issues/smart-home-automation-system/smart-home-sdk?style=plastic)
 ![GitHub contributors](https://img.shields.io/github/contributors/smart-home-automation-system/smart-home-sdk?style=plastic)
@@ -20,7 +20,7 @@ in [`swagger/`](swagger/) (`smart-home.yaml` aggregates the home, device-commons
 RabbitMQ schemas) and cover room names, device vendors/types, Eaton gateway configuration
 and datagram replies, and RabbitMQ message payloads such as `TemperatureMessage`.
 
-Current consumers: `boiler-service`, `database-service`, `gateway-service`,
+Current consumers: `boiler-service`, `database-service`, `amx-service`,
 `heating-service`, `shelly-cloud-service`, `water-service`.
 
 ## Installation
@@ -32,7 +32,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>0.1.3</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
