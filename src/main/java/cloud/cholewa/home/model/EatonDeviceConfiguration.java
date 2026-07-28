@@ -3,10 +3,11 @@ package cloud.cholewa.home.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import jakarta.annotation.Nullable;
+import jakarta.annotation.Nonnull;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -32,17 +33,18 @@ public class EatonDeviceConfiguration {
         return this;
     }
 
-    @Nullable
+    @Nonnull
+    @NotNull
     @Min(1)
     @Max(99)
     @JsonProperty(JSON_PROPERTY_POINT)
-    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    @JsonInclude(value = JsonInclude.Include.ALWAYS)
     public Integer getPoint() {
         return point;
     }
 
     @JsonProperty(JSON_PROPERTY_POINT)
-    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    @JsonInclude(value = JsonInclude.Include.ALWAYS)
     public void setPoint(Integer point) {
         this.point = point;
     }
@@ -52,16 +54,17 @@ public class EatonDeviceConfiguration {
         return this;
     }
 
-    @Nullable
+    @Nonnull
+    @NotNull
     @Valid
     @JsonProperty(JSON_PROPERTY_TYPE)
-    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    @JsonInclude(value = JsonInclude.Include.ALWAYS)
     public SmartDeviceType getType() {
         return type;
     }
 
     @JsonProperty(JSON_PROPERTY_TYPE)
-    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    @JsonInclude(value = JsonInclude.Include.ALWAYS)
     public void setType(SmartDeviceType type) {
         this.type = type;
     }
@@ -71,16 +74,17 @@ public class EatonDeviceConfiguration {
         return this;
     }
 
-    @Nullable
+    @Nonnull
+    @NotNull
     @Valid
     @JsonProperty(JSON_PROPERTY_GATEWAY)
-    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    @JsonInclude(value = JsonInclude.Include.ALWAYS)
     public EatonGatewayType getGateway() {
         return gateway;
     }
 
     @JsonProperty(JSON_PROPERTY_GATEWAY)
-    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    @JsonInclude(value = JsonInclude.Include.ALWAYS)
     public void setGateway(EatonGatewayType gateway) {
         this.gateway = gateway;
     }
@@ -90,16 +94,17 @@ public class EatonDeviceConfiguration {
         return this;
     }
 
-    @Nullable
+    @Nonnull
+    @NotNull
     @Valid
     @JsonProperty(JSON_PROPERTY_ROOM)
-    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    @JsonInclude(value = JsonInclude.Include.ALWAYS)
     public RoomName getRoom() {
         return room;
     }
 
     @JsonProperty(JSON_PROPERTY_ROOM)
-    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    @JsonInclude(value = JsonInclude.Include.ALWAYS)
     public void setRoom(RoomName room) {
         this.room = room;
     }

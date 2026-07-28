@@ -4,15 +4,15 @@ info:
   description: Smart Home SDK
   version: 1.0.0
 
-paths: {}
+paths: { }
 
 components:
   schemas:
     EatonGatewayType:
       type: string
       enum:
-      - "blinds"
-      - "lights"
+        - "blinds"
+        - "lights"
 
     EatonDatagramReply:
       type: object
@@ -28,6 +28,10 @@ components:
 
     EatonConfigurationResponse:
       type: object
+      required:
+        - point
+        - type
+        - room
       properties:
         point:
           type: integer
@@ -40,6 +44,11 @@ components:
 
     EatonDeviceConfiguration:
       type: object
+      required:
+        - point
+        - type
+        - gateway
+        - room
       properties:
         point:
           type: integer
@@ -51,10 +60,7 @@ components:
           $ref: '#/components/schemas/EatonGatewayType'
         room:
           $ref: '../home.yaml#/components/schemas/RoomName'
-
-
-
-# not used
+    # not used
     EatonStatusResponse:
       type: object
       required:
@@ -84,4 +90,3 @@ components:
           $ref: '#/components/schemas/EatonDataPoint'
         eatonGateway:
           $ref: '#/components/schemas/EatonGateway'
-
