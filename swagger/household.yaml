@@ -1,0 +1,48 @@
+openapi: 3.0.3
+info:
+  title: Households
+  description: Model used to represent a household
+  version: 1.0.0
+
+paths: {}
+  
+components:
+  schemas: 
+    HouseholdMember:
+      type: object
+      required: 
+        - name
+        - phone
+      properties: 
+        name:
+          type: string
+          description: The name of the household member
+        phone:
+          type: string
+          description: The phone number of the household member
+          format: phone
+          pattern: ^\+?[0-9]{1,3}?[-. (]*(?:\d{1,3}[-. ]?){2,10}\d{1,4}$
+        device:
+          type: array
+          items:
+            $ref: '#/components/schemas/MemberDevice'
+    MemberDevice:
+      type: object
+      required: 
+        - name
+        - type
+        - mac
+      properties: 
+        name:
+          type: string
+          description: The name of the device
+        type:
+          type: string
+          description: The type of device
+          enum: [phone, tablet]
+          default: phone
+        mac:
+          type: string
+          description: The MAC address of the device
+          format: mac
+          pattern: ^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$

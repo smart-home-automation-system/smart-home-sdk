@@ -33,3 +33,7 @@ components:
     # ======== Rabbits Models ========
     TemperatureMessage:
       $ref: '../rabbit.yaml/#/components/schemas/TemperatureMessage'
+    
+    # ======== HouseHold Models ========
+    HouseHoldMember:
+      $ref: './household.yaml#/components/schemas/HouseholdMember'
