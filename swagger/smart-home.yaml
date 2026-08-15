@@ -10,30 +10,30 @@ components:
   schemas:
     # ======== Common Home Models ========
     RoomName:
-      $ref: '../home.yaml/#/components/schemas/RoomName'
+      $ref: './home.yaml/#/components/schemas/RoomName'
     SystemActiveReply:
-      $ref: '../home.yaml/#/components/schemas/SystemActiveReply'
+      $ref: './home.yaml/#/components/schemas/SystemActiveReply'
 
     # ======== Common Models ========
     SmartVendor:
-      $ref: '../device-commons.yaml/#/components/schemas/SmartVendor'
+      $ref: './device-commons.yaml/#/components/schemas/SmartVendor'
     SmartDeviceType:
-      $ref: '../device-commons.yaml/#/components/schemas/SmartDeviceType'
+      $ref: './device-commons.yaml/#/components/schemas/SmartDeviceType'
 
     # ======== Eaton Models ========
     EatonGatewayType:
-      $ref: '../eaton.yaml/#/components/schemas/EatonGatewayType'
+      $ref: './eaton.yaml/#/components/schemas/EatonGatewayType'
     EatonDatagramReply:
-      $ref: '../eaton.yaml/#/components/schemas/EatonDatagramReply'
+      $ref: './eaton.yaml/#/components/schemas/EatonDatagramReply'
     EatonDeviceConfiguration:
-      $ref: '../eaton.yaml/#/components/schemas/EatonDeviceConfiguration'
+      $ref: './eaton.yaml/#/components/schemas/EatonDeviceConfiguration'
     EatonConfigurationResponse:
-      $ref: '../eaton.yaml/#/components/schemas/EatonConfigurationResponse'
+      $ref: './eaton.yaml/#/components/schemas/EatonConfigurationResponse'
 
     # ======== Rabbits Models ========
     TemperatureMessage:
-      $ref: '../rabbit.yaml/#/components/schemas/TemperatureMessage'
+      $ref: './rabbit.yaml/#/components/schemas/TemperatureMessage'
     
-    # ======== HouseHold Models ========
-    HouseHoldMember:
+    # ======== Household Models ========
+    HouseholdMember:
       $ref: './household.yaml#/components/schemas/HouseholdMember'

@@ -14,21 +14,23 @@ import java.util.Objects;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@JsonPropertyOrder({HouseHoldMember.JSON_PROPERTY_NAME, HouseHoldMember.JSON_PROPERTY_PHONE,
-        HouseHoldMember.JSON_PROPERTY_DEVICE})
+@JsonPropertyOrder({HouseholdMember.JSON_PROPERTY_NAME, HouseholdMember.JSON_PROPERTY_PHONE,
+        HouseholdMember.JSON_PROPERTY_DEVICES, HouseholdMember.JSON_PROPERTY_ACTIVE})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
-public class HouseHoldMember {
+public class HouseholdMember {
 
     public static final String JSON_PROPERTY_NAME = "name";
     private String name;
     public static final String JSON_PROPERTY_PHONE = "phone";
     private String phone;
-    public static final String JSON_PROPERTY_DEVICE = "device";
-    private List<@Valid MemberDevice> device = new ArrayList<>();
+    public static final String JSON_PROPERTY_DEVICES = "devices";
+    private List<@Valid MemberPhoneDetails> devices = new ArrayList<>();
+    public static final String JSON_PROPERTY_ACTIVE = "active";
+    private Boolean active = true;
 
-    public HouseHoldMember name(String name) {
+    public HouseholdMember name(String name) {
         this.name = name;
         return this;
     }
@@ -47,14 +49,14 @@ public class HouseHoldMember {
         this.name = name;
     }
 
-    public HouseHoldMember phone(String phone) {
+    public HouseholdMember phone(String phone) {
         this.phone = phone;
         return this;
     }
 
     @Nonnull
     @NotNull
-    @Pattern(regexp = "^\\+?[0-9]{1,3}?[-. (]*(?:\\d{1,3}[-. ]?){2,10}\\d{1,4}$")
+    @Pattern(regexp = "^[0-9]{3}-[0-9]{3}-[0-9]{3}$")
     @JsonProperty(JSON_PROPERTY_PHONE)
     @JsonInclude(value = JsonInclude.Include.ALWAYS)
     public String getPhone() {
@@ -67,31 +69,50 @@ public class HouseHoldMember {
         this.phone = phone;
     }
 
-    public HouseHoldMember device(List<@Valid MemberDevice> device) {
-        this.device = device;
+    public HouseholdMember devices(List<@Valid MemberPhoneDetails> devices) {
+        this.devices = devices;
         return this;
     }
 
-    public HouseHoldMember addDeviceItem(MemberDevice deviceItem) {
-        if (this.device == null) {
-            this.device = new ArrayList<>();
+    public HouseholdMember addDevicesItem(MemberPhoneDetails devicesItem) {
+        if (this.devices == null) {
+            this.devices = new ArrayList<>();
         }
-        this.device.add(deviceItem);
+        this.devices.add(devicesItem);
         return this;
     }
 
     @Nullable
     @Valid
-    @JsonProperty(JSON_PROPERTY_DEVICE)
+    @JsonProperty(JSON_PROPERTY_DEVICES)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-    public List<@Valid MemberDevice> getDevice() {
-        return device;
+    public List<@Valid MemberPhoneDetails> getDevices() {
+        return devices;
     }
 
-    @JsonProperty(JSON_PROPERTY_DEVICE)
+    @JsonProperty(JSON_PROPERTY_DEVICES)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-    public void setDevice(List<@Valid MemberDevice> device) {
-        this.device = device;
+    public void setDevices(List<@Valid MemberPhoneDetails> devices) {
+        this.devices = devices;
+    }
+
+    public HouseholdMember active(Boolean active) {
+        this.active = active;
+        return this;
+    }
+
+    @Nonnull
+    @NotNull
+    @JsonProperty(JSON_PROPERTY_ACTIVE)
+    @JsonInclude(value = JsonInclude.Include.ALWAYS)
+    public Boolean getActive() {
+        return active;
+    }
+
+    @JsonProperty(JSON_PROPERTY_ACTIVE)
+    @JsonInclude(value = JsonInclude.Include.ALWAYS)
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
     @Override
@@ -102,23 +123,25 @@ public class HouseHoldMember {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        HouseHoldMember houseHoldMember = (HouseHoldMember) o;
-        return Objects.equals(this.name, houseHoldMember.name) && Objects.equals(this.phone, houseHoldMember.phone)
-                && Objects.equals(this.device, houseHoldMember.device);
+        HouseholdMember householdMember = (HouseholdMember) o;
+        return Objects.equals(this.name, householdMember.name) && Objects.equals(this.phone, householdMember.phone)
+                && Objects.equals(this.devices, householdMember.devices)
+                && Objects.equals(this.active, householdMember.active);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, phone, device);
+        return Objects.hash(name, phone, devices, active);
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("class HouseHoldMember {\n");
+        sb.append("class HouseholdMember {\n");
         sb.append("    name: ").append(toIndentedString(name)).append("\n");
         sb.append("    phone: ").append(toIndentedString(phone)).append("\n");
-        sb.append("    device: ").append(toIndentedString(device)).append("\n");
+        sb.append("    devices: ").append(toIndentedString(devices)).append("\n");
+        sb.append("    active: ").append(toIndentedString(active)).append("\n");
         sb.append("}");
         return sb.toString();
     }
