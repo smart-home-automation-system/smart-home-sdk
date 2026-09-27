@@ -22,9 +22,14 @@ components:
           maxLength: 50
         phone:
           type: string
-          description: The phone number of the household member in the xxx-xxx-xxx format
+          description: >-
+            The phone number of the household member in the international E.164 format - a plus,
+            the country code and the subscriber number, no spaces or dashes (e.g. +48505602702).
+            It is used as an SMS recipient; formatting for display is up to the client.
           format: phone
-          pattern: ^[0-9]{3}-[0-9]{3}-[0-9]{3}$
+          maxLength: 16
+          pattern: ^\+[1-9][0-9]{7,14}$
+          example: '+48505602702'
         devices:
           type: array
           items:
