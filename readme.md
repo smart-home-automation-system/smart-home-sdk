@@ -16,9 +16,10 @@
 
 Shared domain and API models for the smart-home-automation-system services. The model
 classes (`cloud.cholewa.home.model`) are generated at build time from the OpenAPI schemas
-in [`swagger/`](swagger/) (`smart-home.yaml` aggregates the home, device-commons, Eaton and
-RabbitMQ schemas) and cover room names, device vendors/types, Eaton gateway configuration
-and datagram replies, and RabbitMQ message payloads such as `TemperatureMessage`.
+in [`swagger/`](swagger/) (`smart-home.yaml` aggregates the home, device-commons, Eaton,
+RabbitMQ and household schemas) and cover room names, device vendors/types, Eaton gateway
+configuration and datagram replies, RabbitMQ message payloads such as `TemperatureMessage`,
+and the household registry (`HouseholdMember` with its Wi-Fi devices, `MemberPhoneDetails`).
 
 Current consumers: `boiler-service`, `database-service`, `amx-service`,
 `heating-service`, `shelly-cloud-service`, `water-service`.
@@ -32,7 +33,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
