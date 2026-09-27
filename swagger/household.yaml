@@ -1,0 +1,50 @@
+openapi: 3.0.3
+info:
+  title: Households
+  description: Model used to represent a household
+  version: 1.0.0
+
+paths: {}
+  
+components:
+  schemas: 
+    HouseholdMember:
+      type: object
+      required: 
+        - name
+        - phone
+        - active
+      properties: 
+        name:
+          type: string
+          description: The name of the household member
+          minLength: 3
+          maxLength: 50
+        phone:
+          type: string
+          description: The phone number of the household member in the xxx-xxx-xxx format
+          format: phone
+          pattern: ^[0-9]{3}-[0-9]{3}-[0-9]{3}$
+        devices:
+          type: array
+          items:
+            $ref: '#/components/schemas/MemberPhoneDetails'
+        active:
+          type: boolean
+          description: Whether the household member is active or not
+          default: true
+    MemberPhoneDetails:
+      type: object
+      required: 
+        - name
+        - mac
+      properties: 
+        name:
+          type: string
+          description: The name of the device
+          maxLength: 50
+        mac:
+          type: string
+          description: The MAC address of the device, lowercase and colon separated as reported by UniFi
+          format: mac
+          pattern: ^([0-9a-f]{2}:){5}[0-9a-f]{2}$
