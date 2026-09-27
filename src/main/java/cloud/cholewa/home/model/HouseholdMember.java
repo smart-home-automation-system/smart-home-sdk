@@ -58,7 +58,8 @@ public class HouseholdMember {
 
     @Nonnull
     @NotNull
-    @Pattern(regexp = "^[0-9]{3}-[0-9]{3}-[0-9]{3}$")
+    @Pattern(regexp = "^\\+[1-9][0-9]{7,14}$")
+    @Size(max = 16)
     @JsonProperty(JSON_PROPERTY_PHONE)
     @JsonInclude(value = JsonInclude.Include.ALWAYS)
     public String getPhone() {
