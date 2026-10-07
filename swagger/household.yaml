@@ -43,20 +43,23 @@ components:
         rooms:
           type: array
           description: >-
-            The rooms of the household member - what the dashboard shows them as their own. A
-            member can have several (e.g. office and sanctum) or none; a room is listed once.
-          uniqueItems: true
+            The rooms of the household member - what the dashboard shows them as their own, in
+            the order they are to be shown. A member can have several (e.g. office and sanctum)
+            or none. A room is listed once; the registry refuses a list that repeats one. (Not
+            `uniqueItems`: that would make the model an unordered set.)
           items:
             $ref: './home.yaml#/components/schemas/RoomName'
     MemberRole:
       type: string
       description: >-
         What the household member may do in the dashboard: an admin manages the whole house, a
-        resident sees their own rooms. A member stored without a role is a resident.
+        resident sees their own rooms. Deliberately without a default: a payload that leaves the
+        role out says "not sent", so the registry can make a new member a resident and leave the
+        role of an existing one alone when only something else is updated. The registry always
+        answers with a role.
       enum:
         - admin
         - resident
-      default: resident
     MemberPhoneDetails:
       type: object
       required: 

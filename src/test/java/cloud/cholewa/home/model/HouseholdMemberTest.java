@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -18,38 +17,49 @@ import org.junit.jupiter.params.provider.ValueSource;
  */
 class HouseholdMemberTest {
 
+    // No default on purpose: a missing role means "not sent". The registry makes a new member a
+    // resident and keeps the role of an existing one - with a default here, an update of the
+    // phone alone would turn an admin into a resident.
     @Test
-    void shouldBeResidentWithoutRoomsWhenNothingIsSet() {
+    void shouldHaveNoRoleWhenNoneIsSet() {
         HouseholdMember member = new HouseholdMember();
 
-        assertEquals(MemberRole.RESIDENT, member.getRole());
+        assertNull(member.getRole());
+    }
+
+    @Test
+    void shouldHaveNoRoomsWhenNoneIsSet() {
+        HouseholdMember member = new HouseholdMember();
+
         assertTrue(member.getRooms().isEmpty());
     }
 
     @Test
-    void shouldKeepSeveralRoomsOfOneMember() {
+    void shouldKeepSeveralRoomsOfOneMemberInTheirOrder() {
         HouseholdMember member = new HouseholdMember()
             .role(MemberRole.ADMIN)
-            .addRoomsItem(RoomName.OFFICE)
-            .addRoomsItem(RoomName.SANCTUM);
+            .addRoomsItem(RoomName.SANCTUM)
+            .addRoomsItem(RoomName.OFFICE);
 
         assertEquals(MemberRole.ADMIN, member.getRole());
-        assertEquals(List.of(RoomName.OFFICE, RoomName.SANCTUM), List.copyOf(member.getRooms()));
+        assertEquals(List.of(RoomName.SANCTUM, RoomName.OFFICE), member.getRooms());
     }
 
+    // The model is a list, not a set: it does not drop a repeated room behind the caller's
+    // back. Refusing such a list is the job of the registry, which can say so in its answer.
     @Test
-    void shouldListRoomOnceWhenItIsAddedTwice() {
+    void shouldKeepRepeatedRoomForTheRegistryToRefuse() {
         HouseholdMember member = new HouseholdMember()
             .addRoomsItem(RoomName.OFFICE)
             .addRoomsItem(RoomName.OFFICE);
 
-        assertEquals(Set.of(RoomName.OFFICE), member.getRooms());
+        assertEquals(List.of(RoomName.OFFICE, RoomName.OFFICE), member.getRooms());
     }
 
     // Lombok's builder does not apply the defaults of the fields: a consumer building a member
-    // has to set the role and the rooms itself (as it already has to for `active`).
+    // gets no list of rooms unless it sets one (as it already gets no `active`).
     @Test
-    void shouldLeaveRoleAndRoomsUnsetWhenBuiltWithoutThem() {
+    void shouldLeaveRoomsUnsetWhenBuiltWithoutThem() {
         HouseholdMember member = HouseholdMember.builder().name("Anna").build();
 
         assertNull(member.getRole());

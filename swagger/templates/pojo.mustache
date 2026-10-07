@@ -204,11 +204,8 @@ public class {{classname}} {{#parent}}extends {{{.}}} {{/parent}}{{#vendorExtens
     {{/vendorExtensions.x-is-jackson-optional-nullable}}
 
     {{^isReadOnly}}
-        {{! No x-setter-extra-annotation here on purpose. For an array with uniqueItems the generator
-            puts @JsonDeserialize(as = LinkedHashSet.class) into it, an annotation of jackson-databind:
-            this library depends on jackson-annotations only (HAS-119), and its consumers run
-            Jackson 3, whose databind lives in another package and would ignore it anyway. }}
-        {{#jackson}}{{^vendorExtensions.x-is-jackson-optional-nullable}}{{> jackson_annotations}}{{/vendorExtensions.x-is-jackson-optional-nullable}}{{/jackson}}  public void {{setter}}({{{datatypeWithEnum}}} {{name}}) {
+        {{#vendorExtensions.x-setter-extra-annotation}}  {{{vendorExtensions.x-setter-extra-annotation}}}
+        {{/vendorExtensions.x-setter-extra-annotation}}{{#jackson}}{{^vendorExtensions.x-is-jackson-optional-nullable}}{{> jackson_annotations}}{{/vendorExtensions.x-is-jackson-optional-nullable}}{{/jackson}}  public void {{setter}}({{{datatypeWithEnum}}} {{name}}) {
         {{#vendorExtensions.x-is-jackson-optional-nullable}}
             this.{{name}} = JsonNullable.<{{{datatypeWithEnum}}}>of({{name}});
         {{/vendorExtensions.x-is-jackson-optional-nullable}}

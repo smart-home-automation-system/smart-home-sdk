@@ -10,10 +10,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
@@ -34,9 +32,9 @@ public class HouseholdMember {
     public static final String JSON_PROPERTY_ACTIVE = "active";
     private Boolean active = true;
     public static final String JSON_PROPERTY_ROLE = "role";
-    private MemberRole role = MemberRole.RESIDENT;
+    private MemberRole role;
     public static final String JSON_PROPERTY_ROOMS = "rooms";
-    private Set<RoomName> rooms = new LinkedHashSet<>();
+    private List<RoomName> rooms = new ArrayList<>();
 
     public HouseholdMember name(String name) {
         this.name = name;
@@ -144,14 +142,14 @@ public class HouseholdMember {
         this.role = role;
     }
 
-    public HouseholdMember rooms(Set<RoomName> rooms) {
+    public HouseholdMember rooms(List<RoomName> rooms) {
         this.rooms = rooms;
         return this;
     }
 
     public HouseholdMember addRoomsItem(RoomName roomsItem) {
         if (this.rooms == null) {
-            this.rooms = new LinkedHashSet<>();
+            this.rooms = new ArrayList<>();
         }
         this.rooms.add(roomsItem);
         return this;
@@ -161,13 +159,13 @@ public class HouseholdMember {
     @Valid
     @JsonProperty(JSON_PROPERTY_ROOMS)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-    public Set<RoomName> getRooms() {
+    public List<RoomName> getRooms() {
         return rooms;
     }
 
     @JsonProperty(JSON_PROPERTY_ROOMS)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-    public void setRooms(Set<RoomName> rooms) {
+    public void setRooms(List<RoomName> rooms) {
         this.rooms = rooms;
     }
 

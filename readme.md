@@ -71,8 +71,8 @@ Since 1.4.0 a `HouseholdMember` carries what the web dashboard shows that person
 
 | Field | Type | In JSON |
 |---|---|---|
-| `role` | `MemberRole` - `admin` or `resident` | optional; a member read without one is a `resident` |
-| `rooms` | `Set<RoomName>` | optional; a member can have several rooms or none, and a room listed twice is kept once |
+| `role` | `MemberRole` - `admin` or `resident` | optional, **no default**: left out, it reads as `null` - "not sent" |
+| `rooms` | `List<RoomName>` | optional; a member can have several rooms or none, in the order they are to be shown |
 
 ```java
 HouseholdMember member = new HouseholdMember()
@@ -87,16 +87,24 @@ HouseholdMember member = new HouseholdMember()
 {"name":"Anna","phone":"+48505602702","active":true,"role":"admin","rooms":["office","sanctum"]}
 ```
 
-Three things a consumer has to know:
+What a consumer has to know:
 
-- **An empty `rooms` is left out of the JSON** (the model omits empty collections, like
-  `devices`). A reader treats a missing `rooms` as "no rooms".
+- **A missing `role` is `null`, not `resident`.** The model has no default on purpose, so the
+  registry (`database-service`) can tell "not sent" from "make this member a resident": it
+  makes a new member a resident and leaves the role of an existing one alone when an update
+  does not name it. The registry itself always answers with a role.
+- **A missing `rooms` cannot be told from an empty one**: both read as an empty list, and an
+  empty list is left out of the JSON on the way out (the model omits empty collections, like
+  `devices`). A reader treats a missing `rooms` as "no rooms"; an update that must not touch
+  the rooms has to send them again.
+- **The model does not check the rooms for repetitions or for `null` items** - it is a plain
+  list, which keeps the order. Refusing `["office","office"]` is the registry's job.
 - **An unknown role or room does not deserialize**: `MemberRole.fromValue` and
-  `RoomName.fromValue` throw `IllegalArgumentException("Unexpected value '...'")`, which a
-  service answers as a bad request.
-- **`HouseholdMember.builder()` applies no defaults** - a member built that way has a `null`
-  role and `null` rooms (and a `null` `active`) unless they are set. `new HouseholdMember()`
-  and deserialization do apply them.
+  `RoomName.fromValue` throw `IllegalArgumentException("Unexpected value '...'")` inside
+  Jackson. Turning that into a 400 with a readable message is up to the consuming service.
+- **`HouseholdMember.builder()` applies no defaults** - a member built that way has `null`
+  rooms (and a `null` `active`) unless they are set. `new HouseholdMember()` and
+  deserialization start with an empty list.
 
 To add or change a model, edit the relevant schema in `swagger/` and reference it from
 `swagger/smart-home.yaml`; `mvn verify` regenerates the sources in
