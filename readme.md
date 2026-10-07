@@ -19,10 +19,11 @@ classes (`cloud.cholewa.home.model`) are generated at build time from the OpenAP
 in [`swagger/`](swagger/) (`smart-home.yaml` aggregates the home, device-commons, Eaton,
 RabbitMQ and household schemas) and cover room names, device vendors/types, Eaton gateway
 configuration and datagram replies, RabbitMQ message payloads such as `TemperatureMessage`,
-and the household registry (`HouseholdMember` with its Wi-Fi devices, `MemberPhoneDetails`).
+and the household registry (`HouseholdMember` with its Wi-Fi devices, `MemberPhoneDetails`,
+and with its role and rooms, `MemberRole`).
 
-Current consumers: `boiler-service`, `database-service`, `amx-service`,
-`heating-service`, `shelly-cloud-service`, `water-service`.
+Current consumers: `amx-service`, `boiler-service`, `database-service`, `heating-service`,
+`presence-service`, `shelly-cloud-service`, `water-service`.
 
 ## Installation
 
@@ -33,7 +34,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.3.0</version>
+    <version>1.4.0</version>
 </dependency>
 ```
 
@@ -63,6 +64,39 @@ TemperatureMessage message = TemperatureMessage.builder()
 
 RoomName room = RoomName.fromValue("living room");
 ```
+
+### Household member: role and rooms
+
+Since 1.4.0 a `HouseholdMember` carries what the web dashboard shows that person:
+
+| Field | Type | In JSON |
+|---|---|---|
+| `role` | `MemberRole` - `admin` or `resident` | optional; a member read without one is a `resident` |
+| `rooms` | `Set<RoomName>` | optional; a member can have several rooms or none, and a room listed twice is kept once |
+
+```java
+HouseholdMember member = new HouseholdMember()
+    .name("Anna")
+    .phone("+48505602702")
+    .role(MemberRole.ADMIN)
+    .addRoomsItem(RoomName.OFFICE)
+    .addRoomsItem(RoomName.SANCTUM);
+```
+
+```json
+{"name":"Anna","phone":"+48505602702","active":true,"role":"admin","rooms":["office","sanctum"]}
+```
+
+Three things a consumer has to know:
+
+- **An empty `rooms` is left out of the JSON** (the model omits empty collections, like
+  `devices`). A reader treats a missing `rooms` as "no rooms".
+- **An unknown role or room does not deserialize**: `MemberRole.fromValue` and
+  `RoomName.fromValue` throw `IllegalArgumentException("Unexpected value '...'")`, which a
+  service answers as a bad request.
+- **`HouseholdMember.builder()` applies no defaults** - a member built that way has a `null`
+  role and `null` rooms (and a `null` `active`) unless they are set. `new HouseholdMember()`
+  and deserialization do apply them.
 
 To add or change a model, edit the relevant schema in `swagger/` and reference it from
 `swagger/smart-home.yaml`; `mvn verify` regenerates the sources in
