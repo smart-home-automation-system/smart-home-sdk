@@ -16,7 +16,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @JsonPropertyOrder({HouseholdMember.JSON_PROPERTY_NAME, HouseholdMember.JSON_PROPERTY_PHONE,
-        HouseholdMember.JSON_PROPERTY_DEVICES, HouseholdMember.JSON_PROPERTY_ACTIVE})
+        HouseholdMember.JSON_PROPERTY_DEVICES, HouseholdMember.JSON_PROPERTY_ACTIVE, HouseholdMember.JSON_PROPERTY_ROLE,
+        HouseholdMember.JSON_PROPERTY_ROOMS})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -30,6 +31,10 @@ public class HouseholdMember {
     private List<@Valid MemberPhoneDetails> devices = new ArrayList<>();
     public static final String JSON_PROPERTY_ACTIVE = "active";
     private Boolean active = true;
+    public static final String JSON_PROPERTY_ROLE = "role";
+    private MemberRole role;
+    public static final String JSON_PROPERTY_ROOMS = "rooms";
+    private List<RoomName> rooms = new ArrayList<>();
 
     public HouseholdMember name(String name) {
         this.name = name;
@@ -118,6 +123,52 @@ public class HouseholdMember {
         this.active = active;
     }
 
+    public HouseholdMember role(MemberRole role) {
+        this.role = role;
+        return this;
+    }
+
+    @Nullable
+    @Valid
+    @JsonProperty(JSON_PROPERTY_ROLE)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public MemberRole getRole() {
+        return role;
+    }
+
+    @JsonProperty(JSON_PROPERTY_ROLE)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setRole(MemberRole role) {
+        this.role = role;
+    }
+
+    public HouseholdMember rooms(List<RoomName> rooms) {
+        this.rooms = rooms;
+        return this;
+    }
+
+    public HouseholdMember addRoomsItem(RoomName roomsItem) {
+        if (this.rooms == null) {
+            this.rooms = new ArrayList<>();
+        }
+        this.rooms.add(roomsItem);
+        return this;
+    }
+
+    @Nullable
+    @Valid
+    @JsonProperty(JSON_PROPERTY_ROOMS)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public List<RoomName> getRooms() {
+        return rooms;
+    }
+
+    @JsonProperty(JSON_PROPERTY_ROOMS)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setRooms(List<RoomName> rooms) {
+        this.rooms = rooms;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -129,12 +180,13 @@ public class HouseholdMember {
         HouseholdMember householdMember = (HouseholdMember) o;
         return Objects.equals(this.name, householdMember.name) && Objects.equals(this.phone, householdMember.phone)
                 && Objects.equals(this.devices, householdMember.devices)
-                && Objects.equals(this.active, householdMember.active);
+                && Objects.equals(this.active, householdMember.active)
+                && Objects.equals(this.role, householdMember.role) && Objects.equals(this.rooms, householdMember.rooms);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, phone, devices, active);
+        return Objects.hash(name, phone, devices, active, role, rooms);
     }
 
     @Override
@@ -145,6 +197,8 @@ public class HouseholdMember {
         sb.append("    phone: ").append(toIndentedString(phone)).append("\n");
         sb.append("    devices: ").append(toIndentedString(devices)).append("\n");
         sb.append("    active: ").append(toIndentedString(active)).append("\n");
+        sb.append("    role: ").append(toIndentedString(role)).append("\n");
+        sb.append("    rooms: ").append(toIndentedString(rooms)).append("\n");
         sb.append("}");
         return sb.toString();
     }
