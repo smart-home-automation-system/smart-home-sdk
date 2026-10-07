@@ -4,10 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
@@ -30,6 +33,37 @@ class HouseholdProfileTest {
             .collect(Collectors.toSet());
 
         assertEquals(Set.of("name", "role", "rooms"), fields);
+        // a field inherited from a shared parent would be serialized just the same, and the
+        // check above would not see it
+        assertEquals(Object.class, HouseholdProfile.class.getSuperclass());
+    }
+
+    // The same from the side Jackson looks at: the properties the getters publish.
+    @Test
+    void shouldPublishNoOtherJsonProperty() {
+        Set<String> properties = Arrays.stream(HouseholdProfile.class.getMethods())
+            .filter(method -> method.getName().startsWith("get"))
+            .map(method -> method.getAnnotation(JsonProperty.class))
+            .filter(Objects::nonNull)
+            .map(JsonProperty::value)
+            .collect(Collectors.toSet());
+
+        assertEquals(Set.of("name", "role", "rooms"), properties);
+    }
+
+    // What a reader of the JSON relies on, and what no test here can see in the JSON itself
+    // (there is no Jackson on the test classpath): the name and the role are always written,
+    // and an empty list of rooms is left out - a missing "rooms" means none.
+    @Test
+    void shouldAlwaysWriteNameAndRoleAndLeaveOutEmptyRooms() throws NoSuchMethodException {
+        assertEquals(JsonInclude.Include.NON_EMPTY, HouseholdProfile.class.getAnnotation(JsonInclude.class).value());
+        assertEquals(JsonInclude.Include.ALWAYS, includeOf("getName"));
+        assertEquals(JsonInclude.Include.ALWAYS, includeOf("getRole"));
+        assertEquals(JsonInclude.Include.USE_DEFAULTS, includeOf("getRooms"));
+    }
+
+    private static JsonInclude.Include includeOf(String getter) throws NoSuchMethodException {
+        return HouseholdProfile.class.getMethod(getter).getAnnotation(JsonInclude.class).value();
     }
 
     @Test
