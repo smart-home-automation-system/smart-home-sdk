@@ -41,3 +41,5 @@ components:
       $ref: './household.yaml#/components/schemas/MemberPhoneDetails'
     MemberRole:
       $ref: './household.yaml#/components/schemas/MemberRole'
+    HouseholdProfile:
+      $ref: './household.yaml#/components/schemas/HouseholdProfile'

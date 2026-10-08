@@ -49,6 +49,36 @@ components:
             `uniqueItems`: that would make the model an unordered set.)
           items:
             $ref: './home.yaml#/components/schemas/RoomName'
+    HouseholdProfile:
+      type: object
+      description: >-
+        What the web dashboard needs to know about a household member to show them their own
+        view - and nothing else. Deliberately without the phone number and the devices of the
+        member: this is the model that travels to every browser in the house. There is no
+        `active` here either: a profile exists for an active member only, so whoever answers
+        with profiles leaves a member who is switched off out of the answer - the model cannot
+        say it, and the rule is the producer's to keep (database-service, GET
+        /household/profiles).
+      required:
+        - name
+        - role
+      properties:
+        name:
+          type: string
+          description: The name of the household member
+          minLength: 3
+          maxLength: 50
+        role:
+          $ref: '#/components/schemas/MemberRole'
+        rooms:
+          type: array
+          description: >-
+            The rooms of the household member, in the order they are to be shown; none when the
+            member has no room. A room is listed once: the registry refuses a list that repeats
+            one, or holds a null, when the rooms are stored - this model, like HouseholdMember,
+            does not check it. (Not `uniqueItems`: that would make the model an unordered set.)
+          items:
+            $ref: './home.yaml#/components/schemas/RoomName'
     MemberRole:
       type: string
       description: >-

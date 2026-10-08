@@ -34,7 +34,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.4.0</version>
+    <version>1.5.0</version>
 </dependency>
 ```
 
@@ -105,6 +105,32 @@ What a consumer has to know:
 - **`HouseholdMember.builder()` applies no defaults** - a member built that way has `null`
   rooms (and a `null` `active`) unless they are set. `new HouseholdMember()` and
   deserialization start with an empty list.
+
+### Household profile: what the dashboard may know
+
+Since 1.5.0 `HouseholdProfile` is a household member as the web dashboard needs them - the
+name, the role and the rooms, and **nothing else**: no phone number, no devices. It is the body
+of a read that every browser in the house makes (`GET /home/household/profiles` of
+`database-service`), which is why it is a model of its own and not a `HouseholdMember` with
+fields left empty - there is no field to fill by mistake.
+
+| Field | Type | In JSON |
+|---|---|---|
+| `name` | `String`, 3-50 | always |
+| `role` | `MemberRole` | always |
+| `rooms` | `List<RoomName>` | left out when empty: a missing `rooms` means none |
+
+```json
+{"name":"Anna","role":"admin","rooms":["sanctum","office"]}
+```
+
+- **There is no `active`.** A profile exists for an active member only; whoever answers with
+  profiles leaves the others out. The model cannot say it - it is the producer's rule.
+- **The model does not make the role present**: `role` is required in the schema, but a
+  producer that leaves it unset writes `"role":null`. The registry never does (the column is
+  not null); a client still reads anything but `admin` as the role that reaches the least.
+- The builder applies no defaults here either: `HouseholdProfile.builder()` without
+  `.rooms(...)` has `null` rooms.
 
 To add or change a model, edit the relevant schema in `swagger/` and reference it from
 `swagger/smart-home.yaml`; `mvn verify` regenerates the sources in
