@@ -20,7 +20,7 @@ in [`swagger/`](swagger/) (`smart-home.yaml` aggregates the home, device-commons
 RabbitMQ and household schemas) and cover room names, device vendors/types, Eaton gateway
 configuration and datagram replies, RabbitMQ message payloads such as `TemperatureMessage`,
 and the household registry (`HouseholdMember` with its Wi-Fi devices, `MemberPhoneDetails`,
-and with its role and rooms, `MemberRole`).
+and with its role, rooms and permissions - `MemberRole`, `MemberPermission`).
 
 Current consumers: `amx-service`, `boiler-service`, `database-service`, `heating-service`,
 `presence-service`, `shelly-cloud-service`, `water-service`.
@@ -73,6 +73,7 @@ Since 1.4.0 a `HouseholdMember` carries what the web dashboard shows that person
 |---|---|---|
 | `role` | `MemberRole` - `admin` or `resident` | optional, **no default**: left out, it reads as `null` - "not sent" |
 | `rooms` | `List<RoomName>` | optional; a member can have several rooms or none, in the order they are to be shown |
+| `permissions` | `List<MemberPermission>` (since 1.6.0) | optional; what the member may do beyond their role, none for most |
 
 ```java
 HouseholdMember member = new HouseholdMember()
@@ -99,14 +100,20 @@ What a consumer has to know:
   the rooms has to send them again.
 - **`permissions` (since 1.6.0) behave like the rooms**: a list of `MemberPermission`, empty
   unless something was granted, left out of the JSON while empty, and not told apart from "not
-  sent" - so the registry gives them an operation of their own instead of honouring them in a
-  partial update. The one permission so far is `heating_switch`: the member may switch the
+  sent" - so a registry has to give them an operation of their own instead of honouring them in
+  a partial update (`database-service` does from the release that takes 1.6.0; an older one
+  ignores the field). The one permission so far is `heating_switch`: the member may switch the
   heating of the whole house from their own page of the dashboard. It decides what the
   interface offers; nothing behind the gateway checks it.
+- **A new value of `MemberPermission` is not additive for a reader.** A consumer whose model
+  has the field fails on a value it does not know (below), and `presence-service` reads the
+  whole registry in one call: one stored value it cannot read stops its detection. Every
+  consumer that deserializes `HouseholdMember` or `HouseholdProfile` moves to the release with
+  the new value **before** the registry stores it for anybody.
 - **The model does not check the rooms for repetitions or for `null` items** - it is a plain
   list, which keeps the order. Refusing `["office","office"]` is the registry's job.
-- **An unknown role or room does not deserialize**: `MemberRole.fromValue` and
-  `RoomName.fromValue` throw `IllegalArgumentException("Unexpected value '...'")` inside
+- **An unknown role, room or permission does not deserialize**: `MemberRole.fromValue`,
+  `RoomName.fromValue` and `MemberPermission.fromValue` throw `IllegalArgumentException("Unexpected value '...'")` inside
   Jackson. Turning that into a 400 with a readable message is up to the consuming service.
 - **`HouseholdMember.builder()` applies no defaults** - a member built that way has `null`
   rooms (and a `null` `active`) unless they are set. `new HouseholdMember()` and
