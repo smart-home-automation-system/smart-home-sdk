@@ -26,13 +26,13 @@ class HouseholdProfileTest {
     // profile is and nothing of the rest of the registry. A phone number or a device added
     // here - by copying a field from HouseholdMember - has to fail a test, not pass a review.
     @Test
-    void shouldCarryTheNameTheRoleAndTheRoomsAndNothingElse() {
+    void shouldCarryTheNameTheRoleTheRoomsAndThePermissionsAndNothingElse() {
         Set<String> fields = Arrays.stream(HouseholdProfile.class.getDeclaredFields())
             .filter(field -> !Modifier.isStatic(field.getModifiers()))
             .map(Field::getName)
             .collect(Collectors.toSet());
 
-        assertEquals(Set.of("name", "role", "rooms"), fields);
+        assertEquals(Set.of("name", "role", "rooms", "permissions"), fields);
         // a field inherited from a shared parent would be serialized just the same, and the
         // check above would not see it
         assertEquals(Object.class, HouseholdProfile.class.getSuperclass());
@@ -48,18 +48,19 @@ class HouseholdProfileTest {
             .map(JsonProperty::value)
             .collect(Collectors.toSet());
 
-        assertEquals(Set.of("name", "role", "rooms"), properties);
+        assertEquals(Set.of("name", "role", "rooms", "permissions"), properties);
     }
 
     // What a reader of the JSON relies on, and what no test here can see in the JSON itself
     // (there is no Jackson on the test classpath): the name and the role are always written,
-    // and an empty list of rooms is left out - a missing "rooms" means none.
+    // and an empty list of rooms or of permissions is left out - a missing one means none.
     @Test
-    void shouldAlwaysWriteNameAndRoleAndLeaveOutEmptyRooms() throws NoSuchMethodException {
+    void shouldAlwaysWriteNameAndRoleAndLeaveOutEmptyLists() throws NoSuchMethodException {
         assertEquals(JsonInclude.Include.NON_EMPTY, HouseholdProfile.class.getAnnotation(JsonInclude.class).value());
         assertEquals(JsonInclude.Include.ALWAYS, includeOf("getName"));
         assertEquals(JsonInclude.Include.ALWAYS, includeOf("getRole"));
         assertEquals(JsonInclude.Include.USE_DEFAULTS, includeOf("getRooms"));
+        assertEquals(JsonInclude.Include.USE_DEFAULTS, includeOf("getPermissions"));
     }
 
     private static JsonInclude.Include includeOf(String getter) throws NoSuchMethodException {
@@ -71,6 +72,7 @@ class HouseholdProfileTest {
         assertEquals("name", HouseholdProfile.JSON_PROPERTY_NAME);
         assertEquals("role", HouseholdProfile.JSON_PROPERTY_ROLE);
         assertEquals("rooms", HouseholdProfile.JSON_PROPERTY_ROOMS);
+        assertEquals("permissions", HouseholdProfile.JSON_PROPERTY_PERMISSIONS);
     }
 
     @Test
@@ -110,5 +112,25 @@ class HouseholdProfileTest {
         HouseholdProfile profile = HouseholdProfile.builder().name("Anna").role(MemberRole.RESIDENT).build();
 
         assertNull(profile.getRooms());
+        assertNull(profile.getPermissions());
+    }
+
+    // A permission is what the dashboard offers a control by: a profile nobody granted one to
+    // has none, and the JSON then says nothing about permissions at all.
+    @Test
+    void shouldHaveNoPermissionWhenNoneIsGranted() {
+        HouseholdProfile profile = new HouseholdProfile();
+
+        assertTrue(profile.getPermissions().isEmpty());
+    }
+
+    @Test
+    void shouldCarryThePermissionsOfAMember() {
+        HouseholdProfile profile = new HouseholdProfile()
+            .name("Anna")
+            .role(MemberRole.RESIDENT)
+            .addPermissionsItem(MemberPermission.HEATING_SWITCH);
+
+        assertEquals(List.of(MemberPermission.HEATING_SWITCH), profile.getPermissions());
     }
 }

@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 
 @JsonPropertyOrder({HouseholdMember.JSON_PROPERTY_NAME, HouseholdMember.JSON_PROPERTY_PHONE,
         HouseholdMember.JSON_PROPERTY_DEVICES, HouseholdMember.JSON_PROPERTY_ACTIVE, HouseholdMember.JSON_PROPERTY_ROLE,
-        HouseholdMember.JSON_PROPERTY_ROOMS})
+        HouseholdMember.JSON_PROPERTY_ROOMS, HouseholdMember.JSON_PROPERTY_PERMISSIONS})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -35,6 +35,8 @@ public class HouseholdMember {
     private MemberRole role;
     public static final String JSON_PROPERTY_ROOMS = "rooms";
     private List<RoomName> rooms = new ArrayList<>();
+    public static final String JSON_PROPERTY_PERMISSIONS = "permissions";
+    private List<MemberPermission> permissions = new ArrayList<>();
 
     public HouseholdMember name(String name) {
         this.name = name;
@@ -169,6 +171,33 @@ public class HouseholdMember {
         this.rooms = rooms;
     }
 
+    public HouseholdMember permissions(List<MemberPermission> permissions) {
+        this.permissions = permissions;
+        return this;
+    }
+
+    public HouseholdMember addPermissionsItem(MemberPermission permissionsItem) {
+        if (this.permissions == null) {
+            this.permissions = new ArrayList<>();
+        }
+        this.permissions.add(permissionsItem);
+        return this;
+    }
+
+    @Nullable
+    @Valid
+    @JsonProperty(JSON_PROPERTY_PERMISSIONS)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public List<MemberPermission> getPermissions() {
+        return permissions;
+    }
+
+    @JsonProperty(JSON_PROPERTY_PERMISSIONS)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setPermissions(List<MemberPermission> permissions) {
+        this.permissions = permissions;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -181,12 +210,13 @@ public class HouseholdMember {
         return Objects.equals(this.name, householdMember.name) && Objects.equals(this.phone, householdMember.phone)
                 && Objects.equals(this.devices, householdMember.devices)
                 && Objects.equals(this.active, householdMember.active)
-                && Objects.equals(this.role, householdMember.role) && Objects.equals(this.rooms, householdMember.rooms);
+                && Objects.equals(this.role, householdMember.role) && Objects.equals(this.rooms, householdMember.rooms)
+                && Objects.equals(this.permissions, householdMember.permissions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, phone, devices, active, role, rooms);
+        return Objects.hash(name, phone, devices, active, role, rooms, permissions);
     }
 
     @Override
@@ -199,6 +229,7 @@ public class HouseholdMember {
         sb.append("    active: ").append(toIndentedString(active)).append("\n");
         sb.append("    role: ").append(toIndentedString(role)).append("\n");
         sb.append("    rooms: ").append(toIndentedString(rooms)).append("\n");
+        sb.append("    permissions: ").append(toIndentedString(permissions)).append("\n");
         sb.append("}");
         return sb.toString();
     }

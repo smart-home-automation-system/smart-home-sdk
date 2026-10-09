@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @JsonPropertyOrder({HouseholdProfile.JSON_PROPERTY_NAME, HouseholdProfile.JSON_PROPERTY_ROLE,
-        HouseholdProfile.JSON_PROPERTY_ROOMS})
+        HouseholdProfile.JSON_PROPERTY_ROOMS, HouseholdProfile.JSON_PROPERTY_PERMISSIONS})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -27,6 +27,8 @@ public class HouseholdProfile {
     private MemberRole role;
     public static final String JSON_PROPERTY_ROOMS = "rooms";
     private List<RoomName> rooms = new ArrayList<>();
+    public static final String JSON_PROPERTY_PERMISSIONS = "permissions";
+    private List<MemberPermission> permissions = new ArrayList<>();
 
     public HouseholdProfile name(String name) {
         this.name = name;
@@ -95,6 +97,33 @@ public class HouseholdProfile {
         this.rooms = rooms;
     }
 
+    public HouseholdProfile permissions(List<MemberPermission> permissions) {
+        this.permissions = permissions;
+        return this;
+    }
+
+    public HouseholdProfile addPermissionsItem(MemberPermission permissionsItem) {
+        if (this.permissions == null) {
+            this.permissions = new ArrayList<>();
+        }
+        this.permissions.add(permissionsItem);
+        return this;
+    }
+
+    @Nullable
+    @Valid
+    @JsonProperty(JSON_PROPERTY_PERMISSIONS)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public List<MemberPermission> getPermissions() {
+        return permissions;
+    }
+
+    @JsonProperty(JSON_PROPERTY_PERMISSIONS)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setPermissions(List<MemberPermission> permissions) {
+        this.permissions = permissions;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -105,12 +134,13 @@ public class HouseholdProfile {
         }
         HouseholdProfile householdProfile = (HouseholdProfile) o;
         return Objects.equals(this.name, householdProfile.name) && Objects.equals(this.role, householdProfile.role)
-                && Objects.equals(this.rooms, householdProfile.rooms);
+                && Objects.equals(this.rooms, householdProfile.rooms)
+                && Objects.equals(this.permissions, householdProfile.permissions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, role, rooms);
+        return Objects.hash(name, role, rooms, permissions);
     }
 
     @Override
@@ -120,6 +150,7 @@ public class HouseholdProfile {
         sb.append("    name: ").append(toIndentedString(name)).append("\n");
         sb.append("    role: ").append(toIndentedString(role)).append("\n");
         sb.append("    rooms: ").append(toIndentedString(rooms)).append("\n");
+        sb.append("    permissions: ").append(toIndentedString(permissions)).append("\n");
         sb.append("}");
         return sb.toString();
     }
