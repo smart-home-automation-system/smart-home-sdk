@@ -34,7 +34,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.5.0</version>
+    <version>1.6.0</version>
 </dependency>
 ```
 
@@ -97,6 +97,12 @@ What a consumer has to know:
   empty list is left out of the JSON on the way out (the model omits empty collections, like
   `devices`). A reader treats a missing `rooms` as "no rooms"; an update that must not touch
   the rooms has to send them again.
+- **`permissions` (since 1.6.0) behave like the rooms**: a list of `MemberPermission`, empty
+  unless something was granted, left out of the JSON while empty, and not told apart from "not
+  sent" - so the registry gives them an operation of their own instead of honouring them in a
+  partial update. The one permission so far is `heating_switch`: the member may switch the
+  heating of the whole house from their own page of the dashboard. It decides what the
+  interface offers; nothing behind the gateway checks it.
 - **The model does not check the rooms for repetitions or for `null` items** - it is a plain
   list, which keeps the order. Refusing `["office","office"]` is the registry's job.
 - **An unknown role or room does not deserialize**: `MemberRole.fromValue` and
@@ -109,7 +115,7 @@ What a consumer has to know:
 ### Household profile: what the dashboard may know
 
 Since 1.5.0 `HouseholdProfile` is a household member as the web dashboard needs them - the
-name, the role and the rooms, and **nothing else**: no phone number, no devices. It is the body
+name, the role, the rooms and (since 1.6.0) the permissions, and **nothing else**: no phone number, no devices. It is the body
 of a read that every browser in the house makes (`GET /home/household/profiles` of
 `database-service`), which is why it is a model of its own and not a `HouseholdMember` with
 fields left empty - there is no field to fill by mistake.
@@ -119,9 +125,10 @@ fields left empty - there is no field to fill by mistake.
 | `name` | `String`, 3-50 | always |
 | `role` | `MemberRole` | always |
 | `rooms` | `List<RoomName>` | left out when empty: a missing `rooms` means none |
+| `permissions` | `List<MemberPermission>` | left out when empty: a missing `permissions` means none |
 
 ```json
-{"name":"Anna","role":"admin","rooms":["sanctum","office"]}
+{"name":"Anna","role":"resident","rooms":["sanctum","office"],"permissions":["heating_switch"]}
 ```
 
 - **There is no `active`.** A profile exists for an active member only; whoever answers with

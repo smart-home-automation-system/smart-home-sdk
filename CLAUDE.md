@@ -49,6 +49,11 @@ the org's `organization.md`; this file holds what is specific to this repository
 - **Defaults reach `new X()` and deserialization, not the builder.** The classes carry
   Lombok's `@SuperBuilder` without `@Builder.Default`, so `X.builder().build()` leaves every
   defaulted field `null`.
+- **A permission is a value of `MemberPermission`, never a boolean field** (HAS-202). What a
+  member may do beyond their role is a list on `HouseholdMember` and `HouseholdProfile`: the
+  next thing somebody is allowed is one more enum value, not one more field with a default
+  that a partial update would reset. The constant names are what the registry stores - a
+  rename needs a migration there, as for `RoomName` and `MemberRole`.
 - **Empty collections are omitted from JSON** (`@JsonInclude(NON_EMPTY)` on every class): a
   reader of the JSON treats a missing array as empty.
 - **Bounds belong in the schema** (`required`, `minLength`, `pattern`, `enum`, `uniqueItems`):
