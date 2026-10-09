@@ -64,6 +64,27 @@ class HouseholdMemberTest {
 
         assertNull(member.getRole());
         assertNull(member.getRooms());
+        assertNull(member.getPermissions());
+    }
+
+    // Granted to one member at a time: a member nobody granted anything to has none, and an
+    // empty list is left out of the JSON like the rooms.
+    @Test
+    void shouldHaveNoPermissionWhenNoneIsGranted() {
+        HouseholdMember member = new HouseholdMember();
+
+        assertTrue(member.getPermissions().isEmpty());
+    }
+
+    @Test
+    void shouldCarryThePermissionsOfAMember() {
+        HouseholdMember member = new HouseholdMember()
+            .name("Anna")
+            .role(MemberRole.RESIDENT)
+            .addPermissionsItem(MemberPermission.HEATING_SWITCH);
+
+        assertEquals(List.of(MemberPermission.HEATING_SWITCH), member.getPermissions());
+        assertEquals("permissions", HouseholdMember.JSON_PROPERTY_PERMISSIONS);
     }
 
     @Test

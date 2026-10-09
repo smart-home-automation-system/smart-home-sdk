@@ -49,11 +49,20 @@ components:
             `uniqueItems`: that would make the model an unordered set.)
           items:
             $ref: './home.yaml#/components/schemas/RoomName'
+        permissions:
+          type: array
+          description: >-
+            What the household member may do in the dashboard beyond what their role gives them,
+            each permission once; none for most members. Like the rooms it is a plain list that
+            the registry checks when it is stored. (Not `uniqueItems`: that would make the model
+            an unordered set.)
+          items:
+            $ref: '#/components/schemas/MemberPermission'
     HouseholdProfile:
       type: object
       description: >-
         What the web dashboard needs to know about a household member to show them their own
-        view - and nothing else. Deliberately without the phone number and the devices of the
+        view - the name, the role, the rooms and the permissions - and nothing else. Deliberately without the phone number and the devices of the
         member: this is the model that travels to every browser in the house. There is no
         `active` here either: a profile exists for an active member only, so whoever answers
         with profiles leaves a member who is switched off out of the answer - the model cannot
@@ -79,6 +88,25 @@ components:
             does not check it. (Not `uniqueItems`: that would make the model an unordered set.)
           items:
             $ref: './home.yaml#/components/schemas/RoomName'
+        permissions:
+          type: array
+          description: >-
+            What the household member may do in the dashboard beyond what their role gives them;
+            none when the member has no permission of their own. The dashboard offers a control
+            behind a permission only to a member who has it.
+          items:
+            $ref: '#/components/schemas/MemberPermission'
+    MemberPermission:
+      type: string
+      description: >-
+        Something a household member may do in the dashboard that their role alone does not
+        give them. A permission is granted to one member at a time, in the registry;
+        `heating_switch` lets a member switch the heating of the whole house on and off from
+        their own page. Like a role it decides what the interface offers - nothing behind the
+        gateway checks it. A new permission is a new value here; renaming or removing one needs
+        a migration of the rows the registry stores it in.
+      enum:
+        - heating_switch
     MemberRole:
       type: string
       description: >-
