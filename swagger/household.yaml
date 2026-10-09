@@ -103,8 +103,9 @@ components:
         give them. A permission is granted to one member at a time, in the registry;
         `heating_switch` lets a member switch the heating of the whole house on and off from
         their own page. Like a role it decides what the interface offers - nothing behind the
-        gateway checks it. A new permission is a new value here; renaming or removing one needs
-        a migration of the rows the registry stores it in.
+        gateway checks it. A new permission is a new value here - which every reader of the
+        registry has to know before the registry stores it; renaming or removing one needs a
+        migration of the rows the registry stores it in.
       enum:
         - heating_switch
     MemberRole:

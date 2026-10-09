@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -85,6 +86,20 @@ class HouseholdMemberTest {
 
         assertEquals(List.of(MemberPermission.HEATING_SWITCH), member.getPermissions());
         assertEquals("permissions", HouseholdMember.JSON_PROPERTY_PERMISSIONS);
+    }
+
+    // What no test here can see in the JSON itself (there is no Jackson on the test classpath):
+    // an empty list of rooms or of permissions is left out, so a reader takes a missing one as
+    // none.
+    @Test
+    void shouldLeaveEmptyRoomsAndPermissionsOutOfTheJson() throws NoSuchMethodException {
+        assertEquals(JsonInclude.Include.NON_EMPTY, HouseholdMember.class.getAnnotation(JsonInclude.class).value());
+        assertEquals(JsonInclude.Include.USE_DEFAULTS, includeOf("getRooms"));
+        assertEquals(JsonInclude.Include.USE_DEFAULTS, includeOf("getPermissions"));
+    }
+
+    private static JsonInclude.Include includeOf(String getter) throws NoSuchMethodException {
+        return HouseholdMember.class.getMethod(getter).getAnnotation(JsonInclude.class).value();
     }
 
     @Test
