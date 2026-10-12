@@ -45,3 +45,31 @@ components:
       $ref: './household.yaml#/components/schemas/MemberPermission'
     HouseholdProfile:
       $ref: './household.yaml#/components/schemas/HouseholdProfile'
+
+    # ======== Device Registry Models ========
+    SmartDevice:
+      $ref: './device-registry.yaml#/components/schemas/SmartDevice'
+    DeviceKind:
+      $ref: './device-registry.yaml#/components/schemas/DeviceKind'
+    LightKind:
+      $ref: './device-registry.yaml#/components/schemas/LightKind'
+    BlindsPlacement:
+      $ref: './device-registry.yaml#/components/schemas/BlindsPlacement'
+    ShellyBinding:
+      $ref: './device-registry.yaml#/components/schemas/ShellyBinding'
+    EatonBinding:
+      $ref: './device-registry.yaml#/components/schemas/EatonBinding'
+    BthomeBinding:
+      $ref: './device-registry.yaml#/components/schemas/BthomeBinding'
+
+    # ======== Device Event Models ========
+    DeviceEvent:
+      $ref: './device-events.yaml#/components/schemas/DeviceEvent'
+    EatonRxEvent:
+      $ref: './device-events.yaml#/components/schemas/EatonRxEvent'
+
+    # ======== Calendar Models ========
+    CalendarDay:
+      $ref: './calendar.yaml#/components/schemas/CalendarDay'
+    DayType:
+      $ref: './calendar.yaml#/components/schemas/DayType'

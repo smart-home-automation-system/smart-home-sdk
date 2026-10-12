@@ -1,0 +1,59 @@
+openapi: 3.0.3
+info:
+  title: Device events
+  description: What the devices of the AMX system report, as it travels on the virtual host of the devices
+  version: 1.0.0
+
+paths: {}
+
+components:
+  schemas:
+    DeviceEvent:
+      type: object
+      description: >-
+        What a device of the AMX system reported, as amx-service publishes it on the virtual
+        host of the devices. It names the device the way the datagram does - the gateway and
+        the data point - and not by the registry: the service that consumes it looks the device
+        up there, and drops the event of a point it does not know.
+      required:
+        - at
+        - vendor
+        - gateway
+        - point
+        - event
+      properties:
+        at:
+          type: string
+          format: date-time
+          description: When amx-service received the datagram
+        vendor:
+          $ref: './device-commons.yaml#/components/schemas/SmartVendor'
+        gateway:
+          $ref: './eaton.yaml#/components/schemas/EatonGatewayType'
+        point:
+          type: integer
+          minimum: 1
+          maximum: 99
+        event:
+          $ref: '#/components/schemas/EatonRxEvent'
+        value:
+          type: integer
+          description: The number an `analog value` or a `status` event carries; left out for the others
+
+    EatonRxEvent:
+      type: string
+      description: >-
+        What an Eaton device reported - the event of a received datagram, as amx-service reads
+        it. `analog value` and `status` come with a number (`value` of DeviceEvent), the others
+        say everything by themselves.
+      enum:
+        - "switch on"
+        - "switch off"
+        - "push button on"
+        - "push button off"
+        - "up pressed"
+        - "up released"
+        - "down pressed"
+        - "down released"
+        - "analog value"
+        - "status"
