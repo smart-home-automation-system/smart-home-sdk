@@ -29,8 +29,9 @@ components:
           format: int64
           readOnly: true
           description: >-
-            The identifier the registry gave the device. Never sent by a client; the registry
-            answers with it.
+            The identifier the registry gave the device; the registry answers with it. A client
+            has no reason to send it - but the model reads one that is sent (a reader of the
+            registry needs it), so the registry ignores it in what it is asked to store.
         name:
           type: string
           description: The name of the device, as the household knows it

@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -76,13 +77,16 @@ class SmartDeviceTest {
         }
     }
 
-    // The id is the registry's to give: there is no setter a payload could fill it through
-    // by accident, the registry builds its answer with it.
+    // The id is the registry's to give, so the model has no setter for it - the registry builds
+    // its answer with the builder. That does not keep it out of a payload: Jackson reads an id
+    // through the constructor, which is how a reader of the registry gets it, and a client that
+    // sends one has it in the model too. Ignoring it on a write is the registry's to do.
     @Test
-    void shouldLetTheRegistryGiveTheIdAndHaveNoSetterForIt() {
+    void shouldCarryTheIdThroughTheBuilderAndTheConstructorAndHaveNoSetter() throws NoSuchMethodException {
         assertEquals(42L, SmartDevice.builder().id(42L).build().getId());
         assertEquals(42L, new SmartDevice(42L).getId());
         assertThrows(NoSuchMethodException.class, () -> SmartDevice.class.getMethod("setId", Long.class));
+        assertNotNull(SmartDevice.class.getConstructor(Long.class).getAnnotation(JsonCreator.class));
     }
 
     // A Gen1 device has no MQTT id and many devices have no channel; the address and the
