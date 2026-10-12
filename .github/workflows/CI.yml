@@ -58,7 +58,7 @@ jobs:
             '{embeds: [{title: $title, color: $color, timestamp: $timestamp, fields: [
                {name: "Repository", value: $repository, inline: true},
                {name: "Ref", value: $ref, inline: true},
-               {name: "​", value: "​", inline: false},
+               {name: "\u200b", value: "\u200b", inline: false},
                {name: "Triggered by", value: $actor, inline: true},
                {name: "Workflow", value: $workflow, inline: true}
              ]}]}' > discord.json
