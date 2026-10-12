@@ -82,6 +82,7 @@ components:
         - "presence sensor"
         - "weather station"
         - "bthome gateway"
+        - "temperature sensor"
 
     LightKind:
       type: string
@@ -160,19 +161,15 @@ components:
     BthomeBinding:
       type: object
       description: >-
-        How a Bluetooth (BTHome) sensor is reached - through the gateway device that hears it
-        and by its own Bluetooth address.
+        How a Bluetooth (BTHome) sensor is known - by its own Bluetooth address, and by nothing
+        else. A sensor broadcasts to whoever hears it, so it is not bound to one gateway: every
+        device of the registry of the kind `bthome gateway` may deliver its readings, and a
+        second gateway in range is a second way to the same sensor, not a second device. A
+        service matches a reading by this address, whichever gateway brought it, and has to
+        expect the same reading twice.
       required:
-        - gatewayDeviceId
         - address
       properties:
-        gatewayDeviceId:
-          type: string
-          description: The MQTT id of the gateway the sensor is paired with - the `deviceId` of that Shelly
-          minLength: 3
-          maxLength: 50
-          pattern: ^[A-Za-z0-9_-]+$
-          example: 'shellyblugw-a1b2c3d4e5f6'
         address:
           type: string
           description: The Bluetooth MAC address of the sensor, lowercase and colon separated
