@@ -116,11 +116,12 @@ components:
         generation:
           type: integer
           description: >-
-            The generation of the API the device speaks, which is what a client has to know: 1
-            for a Gen1 device (HTTP actions and polling), 2 for everything later - Plus, Pro,
-            Gen3 and Gen4 all speak the RPC of the second generation and report over MQTT.
+            The generation of the device, the number it reports about itself (`gen`): 1 to 4.
+            What a client needs of it is one question - 1 or later: a Gen1 device is driven
+            by HTTP actions and polling, everything from 2 on (Plus, Pro, Gen3, Gen4) speaks
+            the same RPC and reports over MQTT.
           minimum: 1
-          maximum: 2
+          maximum: 4
         deviceId:
           type: string
           description: >-

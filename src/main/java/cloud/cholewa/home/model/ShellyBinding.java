@@ -59,7 +59,7 @@ public class ShellyBinding {
     @Nonnull
     @NotNull
     @Min(1)
-    @Max(2)
+    @Max(4)
     @JsonProperty(JSON_PROPERTY_GENERATION)
     @JsonInclude(value = JsonInclude.Include.ALWAYS)
     public Integer getGeneration() {

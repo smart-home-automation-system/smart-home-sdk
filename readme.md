@@ -162,7 +162,7 @@ and the dashboard read it.
 | `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway` |
 | `enabled` | `Boolean` | required, **no default** |
 | `vendor` | `SmartVendor` | required |
-| `shelly` | `ShellyBinding` | `address` (IPv4) and `generation` required; `deviceId`, `channel` (0-3) optional |
+| `shelly` | `ShellyBinding` | `address` (IPv4) and `generation` (1-4) required; `deviceId`, `channel` (0-3) optional |
 | `eaton` | `EatonBinding` | `gateway` (`EatonGatewayType`) and `point` (1-99) |
 | `bthome` | `BthomeBinding` | `gatewayDeviceId` and `address` (Bluetooth MAC, lowercase, colons) |
 | `lightKind` | `LightKind` | lights only: `relay`, `dimmer`, `rgbw` |
@@ -187,9 +187,10 @@ What a consumer has to know:
 - **The model reads an `id` that is sent.** There is no setter, but Jackson fills it through
   the constructor - which is how a reader of the registry gets it. Whoever stores a device
   ignores the id of the payload.
-- **`generation` is the generation of the API**, not of the hardware: `1` for a Gen1 device
-  (HTTP actions and polling), `2` for everything later - Plus, Pro, Gen3 and Gen4 speak the
-  same RPC and report over MQTT.
+- **`generation` is the number the device reports about itself** (`gen`), 1 to 4. A client
+  asks one thing of it: `1` is a Gen1 device (HTTP actions and polling), anything from `2`
+  on - Plus, Pro, Gen3, Gen4 - speaks the same RPC and reports over MQTT. Compare with
+  `>= 2`, never with `== 2`.
 - **`deviceId` is the first part of the routing key** of everything the device publishes over
   MQTT (`<deviceId>.status.switch:0`). Letters, digits, `-` and `_` only - a dot or a slash
   would split the key - and the case is the device's own. A Gen1 device has none.

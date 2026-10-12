@@ -86,7 +86,8 @@ class SmartDeviceTest {
     }
 
     // A Gen1 device has no MQTT id and many devices have no channel; the address and the
-    // generation are what a client cannot do without.
+    // generation are what a client cannot do without. The generation is the number the device
+    // reports, 1 to 4 - a registry that took 1 and 2 only would refuse a Gen3 as it names itself.
     @Test
     void shouldBoundTheShellyBinding() throws NoSuchMethodException {
         assertNotNull(ShellyBinding.class.getMethod("getAddress").getAnnotation(NotNull.class));
@@ -95,7 +96,7 @@ class SmartDeviceTest {
         assertNull(ShellyBinding.class.getMethod("getChannel").getAnnotation(NotNull.class));
 
         assertEquals(1, ShellyBinding.class.getMethod("getGeneration").getAnnotation(Min.class).value());
-        assertEquals(2, ShellyBinding.class.getMethod("getGeneration").getAnnotation(Max.class).value());
+        assertEquals(4, ShellyBinding.class.getMethod("getGeneration").getAnnotation(Max.class).value());
         assertEquals(0, ShellyBinding.class.getMethod("getChannel").getAnnotation(Min.class).value());
         assertEquals(3, ShellyBinding.class.getMethod("getChannel").getAnnotation(Max.class).value());
     }
