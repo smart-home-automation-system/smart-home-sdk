@@ -76,7 +76,8 @@ the org's `organization.md`; this file holds what is specific to this repository
 - **1.8.0 took a field away from a model of 1.7.0** (`BthomeBinding.gatewayDeviceId`, HAS-222) and
   was still a minor: no service had been released on 1.7.0, so nothing could send or expect
   it. That is the only case in which removing a field is not a major - check the consumer
-  list of `organization.md` before repeating it.
+  list of `organization.md` before repeating it. The package 1.7.0 stays in GitHub Packages
+  until `cleanup-releases` prunes it: it must never be consumed, the README says so.
 - **An enum value with a space** (`opening sensor`, `day off`) becomes a constant with an
   underscore, and `fromValue` reads the value, in any case, never the constant name. Tests pin
   both, because the registry stores the name and the JSON carries the value.

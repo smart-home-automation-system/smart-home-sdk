@@ -141,7 +141,15 @@ class SmartDeviceTest {
         assertFalse("7C:C6:B6:00:00:01".matches(pattern));
         assertFalse("7c-c6-b6-00-00-01".matches(pattern));
         assertFalse("7cc6b6000001".matches(pattern));
+    }
+
+    // The address is all a Bluetooth sensor is known by - there is no gateway to tell two
+    // bindings apart - so it is the one property and it is required.
+    @Test
+    void shouldKnowABluetoothSensorByItsAddressAlone() throws NoSuchMethodException {
+        assertEquals(Set.of("address"), JsonProperties.of(BthomeBinding.class));
         assertNotNull(BthomeBinding.class.getMethod("getAddress").getAnnotation(NotNull.class));
+        assertThrows(NoSuchMethodException.class, () -> BthomeBinding.class.getMethod("getGatewayDeviceId"));
     }
 
     @Test

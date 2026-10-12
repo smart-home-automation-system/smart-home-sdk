@@ -198,10 +198,23 @@ What a consumer has to know:
 - **A Bluetooth sensor is not bound to a gateway** (since 1.8.0; 1.7.0 had a `gatewayDeviceId`
   no release of a service ever used). A sensor broadcasts to whoever hears it: every device
   of the kind `bthome gateway` may deliver its readings, a second gateway in range is a second
-  way to the same sensor. A service matches a reading by `bthome.address`, whichever gateway
-  brought it - and has to expect the same reading twice.
-- **`temperature sensor` (since 1.8.0)** is the kind of the room sensors of the AMX system,
-  which the registry now holds like every other device.
+  way to the same sensor. The address is the identity of the sensor - the registry holds an
+  address once, so a sensor is one device of one kind - and a service that reads a gateway
+  finds the device of a reading by it, whichever gateway brought it, expecting the same
+  reading from two of them. **Not settled**: how a gateway names a sensor in what it
+  publishes (the address, or a number of its own that its configuration maps to the address);
+  that mapping belongs to the service that reads the gateway.
+- **A kind says nothing of the binding.** `temperature sensor` (since 1.8.0) is today a room
+  sensor of the AMX system, on an Eaton binding, and may tomorrow be a Bluetooth one: check
+  which binding a device has before reading it.
+- **`DeviceKind` is the vocabulary of the registry, `SmartDeviceType` the older one of the
+  Eaton configuration** (`EatonDeviceConfiguration`, `EatonConfigurationResponse`), which
+  `amx-service` still asks in. They share three names and are not interchangeable: a `dimmer`
+  there is a `light` with `lightKind` `dimmer` here. A new reader of devices uses the
+  registry models.
+- **Do not build on 1.7.0.** It was published a few hours before 1.8.0 with a
+  `BthomeBinding.gatewayDeviceId` that is required there and gone here; no service was ever
+  released on it.
 - **A new `DeviceKind` is not additive for a reader**: a consumer fails on a value it does not
   know, so a new kind is released and taken by every reader of the registry before a device
   of that kind is stored. The constant names (`OPENING_SENSOR`) are what the registry stores.

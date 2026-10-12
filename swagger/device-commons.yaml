@@ -16,6 +16,12 @@ components:
         - "other"
     SmartDeviceType:
       type: string
+      description: >-
+        The type of a device in the Eaton configuration - the vocabulary of EatonDeviceConfiguration
+        and EatonConfigurationResponse, which amx-service reads a datagram by. Not the kind of a
+        device of the registry: that is DeviceKind, with a LightKind for how a light is driven
+        (a `dimmer` here is a `light` that dims there). A new reader of devices uses the
+        registry models; these stay for the lookup amx-service makes.
       enum:
         - "temperature sensor"
         - "blinds"

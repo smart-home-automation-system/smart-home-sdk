@@ -71,7 +71,11 @@ components:
     DeviceKind:
       type: string
       description: >-
-        What a device is to the house. The constant names are what the registry stores -
+        What a device is to the house. A kind says nothing of how the device is reached: a
+        `temperature sensor` is today a room sensor of the AMX system, on an Eaton binding,
+        and may tomorrow be a Bluetooth one - a reader checks which binding is there. This is
+        the vocabulary of the registry; `SmartDeviceType` is the older one of the Eaton
+        configuration, which amx-service still asks in. The constant names are what the registry stores -
         renaming or removing one needs a migration of its rows; a new one has to be known to
         every reader of the registry before the registry stores it.
       enum:
@@ -164,9 +168,13 @@ components:
         How a Bluetooth (BTHome) sensor is known - by its own Bluetooth address, and by nothing
         else. A sensor broadcasts to whoever hears it, so it is not bound to one gateway: every
         device of the registry of the kind `bthome gateway` may deliver its readings, and a
-        second gateway in range is a second way to the same sensor, not a second device. A
-        service matches a reading by this address, whichever gateway brought it, and has to
-        expect the same reading twice.
+        second gateway in range is a second way to the same sensor, not a second device. The
+        address is the identity of the sensor: the registry holds an address once, so a sensor
+        is one device of one kind, whatever else it measures. A service that reads a gateway
+        finds the device of a reading by this address, whichever gateway brought it, and has
+        to expect the same reading from two of them. How a gateway names a sensor in what it
+        publishes - by the address, or by a number of its own that its configuration maps to
+        the address - is not settled here; that mapping is the reading service's.
       required:
         - address
       properties:
