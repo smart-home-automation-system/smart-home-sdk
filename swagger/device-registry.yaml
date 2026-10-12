@@ -44,9 +44,12 @@ components:
         enabled:
           type: boolean
           description: >-
-            Whether the services use the device. Deliberately without a default: a payload that
-            leaves it out says "not sent", and the registry has separate operations to enable
-            and to disable a device, as for the members of the household.
+            Whether the services use the device. Required, and deliberately without a default:
+            a device is registered with an explicit answer, and nothing fills one in for a
+            payload that has none - the model then holds null, which a validated body
+            refuses. The registry has separate operations to enable and to disable a device,
+            as for the members of the household; a partial update is not this whole model
+            behind @Valid, whose required fields it would be refused for.
         vendor:
           $ref: './device-commons.yaml#/components/schemas/SmartVendor'
         shelly:

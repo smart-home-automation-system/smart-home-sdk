@@ -4,17 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -26,7 +22,7 @@ class DeviceEventAndCalendarDayTest {
 
     @Test
     void shouldPublishTheseJsonPropertiesOfAnEventAndNoOther() {
-        assertEquals(Set.of("at", "vendor", "gateway", "point", "event", "value"), jsonPropertiesOf(DeviceEvent.class));
+        assertEquals(Set.of("at", "vendor", "gateway", "point", "event", "value"), JsonProperties.of(DeviceEvent.class));
     }
 
     // Everything but the value: only an analog value and a status carry a number.
@@ -58,7 +54,7 @@ class DeviceEventAndCalendarDayTest {
 
     @Test
     void shouldPublishTheseJsonPropertiesOfADayAndNoOther() {
-        assertEquals(Set.of("date", "type", "reason"), jsonPropertiesOf(CalendarDay.class));
+        assertEquals(Set.of("date", "type", "reason"), JsonProperties.of(CalendarDay.class));
     }
 
     // A day is a date of the house, not a moment; the reason is there only for a day somebody
@@ -71,14 +67,5 @@ class DeviceEventAndCalendarDayTest {
         assertNull(CalendarDay.class.getMethod("getReason").getAnnotation(NotNull.class));
         assertEquals(100, CalendarDay.class.getMethod("getReason").getAnnotation(Size.class).max());
         assertNull(new CalendarDay().getType());
-    }
-
-    private static Set<String> jsonPropertiesOf(Class<?> model) {
-        return Arrays.stream(model.getMethods())
-            .filter(method -> method.getName().startsWith("get"))
-            .map(method -> method.getAnnotation(JsonProperty.class))
-            .filter(Objects::nonNull)
-            .map(JsonProperty::value)
-            .collect(Collectors.toSet());
     }
 }

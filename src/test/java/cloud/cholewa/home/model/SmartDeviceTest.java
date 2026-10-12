@@ -8,15 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import java.util.Arrays;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -33,11 +29,11 @@ class SmartDeviceTest {
                 "id", "name", "room", "kind", "enabled", "vendor", "shelly", "eaton", "bthome", "lightKind",
                 "placement", "positioning"
             ),
-            jsonPropertiesOf(SmartDevice.class)
+            JsonProperties.of(SmartDevice.class)
         );
-        assertEquals(Set.of("address", "generation", "deviceId", "channel"), jsonPropertiesOf(ShellyBinding.class));
-        assertEquals(Set.of("gateway", "point"), jsonPropertiesOf(EatonBinding.class));
-        assertEquals(Set.of("gatewayDeviceId", "address"), jsonPropertiesOf(BthomeBinding.class));
+        assertEquals(Set.of("address", "generation", "deviceId", "channel"), JsonProperties.of(ShellyBinding.class));
+        assertEquals(Set.of("gateway", "point"), JsonProperties.of(EatonBinding.class));
+        assertEquals(Set.of("gatewayDeviceId", "address"), JsonProperties.of(BthomeBinding.class));
     }
 
     // The registry is updated partially: a field with a default would read the same whether
@@ -157,14 +153,5 @@ class SmartDeviceTest {
         assertEquals(1, EatonBinding.class.getMethod("getPoint").getAnnotation(Min.class).value());
         assertEquals(99, EatonBinding.class.getMethod("getPoint").getAnnotation(Max.class).value());
         assertEquals(EatonGatewayType.class, EatonBinding.class.getMethod("getGateway").getReturnType());
-    }
-
-    private static Set<String> jsonPropertiesOf(Class<?> model) {
-        return Arrays.stream(model.getMethods())
-            .filter(method -> method.getName().startsWith("get"))
-            .map(method -> method.getAnnotation(JsonProperty.class))
-            .filter(Objects::nonNull)
-            .map(JsonProperty::value)
-            .collect(Collectors.toSet());
     }
 }

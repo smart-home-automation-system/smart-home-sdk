@@ -59,8 +59,9 @@ class DeviceRegistryEnumsTest {
         );
     }
 
-    // The names follow RxEventType of amx-service, which reads them from the datagram; `status`
-    // is the one that enum does not have yet.
+    // The same ten names as RxEventType of amx-service, which reads the event from the
+    // datagram - so that service maps one enum to the other by name. Never by position: the
+    // order here is the one of the task, not the one of that enum.
     @Test
     void shouldKnowExactlyTheseEatonEvents() {
         assertEquals(
