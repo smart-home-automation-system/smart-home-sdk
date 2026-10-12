@@ -33,7 +33,8 @@ class SmartDeviceTest {
         );
         assertEquals(Set.of("address", "generation", "deviceId", "channel"), JsonProperties.of(ShellyBinding.class));
         assertEquals(Set.of("gateway", "point"), JsonProperties.of(EatonBinding.class));
-        assertEquals(Set.of("gatewayDeviceId", "address"), JsonProperties.of(BthomeBinding.class));
+        //the address alone: a sensor is not bound to a gateway, any registered one may deliver it
+        assertEquals(Set.of("address"), JsonProperties.of(BthomeBinding.class));
     }
 
     // The registry is updated partially: a field with a default would read the same whether
@@ -115,11 +116,6 @@ class SmartDeviceTest {
         assertFalse("shelly/plus2pm".matches(pattern));
         assertFalse("shelly plus2pm".matches(pattern));
         assertFalse("".matches(pattern));
-
-        assertEquals(
-            pattern,
-            BthomeBinding.class.getMethod("getGatewayDeviceId").getAnnotation(Pattern.class).regexp()
-        );
     }
 
     @Test
@@ -145,6 +141,15 @@ class SmartDeviceTest {
         assertFalse("7C:C6:B6:00:00:01".matches(pattern));
         assertFalse("7c-c6-b6-00-00-01".matches(pattern));
         assertFalse("7cc6b6000001".matches(pattern));
+    }
+
+    // The address is all a Bluetooth sensor is known by - there is no gateway to tell two
+    // bindings apart - so it is the one property and it is required.
+    @Test
+    void shouldKnowABluetoothSensorByItsAddressAlone() throws NoSuchMethodException {
+        assertEquals(Set.of("address"), JsonProperties.of(BthomeBinding.class));
+        assertNotNull(BthomeBinding.class.getMethod("getAddress").getAnnotation(NotNull.class));
+        assertThrows(NoSuchMethodException.class, () -> BthomeBinding.class.getMethod("getGatewayDeviceId"));
     }
 
     @Test

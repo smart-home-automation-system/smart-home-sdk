@@ -6,42 +6,18 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import java.util.Objects;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@JsonPropertyOrder({BthomeBinding.JSON_PROPERTY_GATEWAY_DEVICE_ID, BthomeBinding.JSON_PROPERTY_ADDRESS})
+@JsonPropertyOrder({BthomeBinding.JSON_PROPERTY_ADDRESS})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
 public class BthomeBinding {
 
-    public static final String JSON_PROPERTY_GATEWAY_DEVICE_ID = "gatewayDeviceId";
-    private String gatewayDeviceId;
     public static final String JSON_PROPERTY_ADDRESS = "address";
     private String address;
-
-    public BthomeBinding gatewayDeviceId(String gatewayDeviceId) {
-        this.gatewayDeviceId = gatewayDeviceId;
-        return this;
-    }
-
-    @Nonnull
-    @NotNull
-    @Pattern(regexp = "^[A-Za-z0-9_-]+$")
-    @Size(min = 3, max = 50)
-    @JsonProperty(JSON_PROPERTY_GATEWAY_DEVICE_ID)
-    @JsonInclude(value = JsonInclude.Include.ALWAYS)
-    public String getGatewayDeviceId() {
-        return gatewayDeviceId;
-    }
-
-    @JsonProperty(JSON_PROPERTY_GATEWAY_DEVICE_ID)
-    @JsonInclude(value = JsonInclude.Include.ALWAYS)
-    public void setGatewayDeviceId(String gatewayDeviceId) {
-        this.gatewayDeviceId = gatewayDeviceId;
-    }
 
     public BthomeBinding address(String address) {
         this.address = address;
@@ -72,20 +48,18 @@ public class BthomeBinding {
             return false;
         }
         BthomeBinding bthomeBinding = (BthomeBinding) o;
-        return Objects.equals(this.gatewayDeviceId, bthomeBinding.gatewayDeviceId)
-                && Objects.equals(this.address, bthomeBinding.address);
+        return Objects.equals(this.address, bthomeBinding.address);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(gatewayDeviceId, address);
+        return Objects.hash(address);
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("class BthomeBinding {\n");
-        sb.append("    gatewayDeviceId: ").append(toIndentedString(gatewayDeviceId)).append("\n");
         sb.append("    address: ").append(toIndentedString(address)).append("\n");
         sb.append("}");
         return sb.toString();

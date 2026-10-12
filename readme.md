@@ -36,7 +36,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.7.0</version>
+    <version>1.8.0</version>
 </dependency>
 ```
 
@@ -159,12 +159,12 @@ and the dashboard read it.
 | `id` | `Long` | given by the registry; left out of the JSON until it has one |
 | `name` | `String`, 3-50 | required |
 | `room` | `RoomName` | required |
-| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway` |
+| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway`, `temperature sensor` (since 1.8.0) |
 | `enabled` | `Boolean` | required, **no default** |
 | `vendor` | `SmartVendor` | required |
 | `shelly` | `ShellyBinding` | `address` (IPv4) and `generation` (1-4) required; `deviceId`, `channel` (0-3) optional |
 | `eaton` | `EatonBinding` | `gateway` (`EatonGatewayType`) and `point` (1-99) |
-| `bthome` | `BthomeBinding` | `gatewayDeviceId` and `address` (Bluetooth MAC, lowercase, colons) |
+| `bthome` | `BthomeBinding` | `address` (Bluetooth MAC, lowercase, colons) - and no gateway, since 1.8.0 |
 | `lightKind` | `LightKind` | lights only: `relay`, `dimmer`, `rgbw` |
 | `placement` | `BlindsPlacement` | blinds only: `external`, `internal` |
 | `positioning` | `Boolean` | blinds only, **no default** |
@@ -195,6 +195,26 @@ What a consumer has to know:
   MQTT (`<deviceId>.status.switch:0`). Letters, digits, `-` and `_` only - a dot or a slash
   would split the key - and the case is the device's own. A Gen1 device has none.
 - **A relay with four outputs is four devices** of the registry, told apart by `channel`.
+- **A Bluetooth sensor is not bound to a gateway** (since 1.8.0; 1.7.0 had a `gatewayDeviceId`
+  no release of a service ever used). A sensor broadcasts to whoever hears it: every device
+  of the kind `bthome gateway` may deliver its readings, a second gateway in range is a second
+  way to the same sensor. The address is the identity of the sensor - the registry holds an
+  address once, so a sensor is one device of one kind - and a service that reads a gateway
+  finds the device of a reading by it, whichever gateway brought it, expecting the same
+  reading from two of them. **Not settled**: how a gateway names a sensor in what it
+  publishes (the address, or a number of its own that its configuration maps to the address);
+  that mapping belongs to the service that reads the gateway.
+- **A kind says nothing of the binding.** `temperature sensor` (since 1.8.0) is today a room
+  sensor of the AMX system, on an Eaton binding, and may tomorrow be a Bluetooth one: check
+  which binding a device has before reading it.
+- **`DeviceKind` is the vocabulary of the registry, `SmartDeviceType` the older one of the
+  Eaton configuration** (`EatonDeviceConfiguration`, `EatonConfigurationResponse`), which
+  `amx-service` still asks in. They share three names and are not interchangeable: a `dimmer`
+  there is a `light` with `lightKind` `dimmer` here. A new reader of devices uses the
+  registry models.
+- **Do not build on 1.7.0.** It was published a few hours before 1.8.0 with a
+  `BthomeBinding.gatewayDeviceId` that is required there and gone here; no service was ever
+  released on it.
 - **A new `DeviceKind` is not additive for a reader**: a consumer fails on a value it does not
   know, so a new kind is released and taken by every reader of the registry before a device
   of that kind is stored. The constant names (`OPENING_SENSOR`) are what the registry stores.

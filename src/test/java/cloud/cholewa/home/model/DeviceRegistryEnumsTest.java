@@ -29,7 +29,8 @@ class DeviceRegistryEnumsTest {
                 "MOTION_SENSOR", "motion sensor",
                 "PRESENCE_SENSOR", "presence sensor",
                 "WEATHER_STATION", "weather station",
-                "BTHOME_GATEWAY", "bthome gateway"
+                "BTHOME_GATEWAY", "bthome gateway",
+                "TEMPERATURE_SENSOR", "temperature sensor"
             ),
             namesAndValues(DeviceKind.values(), DeviceKind::getValue)
         );
