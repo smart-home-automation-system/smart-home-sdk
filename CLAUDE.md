@@ -1,14 +1,16 @@
 # smart-home-sdk
 
 Shared domain and API models of the Smart Home Automation System: room names, device types,
-Eaton configuration, RabbitMQ payloads, the household registry. A **model-only** library - no
+Eaton configuration, RabbitMQ payloads, the household registry, the device registry, the
+calendar. A **model-only** library - no
 Spring, no logic. Organization-wide rules (who writes code, branches, reviews, releases) are in
 the org's `organization.md`; this file holds what is specific to this repository.
 
 ## How it is built
 
 - **The source of truth is `swagger/`**, not `src/main/java`. One schema file per domain
-  (`home.yaml`, `device-commons.yaml`, `eaton.yaml`, `rabbit.yaml`, `household.yaml`);
+  (`home.yaml`, `device-commons.yaml`, `eaton.yaml`, `rabbit.yaml`, `household.yaml`,
+  `device-registry.yaml`, `calendar.yaml`, `device-events.yaml`);
   `smart-home.yaml` aggregates them and is the only file the generator reads. **A schema that
   is not referenced from `smart-home.yaml` generates nothing** - `shelly.yaml` is such a file
   today, and so are single schemas inside the others (marked `# not used`).
@@ -43,7 +45,11 @@ the org's `organization.md`; this file holds what is specific to this repository
   generator always starts it as an empty list.
 - **`$ref` paths**: inside `swagger/` a sibling file is `./home.yaml#/components/schemas/X`.
   (`eaton.yaml` and `rabbit.yaml` use `../home.yaml`, which works only together with the
-  trailing slash in the references of `smart-home.yaml` - do not copy that form.)
+  trailing slash in the references of `smart-home.yaml` - do not copy that form.) **The two
+  forms do not mix inside one file**: a `./x.yaml` reference added to `rabbit.yaml` fails the
+  generator with `Unable to load RELATIVE ref: ./rabbit.yaml/x.yaml` - which is why the device
+  event, a RabbitMQ payload, has a file of its own (HAS-221). A new model that refers to
+  another file goes into a file referenced without the slash.
 - **A default on an enum goes on the enum schema**, should one ever be wanted: a `default`
   written next to a `$ref` is ignored by OpenAPI 3.0.
 - **Defaults reach `new X()` and deserialization, not the builder.** The classes carry
@@ -58,6 +64,18 @@ the org's `organization.md`; this file holds what is specific to this repository
   not know, and `presence-service` reads the whole registry at once - so a new value is
   released, taken by every consumer that deserializes the household models, and only then
   granted to anybody.
+- **`readOnly` keeps a setter away, not a value** (HAS-221). For `SmartDevice.id` the generator
+  writes no setter and a `@JsonCreator` constructor taking the id instead - so Jackson still
+  reads an id a client sends. "The registry gives the id" is a rule of the registry, not of
+  the model.
+- **A device is described by optional parts the model does not tie together** (HAS-221):
+  `SmartDevice` has three bindings and three fields of one kind only, all optional. Which of
+  them a device must have follows from its vendor and kind, and the schema does not say it
+  (`oneOf` was not tried - one flat class is what the registry stores a row of). So the rule
+  lives in the registry, and the README says so to every consumer.
+- **An enum value with a space** (`opening sensor`, `day off`) becomes a constant with an
+  underscore, and `fromValue` reads the value, in any case, never the constant name. Tests pin
+  both, because the registry stores the name and the JSON carries the value.
 - **Empty collections are omitted from JSON** (`@JsonInclude(NON_EMPTY)` on every class): a
   reader of the JSON treats a missing array as empty.
 - **Bounds belong in the schema** (`required`, `minLength`, `pattern`, `enum`, `uniqueItems`):

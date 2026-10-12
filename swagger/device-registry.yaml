@@ -1,0 +1,181 @@
+openapi: 3.0.3
+info:
+  title: Device registry
+  description: Models of the registry of the devices of the house
+  version: 1.0.0
+
+paths: {}
+
+components:
+  schemas:
+    SmartDevice:
+      type: object
+      description: >-
+        One device of the house as the registry holds it: what it is, where it is and how it is
+        reached. The registry lives in database-service; the services of the domains (weather,
+        blinds, light, heating) and the dashboard read it. A device is reached through exactly
+        one binding - `shelly`, `eaton` or `bthome` - and which one has to be there follows from
+        the vendor and the kind; the model cannot say it, the registry checks it when the device
+        is stored. The fields at the end describe one kind only and are left out for the others.
+      required:
+        - name
+        - room
+        - kind
+        - enabled
+        - vendor
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+          description: >-
+            The identifier the registry gave the device; the registry answers with it. A client
+            has no reason to send it - but the model reads one that is sent (a reader of the
+            registry needs it), so the registry ignores it in what it is asked to store.
+        name:
+          type: string
+          description: The name of the device, as the household knows it
+          minLength: 3
+          maxLength: 50
+        room:
+          $ref: './home.yaml#/components/schemas/RoomName'
+        kind:
+          $ref: '#/components/schemas/DeviceKind'
+        enabled:
+          type: boolean
+          description: >-
+            Whether the services use the device. Required, and deliberately without a default:
+            a device is registered with an explicit answer, and nothing fills one in for a
+            payload that has none - the model then holds null, which a validated body
+            refuses. The registry has separate operations to enable and to disable a device,
+            as for the members of the household; a partial update is not this whole model
+            behind @Valid, whose required fields it would be refused for.
+        vendor:
+          $ref: './device-commons.yaml#/components/schemas/SmartVendor'
+        shelly:
+          $ref: '#/components/schemas/ShellyBinding'
+        eaton:
+          $ref: '#/components/schemas/EatonBinding'
+        bthome:
+          $ref: '#/components/schemas/BthomeBinding'
+        lightKind:
+          $ref: '#/components/schemas/LightKind'
+        placement:
+          $ref: '#/components/schemas/BlindsPlacement'
+        positioning:
+          type: boolean
+          description: >-
+            Blinds only: whether the device can be sent to a position between open and closed.
+            Without a default - a missing value means "not known".
+
+    DeviceKind:
+      type: string
+      description: >-
+        What a device is to the house. The constant names are what the registry stores -
+        renaming or removing one needs a migration of its rows; a new one has to be known to
+        every reader of the registry before the registry stores it.
+      enum:
+        - "blinds"
+        - "light"
+        - "opening sensor"
+        - "motion sensor"
+        - "presence sensor"
+        - "weather station"
+        - "bthome gateway"
+
+    LightKind:
+      type: string
+      description: How a light is driven - switched, dimmed, or dimmed with a colour.
+      enum:
+        - "relay"
+        - "dimmer"
+        - "rgbw"
+
+    BlindsPlacement:
+      type: string
+      description: >-
+        Where blinds hang: outside the window (they answer to wind and frost) or inside it.
+      enum:
+        - "external"
+        - "internal"
+
+    ShellyBinding:
+      type: object
+      description: How a Shelly device is reached - over HTTP by its address, and what it calls itself over MQTT.
+      required:
+        - address
+        - generation
+      properties:
+        address:
+          type: string
+          description: The IPv4 address of the device on the home network
+          format: ipv4
+          maxLength: 15
+          pattern: ^((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])$
+          example: '192.0.2.17'
+        generation:
+          type: integer
+          description: >-
+            The generation of the device, the number it reports about itself (`gen`): 1 to 4.
+            What a client needs of it is one question - 1 or later: a Gen1 device is driven
+            by HTTP actions and polling, everything from 2 on (Plus, Pro, Gen3, Gen4) speaks
+            the same RPC and reports over MQTT.
+          minimum: 1
+          maximum: 4
+        deviceId:
+          type: string
+          description: >-
+            The id the device uses as its MQTT client id and topic prefix - the first part of
+            the routing key of everything it publishes. Most start with the model
+            (`shellyplus2pm-a1b2c3d4e5f6`), not all do, and the case matters. It holds no dot
+            and no slash: either would split the routing key. Left out for a Gen1 device, which
+            does not report over MQTT.
+          minLength: 3
+          maxLength: 50
+          pattern: ^[A-Za-z0-9_-]+$
+          example: 'shellyplus2pm-a1b2c3d4e5f6'
+        channel:
+          type: integer
+          description: >-
+            The channel of the device this entry stands for, as in `switch:0` or `cover:0` - a
+            relay with four outputs is four devices of the registry. Left out for a device
+            without channels.
+          minimum: 0
+          maximum: 3
+
+    EatonBinding:
+      type: object
+      description: How an Eaton device is reached - the data point on one of the two gateways of the AMX system.
+      required:
+        - gateway
+        - point
+      properties:
+        gateway:
+          $ref: './eaton.yaml#/components/schemas/EatonGatewayType'
+        point:
+          type: integer
+          minimum: 1
+          maximum: 99
+
+    BthomeBinding:
+      type: object
+      description: >-
+        How a Bluetooth (BTHome) sensor is reached - through the gateway device that hears it
+        and by its own Bluetooth address.
+      required:
+        - gatewayDeviceId
+        - address
+      properties:
+        gatewayDeviceId:
+          type: string
+          description: The MQTT id of the gateway the sensor is paired with - the `deviceId` of that Shelly
+          minLength: 3
+          maxLength: 50
+          pattern: ^[A-Za-z0-9_-]+$
+          example: 'shellyblugw-a1b2c3d4e5f6'
+        address:
+          type: string
+          description: The Bluetooth MAC address of the sensor, lowercase and colon separated
+          format: mac
+          pattern: ^([0-9a-f]{2}:){5}[0-9a-f]{2}$
+          example: '7c:c6:b6:00:00:01'

@@ -17,10 +17,12 @@
 Shared domain and API models for the smart-home-automation-system services. The model
 classes (`cloud.cholewa.home.model`) are generated at build time from the OpenAPI schemas
 in [`swagger/`](swagger/) (`smart-home.yaml` aggregates the home, device-commons, Eaton,
-RabbitMQ and household schemas) and cover room names, device vendors/types, Eaton gateway
+RabbitMQ, household, device-registry, calendar and device-events schemas) and cover room names, device vendors/types, Eaton gateway
 configuration and datagram replies, RabbitMQ message payloads such as `TemperatureMessage`,
 and the household registry (`HouseholdMember` with its Wi-Fi devices, `MemberPhoneDetails`,
-and with its role, rooms and permissions - `MemberRole`, `MemberPermission`).
+and with its role, rooms and permissions - `MemberRole`, `MemberPermission`), and - since
+1.7.0 - the device registry (`SmartDevice` and its bindings), the calendar of workdays and
+days off (`CalendarDay`) and the event of an AMX device (`DeviceEvent`).
 
 Current consumers: `amx-service`, `boiler-service`, `database-service`, `heating-service`,
 `presence-service`, `shelly-cloud-service`, `water-service`.
@@ -34,7 +36,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.6.0</version>
+    <version>1.7.0</version>
 </dependency>
 ```
 
@@ -145,6 +147,89 @@ fields left empty - there is no field to fill by mistake.
   not null); a client still reads anything but `admin` as the role that reaches the least.
 - The builder applies no defaults here either: `HouseholdProfile.builder()` without
   `.rooms(...)` has `null` rooms.
+
+### Device registry: a device of the house
+
+Since 1.7.0 `SmartDevice` is one device as the registry of `database-service` holds it - what
+it is, where it is and how it is reached. The domain services (weather, blinds, light, heating)
+and the dashboard read it.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `Long` | given by the registry; left out of the JSON until it has one |
+| `name` | `String`, 3-50 | required |
+| `room` | `RoomName` | required |
+| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway` |
+| `enabled` | `Boolean` | required, **no default** |
+| `vendor` | `SmartVendor` | required |
+| `shelly` | `ShellyBinding` | `address` (IPv4) and `generation` (1-4) required; `deviceId`, `channel` (0-3) optional |
+| `eaton` | `EatonBinding` | `gateway` (`EatonGatewayType`) and `point` (1-99) |
+| `bthome` | `BthomeBinding` | `gatewayDeviceId` and `address` (Bluetooth MAC, lowercase, colons) |
+| `lightKind` | `LightKind` | lights only: `relay`, `dimmer`, `rgbw` |
+| `placement` | `BlindsPlacement` | blinds only: `external`, `internal` |
+| `positioning` | `Boolean` | blinds only, **no default** |
+
+```json
+{"id":17,"name":"Office window","room":"office","kind":"blinds","enabled":true,"vendor":"shelly",
+ "shelly":{"address":"192.0.2.17","generation":2,"deviceId":"shellyplus2pm-a1b2c3d4e5f6","channel":0},
+ "placement":"external","positioning":true}
+```
+
+What a consumer has to know:
+
+- **The model does not check which binding belongs to a device.** One of `shelly`, `eaton` and
+  `bthome` is expected, by the vendor and the kind; so is `lightKind` for a light only. `@Valid`
+  checks each binding that is there and nothing between the fields - the rule is the
+  registry's to keep when a device is stored.
+- **Nothing has a default**, so a partial update can tell "not sent" from a value. `enabled` is
+  required for that reason; the registry enables and disables a device with operations of its
+  own.
+- **The model reads an `id` that is sent.** There is no setter, but Jackson fills it through
+  the constructor - which is how a reader of the registry gets it. Whoever stores a device
+  ignores the id of the payload.
+- **`generation` is the number the device reports about itself** (`gen`), 1 to 4. A client
+  asks one thing of it: `1` is a Gen1 device (HTTP actions and polling), anything from `2`
+  on - Plus, Pro, Gen3, Gen4 - speaks the same RPC and reports over MQTT. Compare with
+  `>= 2`, never with `== 2`.
+- **`deviceId` is the first part of the routing key** of everything the device publishes over
+  MQTT (`<deviceId>.status.switch:0`). Letters, digits, `-` and `_` only - a dot or a slash
+  would split the key - and the case is the device's own. A Gen1 device has none.
+- **A relay with four outputs is four devices** of the registry, told apart by `channel`.
+- **A new `DeviceKind` is not additive for a reader**: a consumer fails on a value it does not
+  know, so a new kind is released and taken by every reader of the registry before a device
+  of that kind is stored. The constant names (`OPENING_SENSOR`) are what the registry stores.
+
+### Calendar: workdays and days off
+
+Since 1.7.0 `CalendarDay` is one day of the calendar of the house: `date` (a `LocalDate`),
+`type` (`DayType`: `workday` or `day off`) and an optional `reason` (up to 100 characters -
+the name of the holiday, or what the household wrote).
+
+```json
+{"date":"2026-11-11","type":"day off","reason":"Independence Day"}
+```
+
+### Device event: what a device of the AMX system reported
+
+Since 1.7.0 `DeviceEvent` is the RabbitMQ payload `amx-service` publishes for an Eaton
+datagram on the virtual host of the devices.
+
+| Field | Type | Notes |
+|---|---|---|
+| `at` | `LocalDateTime` | required; a local date-time of the house, no offset - like `TemperatureMessage.date` |
+| `vendor` | `SmartVendor` | required |
+| `gateway` | `EatonGatewayType` | required |
+| `point` | `Integer`, 1-99 | required |
+| `event` | `EatonRxEvent` | required: `switch on`, `switch off`, `push button on`, `push button off`, `up pressed`, `up released`, `down pressed`, `down released`, `analog value`, `status` |
+| `value` | `Integer` | only for `analog value` and `status` |
+
+```json
+{"at":"2026-10-12T18:30:05","vendor":"eaton","gateway":"blinds","point":44,"event":"up pressed"}
+```
+
+The event names the device the way the datagram does - gateway and point - not by the
+registry: the consumer looks the device up there and drops the event of a point it does not
+know.
 
 To add or change a model, edit the relevant schema in `swagger/` and reference it from
 `swagger/smart-home.yaml`; `mvn verify` regenerates the sources in

@@ -1,0 +1,37 @@
+openapi: 3.0.3
+info:
+  title: Calendar
+  description: Models of the calendar of the house - which days are days off
+  version: 1.0.0
+
+paths: {}
+
+components:
+  schemas:
+    CalendarDay:
+      type: object
+      description: >-
+        One day of the calendar of the house: whether the household works that day. The
+        schedules that differ between workdays and days off (the blinds first) ask for it.
+        Weekends and public holidays are worked out by whoever serves the calendar; a day the
+        household set by hand carries the reason it gave.
+      required:
+        - date
+        - type
+      properties:
+        date:
+          type: string
+          format: date
+          description: The day, a local date of the house
+        type:
+          $ref: '#/components/schemas/DayType'
+        reason:
+          type: string
+          description: Why the day is what it is - the name of the holiday, or what the household wrote
+          maxLength: 100
+
+    DayType:
+      type: string
+      enum:
+        - "workday"
+        - "day off"
