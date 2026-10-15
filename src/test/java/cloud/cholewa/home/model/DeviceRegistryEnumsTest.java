@@ -30,9 +30,28 @@ class DeviceRegistryEnumsTest {
                 "PRESENCE_SENSOR", "presence sensor",
                 "WEATHER_STATION", "weather station",
                 "BTHOME_GATEWAY", "bthome gateway",
-                "TEMPERATURE_SENSOR", "temperature sensor"
+                "TEMPERATURE_SENSOR", "temperature sensor",
+                "PUSH_BUTTON", "push button"
             ),
             namesAndValues(DeviceKind.values(), DeviceKind::getValue)
+        );
+    }
+
+    // The vocabulary of the Eaton configuration, which amx-service reads a datagram by and
+    // database-service maps onto the kinds above; the names are matched by both of them.
+    @Test
+    void shouldKnowExactlyTheseEatonConfigurationTypes() {
+        assertEquals(
+            ordered(
+                "TEMPERATURE_SENSOR", "temperature sensor",
+                "BLINDS", "blinds",
+                "LIGHT", "light",
+                "DIMMER", "dimmer",
+                "OTHER", "other",
+                "PUSH_BUTTON", "push button",
+                "MOTION_SENSOR", "motion sensor"
+            ),
+            namesAndValues(SmartDeviceType.values(), SmartDeviceType::getValue)
         );
     }
 

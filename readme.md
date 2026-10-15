@@ -36,7 +36,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.8.0</version>
+    <version>1.9.0</version>
 </dependency>
 ```
 
@@ -159,7 +159,7 @@ and the dashboard read it.
 | `id` | `Long` | given by the registry; left out of the JSON until it has one |
 | `name` | `String`, 3-50 | required |
 | `room` | `RoomName` | required |
-| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway`, `temperature sensor` (since 1.8.0) |
+| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway`, `temperature sensor` (since 1.8.0), `push button` (since 1.9.0) |
 | `enabled` | `Boolean` | required, **no default** |
 | `vendor` | `SmartVendor` | required |
 | `shelly` | `ShellyBinding` | `address` (IPv4) and `generation` (1-4) required; `deviceId`, `channel` (0-3) optional |
@@ -209,15 +209,20 @@ What a consumer has to know:
   which binding a device has before reading it.
 - **`DeviceKind` is the vocabulary of the registry, `SmartDeviceType` the older one of the
   Eaton configuration** (`EatonDeviceConfiguration`, `EatonConfigurationResponse`), which
-  `amx-service` still asks in. They share three names and are not interchangeable: a `dimmer`
+  `amx-service` still asks in. They share five names and are not interchangeable: a `dimmer`
   there is a `light` with `lightKind` `dimmer` here. A new reader of devices uses the
-  registry models.
+  registry models. `push button` and `motion sensor` (in `SmartDeviceType` since 1.9.0) only
+  report: an Eaton push button or PIR sensor is never sent anything.
 - **Do not build on 1.7.0.** It was published a few hours before 1.8.0 with a
   `BthomeBinding.gatewayDeviceId` that is required there and gone here; no service was ever
   released on it.
 - **A new `DeviceKind` is not additive for a reader**: a consumer fails on a value it does not
   know, so a new kind is released and taken by every reader of the registry before a device
   of that kind is stored. The constant names (`OPENING_SENSOR`) are what the registry stores.
+  **The same holds for a new `SmartDeviceType`**, whose reader is `amx-service`: it has to run
+  a version that knows `push button` and `motion sensor` before `database-service` answers
+  either of them for a data point - on an older one every datagram of that point fails its
+  lookup.
 
 ### Calendar: workdays and days off
 

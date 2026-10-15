@@ -9,7 +9,9 @@ public enum SmartDeviceType {
     BLINDS("blinds"),
     LIGHT("light"),
     DIMMER("dimmer"),
-    OTHER("other");
+    OTHER("other"),
+    PUSH_BUTTON("push button"),
+    MOTION_SENSOR("motion sensor");
 
     private String value;
 

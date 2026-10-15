@@ -12,7 +12,8 @@ public enum DeviceKind {
     PRESENCE_SENSOR("presence sensor"),
     WEATHER_STATION("weather station"),
     BTHOME_GATEWAY("bthome gateway"),
-    TEMPERATURE_SENSOR("temperature sensor");
+    TEMPERATURE_SENSOR("temperature sensor"),
+    PUSH_BUTTON("push button");
 
     private String value;
 
