@@ -21,13 +21,16 @@ components:
         and EatonConfigurationResponse, which amx-service reads a datagram by. Not the kind of a
         device of the registry: that is DeviceKind, with a LightKind for how a light is driven
         (a `dimmer` here is a `light` that dims there). A new reader of devices uses the
-        registry models; these stay for the lookup amx-service makes.
+        registry models; these stay for the lookup amx-service makes. `push button` and
+        `motion sensor` (since 1.9.0) only report - nothing is ever sent to them.
       enum:
         - "temperature sensor"
         - "blinds"
         - "light"
         - "dimmer"
         - "other"
+        - "push button"
+        - "motion sensor"
 
 
 # not used yet

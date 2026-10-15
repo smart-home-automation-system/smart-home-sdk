@@ -77,7 +77,8 @@ components:
         the vocabulary of the registry; `SmartDeviceType` is the older one of the Eaton
         configuration, which amx-service still asks in. The constant names are what the registry stores -
         renaming or removing one needs a migration of its rows; a new one has to be known to
-        every reader of the registry before the registry stores it.
+        every reader of the registry before the registry stores it. A `push button` (since
+        1.9.0) is a wall transmitter or an input that reports presses and is never driven.
       enum:
         - "blinds"
         - "light"
@@ -87,6 +88,7 @@ components:
         - "weather station"
         - "bthome gateway"
         - "temperature sensor"
+        - "push button"
 
     LightKind:
       type: string
