@@ -82,8 +82,10 @@ the org's `organization.md`; this file holds what is specific to this repository
   underscore, and `fromValue` reads the value, in any case, never the constant name. Tests pin
   both, because the registry stores the name and the JSON carries the value.
 - **An old spelling of a value is read through `x-enum-aliases`** (HAS-289): a list of
-  `alias` / `constant` pairs on the enum schema, which `modelEnum.mustache` turns into extra
-  checks in `fromValue` after the real values. `RoomName` reads `hall_up` as `HALL_UP` since
+  `alias` / `constant` pairs on a top-level enum schema, which `modelEnum.mustache` turns into
+  extra checks in `fromValue` after the real values (an inline enum ignores it:
+  `modelInnerEnum.mustache` has no such block). The check ignores case, as the values do -
+  so `HALL_UP` is read too, as it already was under the old spelling. `RoomName` reads `hall_up` as `HALL_UP` since
   1.10.0, when the value became `hall up`. An alias is a transition, not a second value: drop
   it once no stored row or message carries the old spelling (and say so in the release).
 - **Empty collections are omitted from JSON** (`@JsonInclude(NON_EMPTY)` on every class): a
