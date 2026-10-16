@@ -81,6 +81,11 @@ the org's `organization.md`; this file holds what is specific to this repository
 - **An enum value with a space** (`opening sensor`, `day off`) becomes a constant with an
   underscore, and `fromValue` reads the value, in any case, never the constant name. Tests pin
   both, because the registry stores the name and the JSON carries the value.
+- **An old spelling of a value is read through `x-enum-aliases`** (HAS-289): a list of
+  `alias` / `constant` pairs on the enum schema, which `modelEnum.mustache` turns into extra
+  checks in `fromValue` after the real values. `RoomName` reads `hall_up` as `HALL_UP` since
+  1.10.0, when the value became `hall up`. An alias is a transition, not a second value: drop
+  it once no stored row or message carries the old spelling (and say so in the release).
 - **Empty collections are omitted from JSON** (`@JsonInclude(NON_EMPTY)` on every class): a
   reader of the JSON treats a missing array as empty.
 - **Bounds belong in the schema** (`required`, `minLength`, `pattern`, `enum`, `uniqueItems`):
