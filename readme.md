@@ -36,7 +36,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.9.0</version>
+    <version>1.10.0</version>
 </dependency>
 ```
 
@@ -66,6 +66,12 @@ TemperatureMessage message = TemperatureMessage.builder()
 
 RoomName room = RoomName.fromValue("living room");
 ```
+
+A room of two words is written with a space (`living room`, `hall down`). `HALL_UP` was the
+one exception until 1.10.0 (`hall_up`); it is `hall up` now, and `RoomName.fromValue` still
+reads `hall_up` as `HALL_UP` - a transition, so that a service on 1.10.0 understands one still
+on 1.9.0. A service on 1.9.0 or older does **not** read `hall up`: no room may be set to it
+before every reader has moved.
 
 ### Household member: role and rooms
 

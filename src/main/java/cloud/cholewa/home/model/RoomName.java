@@ -12,7 +12,7 @@ public enum RoomName {
     TOBI("tobi"),
     OFFICE("office"),
     BATHROOM_UP("bathroom up"),
-    HALL_UP("hall_up"),
+    HALL_UP("hall up"),
     STAIRS("stairs"),
     KITCHEN("kitchen"),
     LIVING_ROOM("living room"),
@@ -48,6 +48,9 @@ public enum RoomName {
             if (b.value.equalsIgnoreCase(value)) {
                 return b;
             }
+        }
+        if ("hall_up".equalsIgnoreCase(value)) {
+            return HALL_UP;
         }
         throw new IllegalArgumentException("Unexpected value '" + value + "'");
     }
