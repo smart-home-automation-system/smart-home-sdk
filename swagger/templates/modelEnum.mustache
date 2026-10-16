@@ -55,6 +55,11 @@ if (b.value.{{^isString}}equals{{/isString}}{{#isString}}{{#useEnumCaseInsensiti
 return b;
 }
 }
+{{#vendorExtensions.x-enum-aliases}}
+if ("{{alias}}".equalsIgnoreCase(value)) {
+return {{constant}};
+}
+{{/vendorExtensions.x-enum-aliases}}
 {{#isNullable}}return null;{{/isNullable}}{{^isNullable}}{{#enumUnknownDefaultCase}}{{#allowableValues}}{{#enumVars}}{{#-last}}return {{{name}}};{{/-last}}{{/enumVars}}{{/allowableValues}}{{/enumUnknownDefaultCase}}{{^enumUnknownDefaultCase}}throw new IllegalArgumentException("Unexpected value '" + value + "'");{{/enumUnknownDefaultCase}}{{/isNullable}}
 }
 {{#gson}}
