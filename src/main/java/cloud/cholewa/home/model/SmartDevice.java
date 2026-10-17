@@ -7,8 +7,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -17,7 +20,7 @@ import lombok.experimental.SuperBuilder;
         SmartDevice.JSON_PROPERTY_KIND, SmartDevice.JSON_PROPERTY_ENABLED, SmartDevice.JSON_PROPERTY_VENDOR,
         SmartDevice.JSON_PROPERTY_SHELLY, SmartDevice.JSON_PROPERTY_EATON, SmartDevice.JSON_PROPERTY_BTHOME,
         SmartDevice.JSON_PROPERTY_LIGHT_KIND, SmartDevice.JSON_PROPERTY_PLACEMENT,
-        SmartDevice.JSON_PROPERTY_POSITIONING})
+        SmartDevice.JSON_PROPERTY_POSITIONING, SmartDevice.JSON_PROPERTY_OPENING_SENSORS})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -47,6 +50,8 @@ public class SmartDevice {
     private BlindsPlacement placement;
     public static final String JSON_PROPERTY_POSITIONING = "positioning";
     private Boolean positioning;
+    public static final String JSON_PROPERTY_OPENING_SENSORS = "openingSensors";
+    private List<@Min(1L) Long> openingSensors = new ArrayList<>();
 
     @JsonCreator
     public SmartDevice(@JsonProperty(JSON_PROPERTY_ID) Long id) {
@@ -273,6 +278,32 @@ public class SmartDevice {
         this.positioning = positioning;
     }
 
+    public SmartDevice openingSensors(List<@Min(1L) Long> openingSensors) {
+        this.openingSensors = openingSensors;
+        return this;
+    }
+
+    public SmartDevice addOpeningSensorsItem(Long openingSensorsItem) {
+        if (this.openingSensors == null) {
+            this.openingSensors = new ArrayList<>();
+        }
+        this.openingSensors.add(openingSensorsItem);
+        return this;
+    }
+
+    @Nullable
+    @JsonProperty(JSON_PROPERTY_OPENING_SENSORS)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public List<@Min(1L) Long> getOpeningSensors() {
+        return openingSensors;
+    }
+
+    @JsonProperty(JSON_PROPERTY_OPENING_SENSORS)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setOpeningSensors(List<@Min(1L) Long> openingSensors) {
+        this.openingSensors = openingSensors;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -289,13 +320,14 @@ public class SmartDevice {
                 && Objects.equals(this.bthome, smartDevice.bthome)
                 && Objects.equals(this.lightKind, smartDevice.lightKind)
                 && Objects.equals(this.placement, smartDevice.placement)
-                && Objects.equals(this.positioning, smartDevice.positioning);
+                && Objects.equals(this.positioning, smartDevice.positioning)
+                && Objects.equals(this.openingSensors, smartDevice.openingSensors);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, name, room, kind, enabled, vendor, shelly, eaton, bthome, lightKind, placement,
-                positioning);
+                positioning, openingSensors);
     }
 
     @Override
@@ -314,6 +346,7 @@ public class SmartDevice {
         sb.append("    lightKind: ").append(toIndentedString(lightKind)).append("\n");
         sb.append("    placement: ").append(toIndentedString(placement)).append("\n");
         sb.append("    positioning: ").append(toIndentedString(positioning)).append("\n");
+        sb.append("    openingSensors: ").append(toIndentedString(openingSensors)).append("\n");
         sb.append("}");
         return sb.toString();
     }

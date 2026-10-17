@@ -12,6 +12,9 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import java.lang.reflect.AnnotatedParameterizedType;
+import java.lang.reflect.ParameterizedType;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +30,7 @@ class SmartDeviceTest {
         assertEquals(
             Set.of(
                 "id", "name", "room", "kind", "enabled", "vendor", "shelly", "eaton", "bthome", "lightKind",
-                "placement", "positioning"
+                "placement", "positioning", "openingSensors"
             ),
             JsonProperties.of(SmartDevice.class)
         );
@@ -69,7 +72,7 @@ class SmartDeviceTest {
             assertNotNull(SmartDevice.class.getMethod(getter).getAnnotation(NotNull.class), getter);
         }
         for (String getter : new String[] {"getId", "getShelly", "getEaton", "getBthome", "getLightKind",
-                "getPlacement", "getPositioning"}) {
+                "getPlacement", "getPositioning", "getOpeningSensors"}) {
             assertNull(SmartDevice.class.getMethod(getter).getAnnotation(NotNull.class), getter);
         }
     }
@@ -150,6 +153,25 @@ class SmartDeviceTest {
         assertEquals(Set.of("address"), JsonProperties.of(BthomeBinding.class));
         assertNotNull(BthomeBinding.class.getMethod("getAddress").getAnnotation(NotNull.class));
         assertThrows(NoSuchMethodException.class, () -> BthomeBinding.class.getMethod("getGatewayDeviceId"));
+    }
+
+    // The opening sensors of a blind (HAS-290): a list of registry ids in the order they were
+    // given - a window with two sashes has two - and none for a window without a sensor. Like
+    // every array it starts empty from the constructor and is null from the builder, so a reader
+    // treats both as "none". Each id is a registry id, never 0 or below.
+    @Test
+    void shouldLinkTheBlindsToTheOpeningSensorsOfItsWindowByRegistryIds() throws NoSuchMethodException {
+        assertEquals(List.of(), new SmartDevice().getOpeningSensors());
+        assertNull(SmartDevice.builder().build().getOpeningSensors());
+        assertEquals(
+            List.of(31L, 30L),
+            new SmartDevice().addOpeningSensorsItem(31L).addOpeningSensorsItem(30L).getOpeningSensors()
+        );
+
+        AnnotatedParameterizedType type = (AnnotatedParameterizedType) SmartDevice.class
+            .getMethod("getOpeningSensors").getAnnotatedReturnType();
+        assertEquals(List.class, ((ParameterizedType) type.getType()).getRawType());
+        assertEquals(1L, type.getAnnotatedActualTypeArguments()[0].getAnnotation(Min.class).value());
     }
 
     @Test
