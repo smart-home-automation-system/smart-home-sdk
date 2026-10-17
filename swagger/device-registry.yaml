@@ -67,6 +67,21 @@ components:
           description: >-
             Blinds only: whether the device can be sent to a position between open and closed.
             Without a default - a missing value means "not known".
+        openingSensors:
+          type: array
+          description: >-
+            Blinds only (since 1.11.0): the ids of the devices of the kind `opening sensor` on
+            the window these blinds cover - two for a window with two sashes, none for a window
+            without a sensor, which counts as closed. The sensor belongs to the window of one
+            blinds, not to the room. Missing means none: like every array it starts empty and
+            is left out of the JSON while empty, so a whole-device write that leaves it out
+            removes the link. Each id once and each one an opening sensor of the registry - the
+            registry checks it when the device is stored. (Not `uniqueItems`: that would make
+            the model an unordered set.)
+          items:
+            type: integer
+            format: int64
+            minimum: 1
 
     DeviceKind:
       type: string

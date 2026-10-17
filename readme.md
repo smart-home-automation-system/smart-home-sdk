@@ -24,8 +24,8 @@ and with its role, rooms and permissions - `MemberRole`, `MemberPermission`), an
 1.7.0 - the device registry (`SmartDevice` and its bindings), the calendar of workdays and
 days off (`CalendarDay`) and the event of an AMX device (`DeviceEvent`).
 
-Current consumers: `amx-service`, `boiler-service`, `database-service`, `heating-service`,
-`presence-service`, `shelly-cloud-service`, `water-service`.
+Current consumers: `amx-service`, `blinds-service`, `boiler-service`, `database-service`, `heating-service`,
+`presence-service`, `shelly-cloud-service`, `water-service`, `weather-service`.
 
 ## Installation
 
@@ -36,7 +36,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.10.0</version>
+    <version>1.11.0</version>
 </dependency>
 ```
 
@@ -174,6 +174,7 @@ and the dashboard read it.
 | `lightKind` | `LightKind` | lights only: `relay`, `dimmer`, `rgbw` |
 | `placement` | `BlindsPlacement` | blinds only: `external`, `internal` |
 | `positioning` | `Boolean` | blinds only, **no default** |
+| `openingSensors` | `List<Long>` | blinds only (since 1.11.0): the registry ids of the `opening sensor`s of the window; none when the window has no sensor |
 
 ```json
 {"id":17,"name":"Office window","room":"office","kind":"blinds","enabled":true,"vendor":"shelly",
@@ -200,6 +201,15 @@ What a consumer has to know:
 - **`deviceId` is the first part of the routing key** of everything the device publishes over
   MQTT (`<deviceId>.status.switch:0`). Letters, digits, `-` and `_` only - a dot or a slash
   would split the key - and the case is the device's own. A Gen1 device has none.
+- **`openingSensors` link blinds to the sensors of their own window** (since 1.11.0), not to the
+  room: one open window of a room must not change the other blinds there. Two ids for a window
+  with two sashes, none for a window without a sensor - which a reader takes as a closed window.
+  The list is empty from the constructor, `null` from the builder and left out of the JSON while
+  empty: read all three as "none". The registry checks that each id is an opening sensor and that
+  only blinds carry the list. **A whole-device write (`PUT`) that leaves the list out removes the
+  link**, so a client that writes blinds moves to 1.11.0 before any link is stored; a reader on
+  an older release only ignores the field (the mapper of Spring Boot ignores unknown properties;
+  a mapper built by hand has to be told to).
 - **A relay with four outputs is four devices** of the registry, told apart by `channel`.
 - **A Bluetooth sensor is not bound to a gateway** (since 1.8.0; 1.7.0 had a `gatewayDeviceId`
   no release of a service ever used). A sensor broadcasts to whoever hears it: every device
