@@ -208,7 +208,8 @@ What a consumer has to know:
   empty: read all three as "none". The registry checks that each id is an opening sensor and that
   only blinds carry the list. **A whole-device write (`PUT`) that leaves the list out removes the
   link**, so a client that writes blinds moves to 1.11.0 before any link is stored; a reader on
-  an older release only ignores the field.
+  an older release only ignores the field (the mapper of Spring Boot ignores unknown properties;
+  a mapper built by hand has to be told to).
 - **A relay with four outputs is four devices** of the registry, told apart by `channel`.
 - **A Bluetooth sensor is not bound to a gateway** (since 1.8.0; 1.7.0 had a `gatewayDeviceId`
   no release of a service ever used). A sensor broadcasts to whoever hears it: every device
