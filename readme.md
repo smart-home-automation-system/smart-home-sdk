@@ -36,7 +36,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.11.0</version>
+    <version>1.12.0</version>
 </dependency>
 ```
 
@@ -168,7 +168,7 @@ and the dashboard read it.
 | `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway`, `temperature sensor` (since 1.8.0), `push button` (since 1.9.0) |
 | `enabled` | `Boolean` | required, **no default** |
 | `vendor` | `SmartVendor` | required |
-| `shelly` | `ShellyBinding` | `address` (IPv4) and `generation` (1-4) required; `deviceId`, `channel` (0-3) optional |
+| `shelly` | `ShellyBinding` | `address` (IPv4) and `generation` (1-4) required; `deviceId`, `channel` (0-299, since 1.12.0; 0-3 before) optional |
 | `eaton` | `EatonBinding` | `gateway` (`EatonGatewayType`) and `point` (1-99) |
 | `bthome` | `BthomeBinding` | `address` (Bluetooth MAC, lowercase, colons) - and no gateway, since 1.8.0 |
 | `lightKind` | `LightKind` | lights only: `relay`, `dimmer`, `rgbw` |
@@ -210,7 +210,10 @@ What a consumer has to know:
   link**, so a client that writes blinds moves to 1.11.0 before any link is stored; a reader on
   an older release only ignores the field (the mapper of Spring Boot ignores unknown properties;
   a mapper built by hand has to be told to).
-- **A relay with four outputs is four devices** of the registry, told apart by `channel`.
+- **A relay with four outputs is four devices** of the registry, told apart by `channel`. Since
+  1.12.0 a channel may also be a dynamic component of 200 to 299 - the zone of a presence sensor
+  (`presencezone:200`); which kind may have which is the registry's rule, so a reader takes the
+  channel as it comes and never assumes it is below 4.
 - **A Bluetooth sensor is not bound to a gateway** (since 1.8.0; 1.7.0 had a `gatewayDeviceId`
   no release of a service ever used). A sensor broadcasts to whoever hears it: every device
   of the kind `bthome gateway` may deliver its readings, a second gateway in range is a second

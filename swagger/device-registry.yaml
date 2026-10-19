@@ -161,9 +161,11 @@ components:
           description: >-
             The channel of the device this entry stands for, as in `switch:0` or `cover:0` - a
             relay with four outputs is four devices of the registry. Left out for a device
-            without channels.
+            without channels. 0 to 3 is an output; 200 to 299 is a dynamic component, as in
+            `presencezone:200` - the zone of a presence sensor. Which of them a kind of device
+            may have is a rule of the registry, not of this model.
           minimum: 0
-          maximum: 3
+          maximum: 299
 
     EatonBinding:
       type: object
