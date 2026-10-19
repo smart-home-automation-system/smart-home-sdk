@@ -99,7 +99,7 @@ public class ShellyBinding {
 
     @Nullable
     @Min(0)
-    @Max(3)
+    @Max(299)
     @JsonProperty(JSON_PROPERTY_CHANNEL)
     @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
     public Integer getChannel() {

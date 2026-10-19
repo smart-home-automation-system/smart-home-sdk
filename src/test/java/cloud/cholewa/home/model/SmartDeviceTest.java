@@ -102,7 +102,7 @@ class SmartDeviceTest {
         assertEquals(1, ShellyBinding.class.getMethod("getGeneration").getAnnotation(Min.class).value());
         assertEquals(4, ShellyBinding.class.getMethod("getGeneration").getAnnotation(Max.class).value());
         assertEquals(0, ShellyBinding.class.getMethod("getChannel").getAnnotation(Min.class).value());
-        assertEquals(3, ShellyBinding.class.getMethod("getChannel").getAnnotation(Max.class).value());
+        assertEquals(299, ShellyBinding.class.getMethod("getChannel").getAnnotation(Max.class).value());
     }
 
     // The id is the first part of the routing key of everything the device publishes: a dot or
