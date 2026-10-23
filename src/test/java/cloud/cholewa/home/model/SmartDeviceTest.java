@@ -228,13 +228,6 @@ class SmartDeviceTest {
         assertFalse("".matches(pattern));
     }
 
-    private static void assertBounds(String getter, long min, long max) throws NoSuchMethodException {
-        var method = ApplianceSettings.class.getMethod(getter);
-        assertNotNull(method.getAnnotation(NotNull.class), getter);
-        assertEquals(min, method.getAnnotation(Min.class).value(), getter);
-        assertEquals(max, method.getAnnotation(Max.class).value(), getter);
-    }
-
     @Test
     void shouldBoundTheEatonPointLikeTheEatonConfiguration() throws NoSuchMethodException {
         assertNotNull(EatonBinding.class.getMethod("getGateway").getAnnotation(NotNull.class));
@@ -242,5 +235,12 @@ class SmartDeviceTest {
         assertEquals(1, EatonBinding.class.getMethod("getPoint").getAnnotation(Min.class).value());
         assertEquals(99, EatonBinding.class.getMethod("getPoint").getAnnotation(Max.class).value());
         assertEquals(EatonGatewayType.class, EatonBinding.class.getMethod("getGateway").getReturnType());
+    }
+
+    private static void assertBounds(String getter, long min, long max) throws NoSuchMethodException {
+        var method = ApplianceSettings.class.getMethod(getter);
+        assertNotNull(method.getAnnotation(NotNull.class), getter);
+        assertEquals(min, method.getAnnotation(Min.class).value(), getter);
+        assertEquals(max, method.getAnnotation(Max.class).value(), getter);
     }
 }

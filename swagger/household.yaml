@@ -176,7 +176,8 @@ components:
       type: object
       description: >-
         The keys of a push subscription, base64url as the browser gives them: what the sender
-        encrypts a message with for that browser.
+        encrypts a message with for that browser. The generated `toString` prints them in
+        clear, so a service logs the endpoint of a subscription, never the object.
       required:
         - p256dh
         - auth
@@ -186,10 +187,10 @@ components:
           description: The public key of the browser (P-256, uncompressed point of 65 bytes)
           minLength: 87
           maxLength: 88
-          pattern: ^[A-Za-z0-9_-]+=?$
+          pattern: ^[A-Za-z0-9_-]{87}=?$
         auth:
           type: string
           description: The authentication secret of the browser (16 bytes)
           minLength: 22
           maxLength: 24
-          pattern: ^[A-Za-z0-9_-]+={0,2}$
+          pattern: ^[A-Za-z0-9_-]{22}(==)?$

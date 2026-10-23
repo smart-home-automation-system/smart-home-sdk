@@ -144,12 +144,17 @@ class HouseholdNotificationAndPushSubscriptionTest {
         String keyPattern = p256dh.getAnnotation(Pattern.class).regexp();
         assertTrue((key + "Q").matches(keyPattern));
         assertTrue((key + "Q=").matches(keyPattern));
+        //the length alone would let 86 characters and a "=" through: no P-256 point
+        assertFalse((key + "=").matches(keyPattern));
         assertFalse((key + "+").matches(keyPattern));
         assertFalse((key + "/").matches(keyPattern));
 
         String authPattern = auth.getAnnotation(Pattern.class).regexp();
         assertTrue("abcdefghijklmnopqrstuv".matches(authPattern));
         assertTrue("abcdefghijklmnopqrstuv==".matches(authPattern));
+        assertFalse("abcdefghijklmnopqrstu=".matches(authPattern));
+        assertFalse("abcdefghijklmnopqrstuv=".matches(authPattern));
+        assertFalse("abcdefghijklmnopqrstu==".matches(authPattern));
         assertFalse("abcdefghijklmnopqrst+v".matches(authPattern));
     }
 }

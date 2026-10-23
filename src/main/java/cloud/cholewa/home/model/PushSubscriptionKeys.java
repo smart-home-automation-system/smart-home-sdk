@@ -29,7 +29,7 @@ public class PushSubscriptionKeys {
 
     @Nonnull
     @NotNull
-    @Pattern(regexp = "^[A-Za-z0-9_-]+=?$")
+    @Pattern(regexp = "^[A-Za-z0-9_-]{87}=?$")
     @Size(min = 87, max = 88)
     @JsonProperty(JSON_PROPERTY_P256DH)
     @JsonInclude(value = JsonInclude.Include.ALWAYS)
@@ -50,7 +50,7 @@ public class PushSubscriptionKeys {
 
     @Nonnull
     @NotNull
-    @Pattern(regexp = "^[A-Za-z0-9_-]+={0,2}$")
+    @Pattern(regexp = "^[A-Za-z0-9_-]{22}(==)?$")
     @Size(min = 22, max = 24)
     @JsonProperty(JSON_PROPERTY_AUTH)
     @JsonInclude(value = JsonInclude.Include.ALWAYS)

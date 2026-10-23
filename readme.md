@@ -245,9 +245,13 @@ What a consumer has to know:
   a version that knows `push button` and `motion sensor` before `database-service` answers
   either of them for a data point - on an older one every datagram of that point fails its
   lookup.
-- **`appliance` (1.13.0) follows the same rule**: the first device of that kind stops every
-  reader of the registry still on 1.12.0 (amx, blinds, heating, light, weather and the
-  dashboard). Release 1.13.0, move every reader to it, and only then register the plugs.
+- **`appliance` (1.13.0) follows the same rule - for the readers that get every kind.** The
+  services read the registry by kind (`?kind=` - amx, blinds, heating, light, weather), so an
+  appliance never reaches them and they need no bump for it. A read without a kind does get it:
+  the dashboard (the devices page, and My room with `?room=` - the plugs stand in rooms) and
+  `database-service` itself, whose exhaustive `switch`es over `DeviceKind` stop compiling until
+  they name `APPLIANCE`. Release 1.13.0, move the dashboard and `database-service` to it, and
+  only then register the plugs.
 - **`ApplianceSettings` (since 1.13.0)** - the part of a device of the kind `appliance`, all of it
   required and nothing with a default, since the registry stores all eight or none:
 
@@ -259,7 +263,7 @@ What a consumer has to know:
   | `finishedAfterMinutes` | 1-60 | the draw has to stay below that long before the cycle has finished |
   | `reminderEveryMinutes` | 5-180 | the time between two reminders |
   | `maxReminders` | 0-10 | how many reminders follow the first message at most |
-  | `quietFrom` / `quietTo` | `HH:mm` | the local time of the house in which no reminder goes; an end before the start runs over midnight |
+  | `quietFrom` / `quietTo` | `HH:mm` | the local time of the house in which no reminder goes; an end before the start runs over midnight, an end equal to the start is no quiet time |
 
   The quiet times are text, not `LocalTime`: OpenAPI 3.0 has no local time and the library takes
   no databind. That the part is there exactly for `appliance`, and that `idleBelowWatts` is below
@@ -344,7 +348,11 @@ to `PushManager.subscribe`, as the installed application hands it over.
   read of the household hands the keys out.
 - **`endpoint` is text, not `java.net.URI`**: Bean Validation has no `@Pattern` or `@Size` for a
   `URI`, and a validated body would fail with `UnexpectedTypeException`. Whom a sender may post
-  to beyond `https://` (the hosts of the push services) is for the sender to decide.
+  to beyond `https://` (the hosts of the push services) is for the sender to decide - the
+  model takes any https address, so a sender that does not check the host can be made to
+  call one inside the network.
+- **Never log a subscription whole.** The generated `toString` prints `p256dh` and `auth` in
+  clear; log the endpoint.
 
 To add or change a model, edit the relevant schema in `swagger/` and reference it from
 `swagger/smart-home.yaml`; `mvn verify` regenerates the sources in

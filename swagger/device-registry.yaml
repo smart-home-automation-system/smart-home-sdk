@@ -176,7 +176,8 @@ components:
           type: string
           description: >-
             The local time of the house from which reminders go again, as `HH:mm`; a quiet time
-            whose end is before its start runs over midnight.
+            whose end is before its start runs over midnight, and one whose end equals its start
+            is no quiet time at all - reminders go at any hour.
           pattern: ^([01][0-9]|2[0-3]):[0-5][0-9]$
           example: '07:00'
 
