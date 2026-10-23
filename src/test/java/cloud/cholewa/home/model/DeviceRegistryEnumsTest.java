@@ -31,10 +31,26 @@ class DeviceRegistryEnumsTest {
                 "WEATHER_STATION", "weather station",
                 "BTHOME_GATEWAY", "bthome gateway",
                 "TEMPERATURE_SENSOR", "temperature sensor",
-                "PUSH_BUTTON", "push button"
+                "PUSH_BUTTON", "push button",
+                "APPLIANCE", "appliance"
             ),
             namesAndValues(DeviceKind.values(), DeviceKind::getValue)
         );
+    }
+
+    // What appliance-service publishes and notification-service words (HAS-271): the two share
+    // the names, and notification-service has to know a value before anybody publishes it.
+    @Test
+    void shouldKnowExactlyTheseHouseholdEvents() {
+        assertEquals(
+            ordered(
+                "APPLIANCE_FINISHED", "appliance finished",
+                "APPLIANCE_REMINDER", "appliance reminder",
+                "APPLIANCE_ACKNOWLEDGED", "appliance acknowledged"
+            ),
+            namesAndValues(HouseholdEvent.values(), HouseholdEvent::getValue)
+        );
+        assertEquals(HouseholdEvent.APPLIANCE_FINISHED, HouseholdEvent.fromValue("Appliance Finished"));
     }
 
     // The vocabulary of the Eaton configuration, which amx-service reads a datagram by and
@@ -124,6 +140,7 @@ class DeviceRegistryEnumsTest {
         assertThrows(IllegalArgumentException.class, () -> BlindsPlacement.fromValue("roof"));
         assertThrows(IllegalArgumentException.class, () -> DayType.fromValue("holiday"));
         assertThrows(IllegalArgumentException.class, () -> EatonRxEvent.fromValue("long press"));
+        assertThrows(IllegalArgumentException.class, () -> HouseholdEvent.fromValue("APPLIANCE_FINISHED"));
     }
 
     private static <E extends Enum<E>> Map<String, String> namesAndValues(E[] constants, Function<E, String> value) {

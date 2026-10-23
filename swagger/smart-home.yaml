@@ -45,6 +45,16 @@ components:
       $ref: './household.yaml#/components/schemas/MemberPermission'
     HouseholdProfile:
       $ref: './household.yaml#/components/schemas/HouseholdProfile'
+    PushSubscription:
+      $ref: './household.yaml#/components/schemas/PushSubscription'
+    PushSubscriptionKeys:
+      $ref: './household.yaml#/components/schemas/PushSubscriptionKeys'
+
+    # ======== Household Notification Models ========
+    HouseholdNotification:
+      $ref: './household-notification.yaml#/components/schemas/HouseholdNotification'
+    HouseholdEvent:
+      $ref: './household-notification.yaml#/components/schemas/HouseholdEvent'
 
     # ======== Device Registry Models ========
     SmartDevice:
@@ -61,6 +71,8 @@ components:
       $ref: './device-registry.yaml#/components/schemas/EatonBinding'
     BthomeBinding:
       $ref: './device-registry.yaml#/components/schemas/BthomeBinding'
+    ApplianceSettings:
+      $ref: './device-registry.yaml#/components/schemas/ApplianceSettings'
 
     # ======== Device Event Models ========
     DeviceEvent:

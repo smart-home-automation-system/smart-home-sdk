@@ -20,7 +20,8 @@ import lombok.experimental.SuperBuilder;
         SmartDevice.JSON_PROPERTY_KIND, SmartDevice.JSON_PROPERTY_ENABLED, SmartDevice.JSON_PROPERTY_VENDOR,
         SmartDevice.JSON_PROPERTY_SHELLY, SmartDevice.JSON_PROPERTY_EATON, SmartDevice.JSON_PROPERTY_BTHOME,
         SmartDevice.JSON_PROPERTY_LIGHT_KIND, SmartDevice.JSON_PROPERTY_PLACEMENT,
-        SmartDevice.JSON_PROPERTY_POSITIONING, SmartDevice.JSON_PROPERTY_OPENING_SENSORS})
+        SmartDevice.JSON_PROPERTY_POSITIONING, SmartDevice.JSON_PROPERTY_OPENING_SENSORS,
+        SmartDevice.JSON_PROPERTY_APPLIANCE})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -52,6 +53,8 @@ public class SmartDevice {
     private Boolean positioning;
     public static final String JSON_PROPERTY_OPENING_SENSORS = "openingSensors";
     private List<@Min(1L) Long> openingSensors = new ArrayList<>();
+    public static final String JSON_PROPERTY_APPLIANCE = "appliance";
+    private ApplianceSettings appliance;
 
     @JsonCreator
     public SmartDevice(@JsonProperty(JSON_PROPERTY_ID) Long id) {
@@ -304,6 +307,25 @@ public class SmartDevice {
         this.openingSensors = openingSensors;
     }
 
+    public SmartDevice appliance(ApplianceSettings appliance) {
+        this.appliance = appliance;
+        return this;
+    }
+
+    @Nullable
+    @Valid
+    @JsonProperty(JSON_PROPERTY_APPLIANCE)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public ApplianceSettings getAppliance() {
+        return appliance;
+    }
+
+    @JsonProperty(JSON_PROPERTY_APPLIANCE)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setAppliance(ApplianceSettings appliance) {
+        this.appliance = appliance;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -321,13 +343,14 @@ public class SmartDevice {
                 && Objects.equals(this.lightKind, smartDevice.lightKind)
                 && Objects.equals(this.placement, smartDevice.placement)
                 && Objects.equals(this.positioning, smartDevice.positioning)
-                && Objects.equals(this.openingSensors, smartDevice.openingSensors);
+                && Objects.equals(this.openingSensors, smartDevice.openingSensors)
+                && Objects.equals(this.appliance, smartDevice.appliance);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, name, room, kind, enabled, vendor, shelly, eaton, bthome, lightKind, placement,
-                positioning, openingSensors);
+                positioning, openingSensors, appliance);
     }
 
     @Override
@@ -347,6 +370,7 @@ public class SmartDevice {
         sb.append("    placement: ").append(toIndentedString(placement)).append("\n");
         sb.append("    positioning: ").append(toIndentedString(positioning)).append("\n");
         sb.append("    openingSensors: ").append(toIndentedString(openingSensors)).append("\n");
+        sb.append("    appliance: ").append(toIndentedString(appliance)).append("\n");
         sb.append("}");
         return sb.toString();
     }

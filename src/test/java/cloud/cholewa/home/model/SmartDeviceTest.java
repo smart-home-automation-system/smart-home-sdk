@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -30,9 +31,16 @@ class SmartDeviceTest {
         assertEquals(
             Set.of(
                 "id", "name", "room", "kind", "enabled", "vendor", "shelly", "eaton", "bthome", "lightKind",
-                "placement", "positioning", "openingSensors"
+                "placement", "positioning", "openingSensors", "appliance"
             ),
             JsonProperties.of(SmartDevice.class)
+        );
+        assertEquals(
+            Set.of(
+                "runningAboveWatts", "idleBelowWatts", "minRunMinutes", "finishedAfterMinutes",
+                "reminderEveryMinutes", "maxReminders", "quietFrom", "quietTo"
+            ),
+            JsonProperties.of(ApplianceSettings.class)
         );
         assertEquals(Set.of("address", "generation", "deviceId", "channel"), JsonProperties.of(ShellyBinding.class));
         assertEquals(Set.of("gateway", "point"), JsonProperties.of(EatonBinding.class));
@@ -59,6 +67,17 @@ class SmartDeviceTest {
         assertNull(device.getLightKind());
         assertNull(device.getPlacement());
         assertNull(device.getPositioning());
+        assertNull(device.getAppliance());
+
+        ApplianceSettings appliance = new ApplianceSettings();
+        assertNull(appliance.getRunningAboveWatts());
+        assertNull(appliance.getIdleBelowWatts());
+        assertNull(appliance.getMinRunMinutes());
+        assertNull(appliance.getFinishedAfterMinutes());
+        assertNull(appliance.getReminderEveryMinutes());
+        assertNull(appliance.getMaxReminders());
+        assertNull(appliance.getQuietFrom());
+        assertNull(appliance.getQuietTo());
 
         ShellyBinding shelly = new ShellyBinding();
         assertNull(shelly.getGeneration());
@@ -72,7 +91,7 @@ class SmartDeviceTest {
             assertNotNull(SmartDevice.class.getMethod(getter).getAnnotation(NotNull.class), getter);
         }
         for (String getter : new String[] {"getId", "getShelly", "getEaton", "getBthome", "getLightKind",
-                "getPlacement", "getPositioning", "getOpeningSensors"}) {
+                "getPlacement", "getPositioning", "getOpeningSensors", "getAppliance"}) {
             assertNull(SmartDevice.class.getMethod(getter).getAnnotation(NotNull.class), getter);
         }
     }
@@ -174,6 +193,41 @@ class SmartDeviceTest {
         assertEquals(1L, type.getAnnotatedActualTypeArguments()[0].getAnnotation(Min.class).value());
     }
 
+    // The settings of an appliance (HAS-271): the registry stores all of them or none, so every
+    // one is required inside the part, and the part itself is validated with the device.
+    @Test
+    void shouldRequireAndBoundEverySettingOfAnAppliance() throws NoSuchMethodException {
+        assertNotNull(SmartDevice.class.getMethod("getAppliance").getAnnotation(Valid.class));
+        assertEquals(ApplianceSettings.class, SmartDevice.class.getMethod("getAppliance").getReturnType());
+
+        assertBounds("getRunningAboveWatts", 5, 3000);
+        assertBounds("getIdleBelowWatts", 0, 100);
+        assertBounds("getMinRunMinutes", 1, 180);
+        assertBounds("getFinishedAfterMinutes", 1, 60);
+        assertBounds("getReminderEveryMinutes", 5, 180);
+        assertBounds("getMaxReminders", 0, 10);
+        for (String getter : new String[] {"getQuietFrom", "getQuietTo"}) {
+            assertNotNull(ApplianceSettings.class.getMethod(getter).getAnnotation(NotNull.class), getter);
+            assertEquals(String.class, ApplianceSettings.class.getMethod(getter).getReturnType(), getter);
+        }
+    }
+
+    // A local time of the house as HH:mm - text, since the library has no databind to read a time.
+    @Test
+    void shouldTakeAQuietTimeAsHoursAndMinutesOnly() throws NoSuchMethodException {
+        String pattern = ApplianceSettings.class.getMethod("getQuietFrom").getAnnotation(Pattern.class).regexp();
+        assertEquals(pattern, ApplianceSettings.class.getMethod("getQuietTo").getAnnotation(Pattern.class).regexp());
+
+        assertTrue("00:00".matches(pattern));
+        assertTrue("07:00".matches(pattern));
+        assertTrue("23:59".matches(pattern));
+        assertFalse("24:00".matches(pattern));
+        assertFalse("7:00".matches(pattern));
+        assertFalse("07:60".matches(pattern));
+        assertFalse("07:00:00".matches(pattern));
+        assertFalse("".matches(pattern));
+    }
+
     @Test
     void shouldBoundTheEatonPointLikeTheEatonConfiguration() throws NoSuchMethodException {
         assertNotNull(EatonBinding.class.getMethod("getGateway").getAnnotation(NotNull.class));
@@ -181,5 +235,12 @@ class SmartDeviceTest {
         assertEquals(1, EatonBinding.class.getMethod("getPoint").getAnnotation(Min.class).value());
         assertEquals(99, EatonBinding.class.getMethod("getPoint").getAnnotation(Max.class).value());
         assertEquals(EatonGatewayType.class, EatonBinding.class.getMethod("getGateway").getReturnType());
+    }
+
+    private static void assertBounds(String getter, long min, long max) throws NoSuchMethodException {
+        var method = ApplianceSettings.class.getMethod(getter);
+        assertNotNull(method.getAnnotation(NotNull.class), getter);
+        assertEquals(min, method.getAnnotation(Min.class).value(), getter);
+        assertEquals(max, method.getAnnotation(Max.class).value(), getter);
     }
 }
