@@ -134,3 +134,62 @@ components:
           description: The MAC address of the device, lowercase and colon separated as reported by UniFi
           format: mac
           pattern: ^([0-9a-f]{2}:){5}[0-9a-f]{2}$
+    PushSubscription:
+      type: object
+      description: >-
+        One browser of a household member that takes Web Push messages (since 1.13.0) - what
+        the browser answers to `PushManager.subscribe`, as the installed application hands it
+        over. A model of its own and never a field of HouseholdMember: database-service keeps the
+        subscriptions on endpoints of their own, so a whole write of a member cannot drop them
+        and no read of the household hands the keys out. A member has one per browser; the
+        endpoint is what tells two apart, and the registry holds an endpoint once.
+      required:
+        - endpoint
+        - keys
+      properties:
+        endpoint:
+          type: string
+          description: >-
+            The address of the push service the message is posted to, as the browser gave it -
+            always https. Who may be posted to beyond that (the hosts of the push services) is
+            for the sender to decide, not for this model. Text and not `format: uri`: that
+            would make it a `java.net.URI`, and Bean Validation has no `@Pattern` or `@Size`
+            for one - a validated body would fail with `UnexpectedTypeException`.
+          minLength: 1
+          maxLength: 2000
+          pattern: ^https://\S+$
+          example: 'https://push.example.com/send/abc123'
+        keys:
+          $ref: '#/components/schemas/PushSubscriptionKeys'
+        userAgent:
+          type: string
+          description: The browser and the system, as the application read them - for the household to tell its browsers apart
+          maxLength: 500
+        createdAt:
+          type: string
+          format: date-time
+          description: >-
+            When the registry stored the subscription, in the local time of the house; the
+            registry answers with it and ignores one that is sent.
+
+    PushSubscriptionKeys:
+      type: object
+      description: >-
+        The keys of a push subscription, base64url as the browser gives them: what the sender
+        encrypts a message with for that browser.
+      required:
+        - p256dh
+        - auth
+      properties:
+        p256dh:
+          type: string
+          description: The public key of the browser (P-256, uncompressed point of 65 bytes)
+          minLength: 87
+          maxLength: 88
+          pattern: ^[A-Za-z0-9_-]+=?$
+        auth:
+          type: string
+          description: The authentication secret of the browser (16 bytes)
+          minLength: 22
+          maxLength: 24
+          pattern: ^[A-Za-z0-9_-]+={0,2}$

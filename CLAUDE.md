@@ -10,7 +10,7 @@ the org's `organization.md`; this file holds what is specific to this repository
 
 - **The source of truth is `swagger/`**, not `src/main/java`. One schema file per domain
   (`home.yaml`, `device-commons.yaml`, `eaton.yaml`, `rabbit.yaml`, `household.yaml`,
-  `device-registry.yaml`, `calendar.yaml`, `device-events.yaml`);
+  `device-registry.yaml`, `calendar.yaml`, `device-events.yaml`, `household-notification.yaml`);
   `smart-home.yaml` aggregates them and is the only file the generator reads. **A schema that
   is not referenced from `smart-home.yaml` generates nothing** - `shelly.yaml` is such a file
   today, and so are single schemas inside the others (marked `# not used`).
@@ -88,6 +88,14 @@ the org's `organization.md`; this file holds what is specific to this repository
   so `HALL_UP` is read too, as it already was under the old spelling. `RoomName` reads `hall_up` as `HALL_UP` since
   1.10.0, when the value became `hall up`. An alias is a transition, not a second value: drop
   it once no stored row or message carries the old spelling (and say so in the release).
+- **`format: uri` makes a `java.net.URI`** (HAS-271), and Bean Validation has no `@Pattern` or
+  `@Size` validator for one: the generated class compiles, and the first `@Valid` body fails
+  with `UnexpectedTypeException` instead of a 400. A bounded address stays a `string` without the
+  format (`PushSubscription.endpoint`). No time type either: OpenAPI 3.0 has none for a local
+  time, so a time of day is `HH:mm` text with a pattern (`ApplianceSettings.quietFrom`).
+- **Keys of a browser stay off the household models** (HAS-271): `PushSubscription` is a model
+  of its own and never a field of `HouseholdMember` or `HouseholdProfile` - a whole write of a
+  member would drop it, and the routed read of the household would hand it out. A test pins it.
 - **Empty collections are omitted from JSON** (`@JsonInclude(NON_EMPTY)` on every class): a
   reader of the JSON treats a missing array as empty.
 - **Bounds belong in the schema** (`required`, `minLength`, `pattern`, `enum`, `uniqueItems`):

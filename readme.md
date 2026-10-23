@@ -17,15 +17,17 @@
 Shared domain and API models for the smart-home-automation-system services. The model
 classes (`cloud.cholewa.home.model`) are generated at build time from the OpenAPI schemas
 in [`swagger/`](swagger/) (`smart-home.yaml` aggregates the home, device-commons, Eaton,
-RabbitMQ, household, device-registry, calendar and device-events schemas) and cover room names, device vendors/types, Eaton gateway
+RabbitMQ, household, device-registry, calendar, device-events and household-notification schemas) and cover room names, device vendors/types, Eaton gateway
 configuration and datagram replies, RabbitMQ message payloads such as `TemperatureMessage`,
 and the household registry (`HouseholdMember` with its Wi-Fi devices, `MemberPhoneDetails`,
 and with its role, rooms and permissions - `MemberRole`, `MemberPermission`), and - since
 1.7.0 - the device registry (`SmartDevice` and its bindings), the calendar of workdays and
-days off (`CalendarDay`) and the event of an AMX device (`DeviceEvent`).
+days off (`CalendarDay`) and the event of an AMX device (`DeviceEvent`), and - since 1.13.0 -
+the settings of an appliance (`ApplianceSettings`), the household notification
+(`HouseholdNotification`) and the push subscription of a browser (`PushSubscription`).
 
 Current consumers: `amx-service`, `blinds-service`, `boiler-service`, `database-service`, `heating-service`,
-`presence-service`, `shelly-cloud-service`, `water-service`, `weather-service`.
+`light-service`, `presence-service`, `shelly-cloud-service`, `water-service`, `weather-service`.
 
 ## Installation
 
@@ -36,7 +38,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.12.0</version>
+    <version>1.13.0</version>
 </dependency>
 ```
 
@@ -165,7 +167,7 @@ and the dashboard read it.
 | `id` | `Long` | given by the registry; left out of the JSON until it has one |
 | `name` | `String`, 3-50 | required |
 | `room` | `RoomName` | required |
-| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway`, `temperature sensor` (since 1.8.0), `push button` (since 1.9.0) |
+| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway`, `temperature sensor` (since 1.8.0), `push button` (since 1.9.0), `appliance` (since 1.13.0) |
 | `enabled` | `Boolean` | required, **no default** |
 | `vendor` | `SmartVendor` | required |
 | `shelly` | `ShellyBinding` | `address` (IPv4) and `generation` (1-4) required; `deviceId`, `channel` (0-299, since 1.12.0; 0-3 before) optional |
@@ -175,6 +177,7 @@ and the dashboard read it.
 | `placement` | `BlindsPlacement` | blinds only: `external`, `internal` |
 | `positioning` | `Boolean` | blinds only, **no default** |
 | `openingSensors` | `List<Long>` | blinds only (since 1.11.0): the registry ids of the `opening sensor`s of the window; none when the window has no sensor |
+| `appliance` | `ApplianceSettings` | appliances only (since 1.13.0): how a cycle is read from the power draw and how the household is reminded |
 
 ```json
 {"id":17,"name":"Office window","room":"office","kind":"blinds","enabled":true,"vendor":"shelly",
@@ -242,6 +245,32 @@ What a consumer has to know:
   a version that knows `push button` and `motion sensor` before `database-service` answers
   either of them for a data point - on an older one every datagram of that point fails its
   lookup.
+- **`appliance` (1.13.0) follows the same rule**: the first device of that kind stops every
+  reader of the registry still on 1.12.0 (amx, blinds, heating, light, weather and the
+  dashboard). Release 1.13.0, move every reader to it, and only then register the plugs.
+- **`ApplianceSettings` (since 1.13.0)** - the part of a device of the kind `appliance`, all of it
+  required and nothing with a default, since the registry stores all eight or none:
+
+  | Field | Bounds | Meaning |
+  |---|---|---|
+  | `runningAboveWatts` | 5-3000 | above this draw the appliance runs |
+  | `idleBelowWatts` | 0-100 | below this draw it is idle |
+  | `minRunMinutes` | 1-180 | the draw has to stay above that long before it is a cycle |
+  | `finishedAfterMinutes` | 1-60 | the draw has to stay below that long before the cycle has finished |
+  | `reminderEveryMinutes` | 5-180 | the time between two reminders |
+  | `maxReminders` | 0-10 | how many reminders follow the first message at most |
+  | `quietFrom` / `quietTo` | `HH:mm` | the local time of the house in which no reminder goes; an end before the start runs over midnight |
+
+  The quiet times are text, not `LocalTime`: OpenAPI 3.0 has no local time and the library takes
+  no databind. That the part is there exactly for `appliance`, and that `idleBelowWatts` is below
+  `runningAboveWatts`, are rules of the registry.
+
+  ```json
+  {"id":64,"name":"Zmywarka","room":"kitchen","kind":"appliance","enabled":true,"vendor":"shelly",
+   "shelly":{"address":"192.0.2.64","generation":1,"channel":0},
+   "appliance":{"runningAboveWatts":20,"idleBelowWatts":3,"minRunMinutes":5,"finishedAfterMinutes":10,
+                "reminderEveryMinutes":30,"maxReminders":4,"quietFrom":"22:00","quietTo":"07:00"}}
+  ```
 
 ### Calendar: workdays and days off
 
@@ -274,6 +303,48 @@ datagram on the virtual host of the devices.
 The event names the device the way the datagram does - gateway and point - not by the
 registry: the consumer looks the device up there and drops the event of a point it does not
 know.
+
+### Household notification: what the household is told
+
+Since 1.13.0 `HouseholdNotification` is the payload of the `household` category of the
+notification exchange - JSON, unlike the plain text of `alert` and `info`. It says what happened
+and to which device; `notification-service` words it, in Polish, for the household's Discord
+channel, SMS and Web Push. **No text travels in the payload.**
+
+| Field | Type | Notes |
+|---|---|---|
+| `event` | `HouseholdEvent` | required: `appliance finished`, `appliance reminder`, `appliance acknowledged` |
+| `subject` | `String`, 3-50 | required; the name of the device as the registry has it |
+| `deviceId` | `Long`, from 1 | required; the id of the device in the registry |
+| `occurredAt` | `LocalDateTime` | required; a local date-time of the house, like `DeviceEvent.at` |
+| `reminder` | `Integer`, 0-10 | required; the reminders before this message - 0 for `appliance finished`, and for `appliance acknowledged` the number that had been sent |
+| `acknowledgePath` | `String`, up to 200 | optional; the path of the application where the household acknowledges it - segments of letters, digits, `-` and `_` only, so no host, `//`, `..` or query |
+
+```json
+{"event":"appliance reminder","subject":"Zmywarka","deviceId":64,"occurredAt":"2026-10-23T19:40:00",
+ "reminder":1,"acknowledgePath":"/room"}
+```
+
+A new `HouseholdEvent` is read by `notification-service` before anybody publishes it.
+
+### Push subscription: a browser of a household member
+
+Since 1.13.0 `PushSubscription` is one browser that takes Web Push messages - what it answers
+to `PushManager.subscribe`, as the installed application hands it over.
+
+| Field | Type | Notes |
+|---|---|---|
+| `endpoint` | `String`, 1-2000 | required; `https://` only; what tells two subscriptions apart |
+| `keys` | `PushSubscriptionKeys` | required: `p256dh` (87-88) and `auth` (22-24), base64url |
+| `userAgent` | `String`, up to 500 | optional; for the household to tell its browsers apart |
+| `createdAt` | `LocalDateTime` | given by the registry, which ignores one that is sent |
+
+- **A model of its own, never a field of `HouseholdMember`.** `database-service` keeps the
+  subscriptions on endpoints of their own: a whole write of a member cannot drop them, and no
+  read of the household hands the keys out.
+- **`endpoint` is text, not `java.net.URI`**: Bean Validation has no `@Pattern` or `@Size` for a
+  `URI`, and a validated body would fail with `UnexpectedTypeException`. Whom a sender may post
+  to beyond `https://` (the hosts of the push services) is for the sender to decide.
 
 To add or change a model, edit the relevant schema in `swagger/` and reference it from
 `swagger/smart-home.yaml`; `mvn verify` regenerates the sources in
