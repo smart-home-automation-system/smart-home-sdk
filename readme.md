@@ -38,7 +38,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.13.0</version>
+    <version>1.14.0</version>
 </dependency>
 ```
 
@@ -323,6 +323,7 @@ channel, SMS and Web Push. **No text travels in the payload.**
 | `occurredAt` | `LocalDateTime` | required; a local date-time of the house, like `DeviceEvent.at` |
 | `reminder` | `Integer`, 0-10 | required; the reminders before this message - 0 for `appliance finished`, and for `appliance acknowledged` the number that had been sent |
 | `acknowledgePath` | `String`, up to 200 | optional; the path of the application where the household acknowledges it - segments of letters, digits, `-` and `_` only, so no host, `//`, `..` or query |
+| `member` | `String`, 3-50 | optional (since 1.14.0); the household member who did it, by their registry name - for `appliance acknowledged` who acknowledged it in the application. Information for the message, not a proof of the chore |
 
 ```json
 {"event":"appliance reminder","subject":"Zmywarka","deviceId":64,"occurredAt":"2026-10-23T19:40:00",

@@ -18,7 +18,8 @@ import lombok.experimental.SuperBuilder;
 
 @JsonPropertyOrder({HouseholdNotification.JSON_PROPERTY_EVENT, HouseholdNotification.JSON_PROPERTY_SUBJECT,
         HouseholdNotification.JSON_PROPERTY_DEVICE_ID, HouseholdNotification.JSON_PROPERTY_OCCURRED_AT,
-        HouseholdNotification.JSON_PROPERTY_REMINDER, HouseholdNotification.JSON_PROPERTY_ACKNOWLEDGE_PATH})
+        HouseholdNotification.JSON_PROPERTY_REMINDER, HouseholdNotification.JSON_PROPERTY_ACKNOWLEDGE_PATH,
+        HouseholdNotification.JSON_PROPERTY_MEMBER})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -36,6 +37,8 @@ public class HouseholdNotification {
     private Integer reminder;
     public static final String JSON_PROPERTY_ACKNOWLEDGE_PATH = "acknowledgePath";
     private String acknowledgePath;
+    public static final String JSON_PROPERTY_MEMBER = "member";
+    private String member;
 
     public HouseholdNotification event(HouseholdEvent event) {
         this.event = event;
@@ -158,6 +161,25 @@ public class HouseholdNotification {
         this.acknowledgePath = acknowledgePath;
     }
 
+    public HouseholdNotification member(String member) {
+        this.member = member;
+        return this;
+    }
+
+    @Nullable
+    @Size(min = 3, max = 50)
+    @JsonProperty(JSON_PROPERTY_MEMBER)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public String getMember() {
+        return member;
+    }
+
+    @JsonProperty(JSON_PROPERTY_MEMBER)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setMember(String member) {
+        this.member = member;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -172,12 +194,13 @@ public class HouseholdNotification {
                 && Objects.equals(this.deviceId, householdNotification.deviceId)
                 && Objects.equals(this.occurredAt, householdNotification.occurredAt)
                 && Objects.equals(this.reminder, householdNotification.reminder)
-                && Objects.equals(this.acknowledgePath, householdNotification.acknowledgePath);
+                && Objects.equals(this.acknowledgePath, householdNotification.acknowledgePath)
+                && Objects.equals(this.member, householdNotification.member);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(event, subject, deviceId, occurredAt, reminder, acknowledgePath);
+        return Objects.hash(event, subject, deviceId, occurredAt, reminder, acknowledgePath, member);
     }
 
     @Override
@@ -190,6 +213,7 @@ public class HouseholdNotification {
         sb.append("    occurredAt: ").append(toIndentedString(occurredAt)).append("\n");
         sb.append("    reminder: ").append(toIndentedString(reminder)).append("\n");
         sb.append("    acknowledgePath: ").append(toIndentedString(acknowledgePath)).append("\n");
+        sb.append("    member: ").append(toIndentedString(member)).append("\n");
         sb.append("}");
         return sb.toString();
     }
