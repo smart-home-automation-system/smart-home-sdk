@@ -27,9 +27,21 @@ class HouseholdNotificationAndPushSubscriptionTest {
     @Test
     void shouldPublishTheseJsonPropertiesOfANotificationAndNoOther() {
         assertEquals(
-            Set.of("event", "subject", "deviceId", "occurredAt", "reminder", "acknowledgePath"),
+            Set.of("event", "subject", "deviceId", "occurredAt", "reminder", "acknowledgePath", "member"),
             JsonProperties.of(HouseholdNotification.class)
         );
+    }
+
+    // Who acknowledged it (HAS-347): optional, a name of the household registry with its bounds.
+    @Test
+    void shouldNameTheMemberOptionallyWithTheBoundsOfTheRegistry() throws NoSuchMethodException {
+        assertNull(HouseholdNotification.class.getMethod("getMember").getAnnotation(NotNull.class));
+
+        Size member = HouseholdNotification.class.getMethod("getMember").getAnnotation(Size.class);
+        Size name = HouseholdMember.class.getMethod("getName").getAnnotation(Size.class);
+        assertEquals(name.min(), member.min());
+        assertEquals(name.max(), member.max());
+        assertEquals(String.class, HouseholdNotification.class.getMethod("getMember").getReturnType());
     }
 
     // The payload says what happened, never how to word it: notification-service composes the

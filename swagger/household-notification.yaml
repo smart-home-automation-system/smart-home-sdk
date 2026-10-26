@@ -56,6 +56,15 @@ components:
           maxLength: 200
           pattern: ^(/[A-Za-z0-9_-]+)+$
           example: '/room'
+        member:
+          type: string
+          description: >-
+            The household member who did it, by their name in the household registry (since 1.14.0)
+            - for `appliance acknowledged`, who acknowledged it in the application; left out when
+            nobody is known. Information for the message, not a proof of who did the chore.
+          minLength: 3
+          maxLength: 50
+          example: 'Anna'
 
     HouseholdEvent:
       type: string
