@@ -14,7 +14,8 @@ public enum DeviceKind {
     BTHOME_GATEWAY("bthome gateway"),
     TEMPERATURE_SENSOR("temperature sensor"),
     PUSH_BUTTON("push button"),
-    APPLIANCE("appliance");
+    APPLIANCE("appliance"),
+    INVERTER("inverter");
 
     private String value;
 

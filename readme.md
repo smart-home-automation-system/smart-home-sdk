@@ -24,10 +24,12 @@ and with its role, rooms and permissions - `MemberRole`, `MemberPermission`), an
 1.7.0 - the device registry (`SmartDevice` and its bindings), the calendar of workdays and
 days off (`CalendarDay`) and the event of an AMX device (`DeviceEvent`), and - since 1.13.0 -
 the settings of an appliance (`ApplianceSettings`), the household notification
-(`HouseholdNotification`) and the push subscription of a browser (`PushSubscription`).
+(`HouseholdNotification`) and the push subscription of a browser (`PushSubscription`), and - since
+1.15.0 - the inverter as a device of the registry (`InverterBinding`, `InverterBrand`).
 
-Current consumers: `amx-service`, `blinds-service`, `boiler-service`, `database-service`, `heating-service`,
-`light-service`, `presence-service`, `shelly-cloud-service`, `water-service`, `weather-service`.
+Current consumers: `amx-service`, `appliance-service`, `blinds-service`, `boiler-service`, `database-service`,
+`energy-service`, `heating-service`, `light-service`, `notification-service`, `presence-service`,
+`shelly-cloud-service`, `water-service`, `weather-service`.
 
 ## Installation
 
@@ -38,7 +40,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.14.0</version>
+    <version>1.15.0</version>
 </dependency>
 ```
 
@@ -167,7 +169,7 @@ and the dashboard read it.
 | `id` | `Long` | given by the registry; left out of the JSON until it has one |
 | `name` | `String`, 3-50 | required |
 | `room` | `RoomName` | required |
-| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway`, `temperature sensor` (since 1.8.0), `push button` (since 1.9.0), `appliance` (since 1.13.0) |
+| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway`, `temperature sensor` (since 1.8.0), `push button` (since 1.9.0), `appliance` (since 1.13.0), `inverter` (since 1.15.0) |
 | `enabled` | `Boolean` | required, **no default** |
 | `vendor` | `SmartVendor` | required |
 | `shelly` | `ShellyBinding` | `address` (IPv4) and `generation` (1-4) required; `deviceId`, `channel` (0-299, since 1.12.0; 0-3 before) optional |
@@ -178,6 +180,7 @@ and the dashboard read it.
 | `positioning` | `Boolean` | blinds only, **no default** |
 | `openingSensors` | `List<Long>` | blinds only (since 1.11.0): the registry ids of the `opening sensor`s of the window; none when the window has no sensor |
 | `appliance` | `ApplianceSettings` | appliances only (since 1.13.0): how a cycle is read from the power draw and how the household is reminded |
+| `inverter` | `InverterBinding` | inverters only (since 1.15.0): the brand, the serial number and how the inverter is reached |
 
 ```json
 {"id":17,"name":"Office window","room":"office","kind":"blinds","enabled":true,"vendor":"shelly",
@@ -187,8 +190,8 @@ and the dashboard read it.
 
 What a consumer has to know:
 
-- **The model does not check which binding belongs to a device.** One of `shelly`, `eaton` and
-  `bthome` is expected, by the vendor and the kind; so is `lightKind` for a light only. `@Valid`
+- **The model does not check which binding belongs to a device.** One of `shelly`, `eaton`,
+  `bthome` and `inverter` (since 1.15.0) is expected, by the vendor and the kind; so is `lightKind` for a light only. `@Valid`
   checks each binding that is there and nothing between the fields - the rule is the
   registry's to keep when a device is stored.
 - **Nothing has a default**, so a partial update can tell "not sent" from a value. `enabled` is
@@ -274,6 +277,31 @@ What a consumer has to know:
    "shelly":{"address":"192.0.2.64","generation":1,"channel":0},
    "appliance":{"runningAboveWatts":20,"idleBelowWatts":3,"minRunMinutes":5,"finishedAfterMinutes":10,
                 "reminderEveryMinutes":30,"maxReminders":4,"quietFrom":"22:00","quietTo":"07:00"}}
+  ```
+- **`inverter` (1.15.0) follows the rule of `appliance`**: the services read the registry by kind
+  (`?kind=` - amx, appliance, blinds, heating, light, weather) and never get an inverter, so they
+  need no bump for it. `database-service` moves to 1.15.0 before the first inverter is stored - its
+  exhaustive `switch`es name every kind, and on an older release a stored inverter would not map.
+  The dashboard reads every kind without the SDK and shows one it does not know as it comes.
+- **`InverterBinding` (since 1.15.0)** - the part of a device of the kind `inverter`, and its only
+  binding: an inverter has no `shelly`, `eaton` or `bthome`, and its vendor is `other`.
+
+  | Field | Bounds | Meaning |
+  |---|---|---|
+  | `brand` | `InverterBrand`: `solax`, `sofar` | required; decides how energy-service talks to it |
+  | `serialNumber` | 5-40, capitals and digits | required; as on the plate |
+  | `address` | IPv4 | what answers for it on the home network - the dongle of a SOLAX, the logger of a SOFAR; left out for an inverter read from a cloud only |
+  | `registrationNumber` | 5-20, capitals and digits | SOLAX only: the registration number of the dongle - the cloud knows the inverter by it, and the local API of the dongle takes it as its password |
+  | `loggerSerial` | `Long`, 1-4294967295 | SOFAR only: the serial number of the Solarman logger, four bytes of every frame |
+  | `batterySerialNumber` | 5-40, capitals and digits | optional: the battery the inverter charges |
+
+  Which brand needs and refuses which field, and that the part is there exactly for `inverter`,
+  are rules of the registry.
+
+  ```json
+  {"id":120,"name":"Inverter","room":"boiler","kind":"inverter","enabled":true,"vendor":"other",
+   "inverter":{"brand":"solax","serialNumber":"H1234567890ABC","address":"192.0.2.120",
+               "registrationNumber":"SABCDEFGHI","batterySerialNumber":"B1234567890ABC"}}
   ```
 
 ### Calendar: workdays and days off

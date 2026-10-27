@@ -69,7 +69,8 @@ the org's `organization.md`; this file holds what is specific to this repository
   reads an id a client sends. "The registry gives the id" is a rule of the registry, not of
   the model.
 - **A device is described by optional parts the model does not tie together** (HAS-221):
-  `SmartDevice` has three bindings and three fields of one kind only, all optional. Which of
+  `SmartDevice` has four bindings (`inverter` since 1.15.0, HAS-326) and fields of one kind only,
+  all optional. Which of
   them a device must have follows from its vendor and kind, and the schema does not say it
   (`oneOf` was not tried - one flat class is what the registry stores a row of). So the rule
   lives in the registry, and the README says so to every consumer.

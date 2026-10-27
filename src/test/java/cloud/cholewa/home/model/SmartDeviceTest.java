@@ -31,9 +31,13 @@ class SmartDeviceTest {
         assertEquals(
             Set.of(
                 "id", "name", "room", "kind", "enabled", "vendor", "shelly", "eaton", "bthome", "lightKind",
-                "placement", "positioning", "openingSensors", "appliance"
+                "placement", "positioning", "openingSensors", "appliance", "inverter"
             ),
             JsonProperties.of(SmartDevice.class)
+        );
+        assertEquals(
+            Set.of("brand", "serialNumber", "address", "registrationNumber", "loggerSerial", "batterySerialNumber"),
+            JsonProperties.of(InverterBinding.class)
         );
         assertEquals(
             Set.of(
@@ -68,6 +72,15 @@ class SmartDeviceTest {
         assertNull(device.getPlacement());
         assertNull(device.getPositioning());
         assertNull(device.getAppliance());
+        assertNull(device.getInverter());
+
+        InverterBinding inverter = new InverterBinding();
+        assertNull(inverter.getBrand());
+        assertNull(inverter.getSerialNumber());
+        assertNull(inverter.getAddress());
+        assertNull(inverter.getRegistrationNumber());
+        assertNull(inverter.getLoggerSerial());
+        assertNull(inverter.getBatterySerialNumber());
 
         ApplianceSettings appliance = new ApplianceSettings();
         assertNull(appliance.getRunningAboveWatts());
@@ -91,7 +104,7 @@ class SmartDeviceTest {
             assertNotNull(SmartDevice.class.getMethod(getter).getAnnotation(NotNull.class), getter);
         }
         for (String getter : new String[] {"getId", "getShelly", "getEaton", "getBthome", "getLightKind",
-                "getPlacement", "getPositioning", "getOpeningSensors", "getAppliance"}) {
+                "getPlacement", "getPositioning", "getOpeningSensors", "getAppliance", "getInverter"}) {
             assertNull(SmartDevice.class.getMethod(getter).getAnnotation(NotNull.class), getter);
         }
     }
@@ -226,6 +239,49 @@ class SmartDeviceTest {
         assertFalse("07:60".matches(pattern));
         assertFalse("07:00:00".matches(pattern));
         assertFalse("".matches(pattern));
+    }
+
+    // The inverter part (HAS-326): the brand and the serial number are what every inverter has; the
+    // fields of one brand are optional here and required or refused by the registry. Validated with
+    // the device.
+    @Test
+    void shouldRequireTheBrandAndTheSerialNumberOfAnInverterAndNothingElse() throws NoSuchMethodException {
+        assertNotNull(SmartDevice.class.getMethod("getInverter").getAnnotation(Valid.class));
+        assertEquals(InverterBinding.class, SmartDevice.class.getMethod("getInverter").getReturnType());
+        assertEquals(InverterBrand.class, InverterBinding.class.getMethod("getBrand").getReturnType());
+
+        for (String getter : new String[] {"getBrand", "getSerialNumber"}) {
+            assertNotNull(InverterBinding.class.getMethod(getter).getAnnotation(NotNull.class), getter);
+        }
+        for (String getter : new String[] {"getAddress", "getRegistrationNumber", "getLoggerSerial",
+                "getBatterySerialNumber"}) {
+            assertNull(InverterBinding.class.getMethod(getter).getAnnotation(NotNull.class), getter);
+        }
+    }
+
+    // Serial and registration numbers as the plates print them: capitals and digits, nothing else.
+    @Test
+    void shouldTakeTheNumbersOfAnInverterInCapitalsAndDigitsOnly() throws NoSuchMethodException {
+        for (String getter : new String[] {"getSerialNumber", "getRegistrationNumber", "getBatterySerialNumber"}) {
+            String pattern = InverterBinding.class.getMethod(getter).getAnnotation(Pattern.class).regexp();
+
+            assertTrue("H1234567890ABC".matches(pattern), getter);
+            assertFalse("h1234567890abc".matches(pattern), getter);
+            assertFalse("H123-4567".matches(pattern), getter);
+            assertFalse("H123 4567".matches(pattern), getter);
+        }
+        String address = InverterBinding.class.getMethod("getAddress").getAnnotation(Pattern.class).regexp();
+        assertEquals(ShellyBinding.class.getMethod("getAddress").getAnnotation(Pattern.class).regexp(), address);
+    }
+
+    // The Solarman protocol carries the logger serial as four bytes in every frame.
+    @Test
+    void shouldBoundTheLoggerSerialToFourBytes() throws NoSuchMethodException {
+        var method = InverterBinding.class.getMethod("getLoggerSerial");
+
+        assertEquals(Long.class, method.getReturnType());
+        assertEquals(1L, method.getAnnotation(Min.class).value());
+        assertEquals(4294967295L, method.getAnnotation(Max.class).value());
     }
 
     @Test
