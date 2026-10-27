@@ -14,9 +14,9 @@ components:
         One device of the house as the registry holds it: what it is, where it is and how it is
         reached. The registry lives in database-service; the services of the domains (weather,
         blinds, light, heating) and the dashboard read it. A device is reached through exactly
-        one binding - `shelly`, `eaton` or `bthome` - and which one has to be there follows from
-        the vendor and the kind; the model cannot say it, the registry checks it when the device
-        is stored. The fields at the end describe one kind only and are left out for the others.
+        one binding - `shelly`, `eaton`, `bthome` or `inverter` - and which one has to be there
+        follows from the vendor and the kind; the model cannot say it, the registry checks it
+        when the device is stored. The fields at the end describe one kind only and are left out for the others.
       required:
         - name
         - room
@@ -84,6 +84,8 @@ components:
             minimum: 1
         appliance:
           $ref: '#/components/schemas/ApplianceSettings'
+        inverter:
+          $ref: '#/components/schemas/InverterBinding'
 
     DeviceKind:
       type: string
@@ -98,7 +100,9 @@ components:
         1.9.0) is a wall transmitter or an input that reports presses and is never driven. An
         `appliance` (since 1.13.0) is a washing machine, a dryer or a dishwasher watched through
         the power draw of the plug it runs on; the device is the plug, its settings say when a
-        cycle runs and when it has finished.
+        cycle runs and when it has finished. An `inverter` (since 1.15.0) is a photovoltaic
+        inverter, its battery included, read by energy-service; it is reached by its `inverter`
+        binding and nothing else, and its vendor is `other`.
       enum:
         - "blinds"
         - "light"
@@ -110,6 +114,72 @@ components:
         - "temperature sensor"
         - "push button"
         - "appliance"
+        - "inverter"
+
+    InverterBinding:
+      type: object
+      description: >-
+        Inverters only (since 1.15.0): how energy-service knows and reaches an inverter - the
+        SOLAX through the local API of its Wi-Fi dongle and the SolaX cloud, the SOFAR through
+        its Solarman logger. The brand and the serial number are what every inverter has; the
+        rest belongs to one brand. That the part is there exactly for the kind `inverter`, and
+        which fields each brand needs and refuses, are rules of the registry, not of this model.
+      required:
+        - brand
+        - serialNumber
+      properties:
+        brand:
+          $ref: '#/components/schemas/InverterBrand'
+        serialNumber:
+          type: string
+          description: The serial number of the inverter, as on its plate and in its own answers
+          minLength: 5
+          maxLength: 40
+          pattern: ^[A-Z0-9]+$
+          example: 'H1234567890ABC'
+        address:
+          type: string
+          description: >-
+            The IPv4 address of what answers for the inverter on the home network - the dongle of
+            a SOLAX, the logger of a SOFAR. Left out for an inverter that is read from a cloud only.
+          format: ipv4
+          maxLength: 15
+          pattern: ^((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])$
+          example: '192.0.2.17'
+        registrationNumber:
+          type: string
+          description: >-
+            SOLAX only: the registration number of the Wi-Fi dongle, printed on it - the cloud
+            knows the inverter by it, and the local API of the dongle asks for it as its password.
+          minLength: 5
+          maxLength: 20
+          pattern: ^[A-Z0-9]+$
+          example: 'SABCDEFGHI'
+        loggerSerial:
+          type: integer
+          format: int64
+          description: >-
+            SOFAR only: the serial number of the Solarman logger, a number the logger puts into every
+            frame of its protocol as four bytes - so never above 4294967295.
+          minimum: 1
+          maximum: 4294967295
+          example: 1234567890
+        batterySerialNumber:
+          type: string
+          description: The serial number of the battery the inverter charges, when it has one
+          minLength: 5
+          maxLength: 40
+          pattern: ^[A-Z0-9]+$
+          example: 'B1234567890ABC'
+
+    InverterBrand:
+      type: string
+      description: >-
+        The maker of an inverter (since 1.15.0): it decides how energy-service talks to it. The
+        constant names are what the registry stores, like the kinds of devices.
+      enum:
+        - "solax"
+        - "sofar"
 
     ApplianceSettings:
       type: object

@@ -32,9 +32,20 @@ class DeviceRegistryEnumsTest {
                 "BTHOME_GATEWAY", "bthome gateway",
                 "TEMPERATURE_SENSOR", "temperature sensor",
                 "PUSH_BUTTON", "push button",
-                "APPLIANCE", "appliance"
+                "APPLIANCE", "appliance",
+                "INVERTER", "inverter"
             ),
             namesAndValues(DeviceKind.values(), DeviceKind::getValue)
+        );
+    }
+
+    // The brand decides how energy-service talks to an inverter (HAS-326); the registry stores
+    // the name, as for the kinds.
+    @Test
+    void shouldKnowExactlyTheseInverterBrands() {
+        assertEquals(
+            ordered("SOLAX", "solax", "SOFAR", "sofar"),
+            namesAndValues(InverterBrand.values(), InverterBrand::getValue)
         );
     }
 
@@ -138,6 +149,7 @@ class DeviceRegistryEnumsTest {
         assertThrows(IllegalArgumentException.class, () -> DeviceKind.fromValue("thermostat"));
         assertThrows(IllegalArgumentException.class, () -> LightKind.fromValue("neon"));
         assertThrows(IllegalArgumentException.class, () -> BlindsPlacement.fromValue("roof"));
+        assertThrows(IllegalArgumentException.class, () -> InverterBrand.fromValue("fronius"));
         assertThrows(IllegalArgumentException.class, () -> DayType.fromValue("holiday"));
         assertThrows(IllegalArgumentException.class, () -> EatonRxEvent.fromValue("long press"));
         assertThrows(IllegalArgumentException.class, () -> HouseholdEvent.fromValue("APPLIANCE_FINISHED"));
