@@ -33,7 +33,8 @@ class DeviceRegistryEnumsTest {
                 "TEMPERATURE_SENSOR", "temperature sensor",
                 "PUSH_BUTTON", "push button",
                 "APPLIANCE", "appliance",
-                "INVERTER", "inverter"
+                "INVERTER", "inverter",
+                "WATER_VALVE", "water valve"
             ),
             namesAndValues(DeviceKind.values(), DeviceKind::getValue)
         );

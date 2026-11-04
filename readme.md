@@ -25,7 +25,8 @@ and with its role, rooms and permissions - `MemberRole`, `MemberPermission`), an
 days off (`CalendarDay`) and the event of an AMX device (`DeviceEvent`), and - since 1.13.0 -
 the settings of an appliance (`ApplianceSettings`), the household notification
 (`HouseholdNotification`) and the push subscription of a browser (`PushSubscription`), and - since
-1.15.0 - the inverter as a device of the registry (`InverterBinding`, `InverterBrand`).
+1.15.0 - the inverter as a device of the registry (`InverterBinding`, `InverterBrand`), and - since
+1.16.0 - the water valve as a device kind (`DeviceKind.WATER_VALVE`).
 
 Current consumers: `amx-service`, `appliance-service`, `blinds-service`, `boiler-service`, `database-service`,
 `energy-service`, `heating-service`, `light-service`, `notification-service`, `presence-service`,
@@ -40,7 +41,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.15.0</version>
+    <version>1.16.0</version>
 </dependency>
 ```
 
@@ -169,7 +170,7 @@ and the dashboard read it.
 | `id` | `Long` | given by the registry; left out of the JSON until it has one |
 | `name` | `String`, 3-50 | required |
 | `room` | `RoomName` | required |
-| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway`, `temperature sensor` (since 1.8.0), `push button` (since 1.9.0), `appliance` (since 1.13.0), `inverter` (since 1.15.0) |
+| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway`, `temperature sensor` (since 1.8.0), `push button` (since 1.9.0), `appliance` (since 1.13.0), `inverter` (since 1.15.0), `water valve` (since 1.16.0) |
 | `enabled` | `Boolean` | required, **no default** |
 | `vendor` | `SmartVendor` | required |
 | `shelly` | `ShellyBinding` | `address` (IPv4) and `generation` (1-4) required; `deviceId`, `channel` (0-299, since 1.12.0; 0-3 before) optional |
@@ -283,6 +284,9 @@ What a consumer has to know:
   need no bump for it. `database-service` moves to 1.15.0 before the first inverter is stored - its
   exhaustive `switch`es name every kind, and on an older release a stored inverter would not map.
   The dashboard reads every kind without the SDK and shows one it does not know as it comes.
+- **`water valve` (1.16.0, HAS-311) follows the same rule**: a Shelly Gen2+ device (the Neo valve of the
+  garage) with the `shelly` binding, read by water-service by `?kind=water valve`. `database-service`
+  moves to 1.16.0 before the first valve is stored; the readers of the whole registry take it with HAS-312.
 - **`InverterBinding` (since 1.15.0)** - the part of a device of the kind `inverter`, and its only
   binding: an inverter has no `shelly`, `eaton` or `bthome`, and its vendor is `other`.
 

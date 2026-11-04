@@ -102,7 +102,9 @@ components:
         the power draw of the plug it runs on; the device is the plug, its settings say when a
         cycle runs and when it has finished. An `inverter` (since 1.15.0) is a photovoltaic
         inverter, its battery included, read by energy-service; it is reached by its `inverter`
-        binding and nothing else, and its vendor is `other`.
+        binding and nothing else, and its vendor is `other`. A `water valve` (since 1.16.0) is a
+        smart valve on the water main that measures the flow, the pressure, the temperature and the
+        consumption and can close the main - a Shelly Gen2+ device read by water-service.
       enum:
         - "blinds"
         - "light"
@@ -115,6 +117,7 @@ components:
         - "push button"
         - "appliance"
         - "inverter"
+        - "water valve"
 
     InverterBinding:
       type: object
