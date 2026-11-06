@@ -16,7 +16,8 @@ public enum DeviceKind {
     PUSH_BUTTON("push button"),
     APPLIANCE("appliance"),
     INVERTER("inverter"),
-    WATER_VALVE("water valve");
+    WATER_VALVE("water valve"),
+    AIR_CONDITIONER("air conditioner");
 
     private String value;
 

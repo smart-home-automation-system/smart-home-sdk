@@ -34,7 +34,8 @@ class DeviceRegistryEnumsTest {
                 "PUSH_BUTTON", "push button",
                 "APPLIANCE", "appliance",
                 "INVERTER", "inverter",
-                "WATER_VALVE", "water valve"
+                "WATER_VALVE", "water valve",
+                "AIR_CONDITIONER", "air conditioner"
             ),
             namesAndValues(DeviceKind.values(), DeviceKind::getValue)
         );
@@ -47,6 +48,16 @@ class DeviceRegistryEnumsTest {
         assertEquals(
             ordered("SOLAX", "solax", "SOFAR", "sofar"),
             namesAndValues(InverterBrand.values(), InverterBrand::getValue)
+        );
+    }
+
+    // The vendor decides which binding a device has (HAS-377: `gree` for the air conditioners); the
+    // registry stores the name, and every reader of the whole registry has to know it first.
+    @Test
+    void shouldKnowExactlyTheseVendors() {
+        assertEquals(
+            ordered("SHELLY", "shelly", "EATON", "eaton", "OTHER", "other", "GREE", "gree"),
+            namesAndValues(SmartVendor.values(), SmartVendor::getValue)
         );
     }
 
@@ -151,6 +162,7 @@ class DeviceRegistryEnumsTest {
         assertThrows(IllegalArgumentException.class, () -> LightKind.fromValue("neon"));
         assertThrows(IllegalArgumentException.class, () -> BlindsPlacement.fromValue("roof"));
         assertThrows(IllegalArgumentException.class, () -> InverterBrand.fromValue("fronius"));
+        assertThrows(IllegalArgumentException.class, () -> SmartVendor.fromValue("daikin"));
         assertThrows(IllegalArgumentException.class, () -> DayType.fromValue("holiday"));
         assertThrows(IllegalArgumentException.class, () -> EatonRxEvent.fromValue("long press"));
         assertThrows(IllegalArgumentException.class, () -> HouseholdEvent.fromValue("APPLIANCE_FINISHED"));

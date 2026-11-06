@@ -14,9 +14,9 @@ components:
         One device of the house as the registry holds it: what it is, where it is and how it is
         reached. The registry lives in database-service; the services of the domains (weather,
         blinds, light, heating) and the dashboard read it. A device is reached through exactly
-        one binding - `shelly`, `eaton`, `bthome` or `inverter` - and which one has to be there
-        follows from the vendor and the kind; the model cannot say it, the registry checks it
-        when the device is stored. The fields at the end describe one kind only and are left out for the others.
+        one binding - `shelly`, `eaton`, `bthome`, `inverter` or `gree` - and which one has to be
+        there follows from the vendor and the kind; the model cannot say it, the registry checks
+        it when the device is stored. The fields at the end describe one kind only and are left out for the others.
       required:
         - name
         - room
@@ -86,6 +86,8 @@ components:
           $ref: '#/components/schemas/ApplianceSettings'
         inverter:
           $ref: '#/components/schemas/InverterBinding'
+        gree:
+          $ref: '#/components/schemas/GreeBinding'
 
     DeviceKind:
       type: string
@@ -104,7 +106,10 @@ components:
         inverter, its battery included, read by energy-service; it is reached by its `inverter`
         binding and nothing else, and its vendor is `other`. A `water valve` (since 1.16.0) is a
         smart valve on the water main that measures the flow, the pressure, the temperature and the
-        consumption and can close the main - a Shelly Gen2+ device read by water-service.
+        consumption and can close the main - a Shelly Gen2+ device read by water-service. An
+        `air conditioner` (since 1.18.0) is an indoor unit of a split air conditioner, driven by
+        aircon-service over the local network; a Gree unit is reached by its `gree` binding and
+        nothing else, and its vendor is `gree`.
       enum:
         - "blinds"
         - "light"
@@ -118,6 +123,7 @@ components:
         - "appliance"
         - "inverter"
         - "water valve"
+        - "air conditioner"
 
     InverterBinding:
       type: object
@@ -183,6 +189,37 @@ components:
       enum:
         - "solax"
         - "sofar"
+
+    GreeBinding:
+      type: object
+      description: >-
+        Gree air conditioners only (since 1.18.0): how aircon-service reaches a unit - its own
+        protocol over UDP, always to the address of the unit (a broadcast does not cross into
+        the network of the devices), and the MAC the unit names itself by in every answer and
+        that every command names it by. The key of a unit is never stored: the service binds
+        each unit when it starts. That the part is there exactly for a Gree `air conditioner` is
+        a rule of the registry, not of this model.
+      required:
+        - address
+        - mac
+      properties:
+        address:
+          type: string
+          description: The IPv4 address of the unit on the home network, reserved for it in DHCP
+          format: ipv4
+          maxLength: 15
+          pattern: ^((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])$
+          example: '192.0.2.59'
+        mac:
+          type: string
+          description: >-
+            The MAC address of the unit as it gives it in its answers: twelve hexadecimal digits
+            in lower case, without separators - not the colon-separated form of the household
+            devices.
+          minLength: 12
+          maxLength: 12
+          pattern: ^[0-9a-f]{12}$
+          example: '02005e0000a1'
 
     ApplianceSettings:
       type: object
