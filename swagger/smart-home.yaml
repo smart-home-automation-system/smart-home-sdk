@@ -45,6 +45,8 @@ components:
       $ref: './household.yaml#/components/schemas/MemberPermission'
     HouseholdProfile:
       $ref: './household.yaml#/components/schemas/HouseholdProfile'
+    MemberRequest:
+      $ref: './household.yaml#/components/schemas/MemberRequest'
     PushSubscription:
       $ref: './household.yaml#/components/schemas/PushSubscription'
     PushSubscriptionKeys:
