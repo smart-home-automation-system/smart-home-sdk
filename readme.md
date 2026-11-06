@@ -27,7 +27,9 @@ the settings of an appliance (`ApplianceSettings`), the household notification
 (`HouseholdNotification`) and the push subscription of a browser (`PushSubscription`), and - since
 1.15.0 - the inverter as a device of the registry (`InverterBinding`, `InverterBrand`), and - since
 1.16.0 - the water valve as a device kind (`DeviceKind.WATER_VALVE`), and - since 1.17.0 - the
-errand of one household member for another (`MemberRequest`).
+errand of one household member for another (`MemberRequest`), and - since 1.18.0 - the air
+conditioner as a device of the registry (`DeviceKind.AIR_CONDITIONER`, `GreeBinding`,
+`SmartVendor.GREE`).
 
 Current consumers: `amx-service`, `appliance-service`, `blinds-service`, `boiler-service`, `database-service`,
 `energy-service`, `heating-service`, `light-service`, `notification-service`, `presence-service`,
@@ -42,7 +44,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.17.0</version>
+    <version>1.18.0</version>
 </dependency>
 ```
 
@@ -171,9 +173,9 @@ and the dashboard read it.
 | `id` | `Long` | given by the registry; left out of the JSON until it has one |
 | `name` | `String`, 3-50 | required |
 | `room` | `RoomName` | required |
-| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway`, `temperature sensor` (since 1.8.0), `push button` (since 1.9.0), `appliance` (since 1.13.0), `inverter` (since 1.15.0), `water valve` (since 1.16.0) |
+| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway`, `temperature sensor` (since 1.8.0), `push button` (since 1.9.0), `appliance` (since 1.13.0), `inverter` (since 1.15.0), `water valve` (since 1.16.0), `air conditioner` (since 1.18.0) |
 | `enabled` | `Boolean` | required, **no default** |
-| `vendor` | `SmartVendor` | required |
+| `vendor` | `SmartVendor` | required: `shelly`, `eaton`, `other`, `gree` (since 1.18.0) |
 | `shelly` | `ShellyBinding` | `address` (IPv4) and `generation` (1-4) required; `deviceId`, `channel` (0-299, since 1.12.0; 0-3 before) optional |
 | `eaton` | `EatonBinding` | `gateway` (`EatonGatewayType`) and `point` (1-99) |
 | `bthome` | `BthomeBinding` | `address` (Bluetooth MAC, lowercase, colons) - and no gateway, since 1.8.0 |
@@ -183,6 +185,7 @@ and the dashboard read it.
 | `openingSensors` | `List<Long>` | blinds only (since 1.11.0): the registry ids of the `opening sensor`s of the window; none when the window has no sensor |
 | `appliance` | `ApplianceSettings` | appliances only (since 1.13.0): how a cycle is read from the power draw and how the household is reminded |
 | `inverter` | `InverterBinding` | inverters only (since 1.15.0): the brand, the serial number and how the inverter is reached |
+| `gree` | `GreeBinding` | Gree air conditioners only (since 1.18.0): the address and the MAC of the unit |
 
 ```json
 {"id":17,"name":"Office window","room":"office","kind":"blinds","enabled":true,"vendor":"shelly",
@@ -193,7 +196,7 @@ and the dashboard read it.
 What a consumer has to know:
 
 - **The model does not check which binding belongs to a device.** One of `shelly`, `eaton`,
-  `bthome` and `inverter` (since 1.15.0) is expected, by the vendor and the kind; so is `lightKind` for a light only. `@Valid`
+  `bthome`, `inverter` (since 1.15.0) and `gree` (since 1.18.0) is expected, by the vendor and the kind; so is `lightKind` for a light only. `@Valid`
   checks each binding that is there and nothing between the fields - the rule is the
   registry's to keep when a device is stored.
 - **Nothing has a default**, so a partial update can tell "not sent" from a value. `enabled` is
@@ -288,6 +291,26 @@ What a consumer has to know:
 - **`water valve` (1.16.0, HAS-311) follows the same rule**: a Shelly Gen2+ device (the Neo valve of the
   garage) with the `shelly` binding, read by water-service by `?kind=water valve`. `database-service`
   moves to 1.16.0 before the first valve is stored; the readers of the whole registry take it with HAS-312.
+- **`air conditioner` and the vendor `gree` (1.18.0, HAS-377) follow the same rule**, for the new
+  value of `SmartVendor` too: aircon-service reads the registry by `?kind=air conditioner`, and no
+  other service ever gets a Gree device - nor a `DeviceEvent` of one. `database-service` (HAS-378) and
+  the dashboard (its copy of the enums and its devices form) move first, before the first unit is stored.
+- **`GreeBinding` (since 1.18.0)** - the part of a Gree `air conditioner`, and its only binding: a unit
+  has no `shelly`, `eaton`, `bthome` or `inverter`, and its vendor is `gree`.
+
+  | Field | Bounds | Meaning |
+  |---|---|---|
+  | `address` | IPv4 | required; the address of the unit, reserved for it in DHCP - aircon-service talks to it there over UDP, never by a broadcast |
+  | `mac` | 12 hex digits, lower case, no separators | required; as the unit gives it in its answers and as every command names it - not the colon-separated form of `bthome` or of the household devices |
+
+  The key of a unit is not in the model on purpose: aircon-service binds every unit when it starts
+  and never stores the key. That the part is there exactly for a Gree `air conditioner` is a rule
+  of the registry.
+
+  ```json
+  {"id":140,"name":"Air conditioner","room":"office","kind":"air conditioner","enabled":true,
+   "vendor":"gree","gree":{"address":"192.0.2.59","mac":"02005e0000a1"}}
+  ```
 - **`InverterBinding` (since 1.15.0)** - the part of a device of the kind `inverter`, and its only
   binding: an inverter has no `shelly`, `eaton` or `bthome`, and its vendor is `other`.
 
