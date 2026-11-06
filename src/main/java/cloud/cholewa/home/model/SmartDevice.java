@@ -21,7 +21,7 @@ import lombok.experimental.SuperBuilder;
         SmartDevice.JSON_PROPERTY_SHELLY, SmartDevice.JSON_PROPERTY_EATON, SmartDevice.JSON_PROPERTY_BTHOME,
         SmartDevice.JSON_PROPERTY_LIGHT_KIND, SmartDevice.JSON_PROPERTY_PLACEMENT,
         SmartDevice.JSON_PROPERTY_POSITIONING, SmartDevice.JSON_PROPERTY_OPENING_SENSORS,
-        SmartDevice.JSON_PROPERTY_APPLIANCE, SmartDevice.JSON_PROPERTY_INVERTER})
+        SmartDevice.JSON_PROPERTY_APPLIANCE, SmartDevice.JSON_PROPERTY_INVERTER, SmartDevice.JSON_PROPERTY_GREE})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -57,6 +57,8 @@ public class SmartDevice {
     private ApplianceSettings appliance;
     public static final String JSON_PROPERTY_INVERTER = "inverter";
     private InverterBinding inverter;
+    public static final String JSON_PROPERTY_GREE = "gree";
+    private GreeBinding gree;
 
     @JsonCreator
     public SmartDevice(@JsonProperty(JSON_PROPERTY_ID) Long id) {
@@ -347,6 +349,25 @@ public class SmartDevice {
         this.inverter = inverter;
     }
 
+    public SmartDevice gree(GreeBinding gree) {
+        this.gree = gree;
+        return this;
+    }
+
+    @Nullable
+    @Valid
+    @JsonProperty(JSON_PROPERTY_GREE)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public GreeBinding getGree() {
+        return gree;
+    }
+
+    @JsonProperty(JSON_PROPERTY_GREE)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setGree(GreeBinding gree) {
+        this.gree = gree;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -366,13 +387,13 @@ public class SmartDevice {
                 && Objects.equals(this.positioning, smartDevice.positioning)
                 && Objects.equals(this.openingSensors, smartDevice.openingSensors)
                 && Objects.equals(this.appliance, smartDevice.appliance)
-                && Objects.equals(this.inverter, smartDevice.inverter);
+                && Objects.equals(this.inverter, smartDevice.inverter) && Objects.equals(this.gree, smartDevice.gree);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, name, room, kind, enabled, vendor, shelly, eaton, bthome, lightKind, placement,
-                positioning, openingSensors, appliance, inverter);
+                positioning, openingSensors, appliance, inverter, gree);
     }
 
     @Override
@@ -394,6 +415,7 @@ public class SmartDevice {
         sb.append("    openingSensors: ").append(toIndentedString(openingSensors)).append("\n");
         sb.append("    appliance: ").append(toIndentedString(appliance)).append("\n");
         sb.append("    inverter: ").append(toIndentedString(inverter)).append("\n");
+        sb.append("    gree: ").append(toIndentedString(gree)).append("\n");
         sb.append("}");
         return sb.toString();
     }

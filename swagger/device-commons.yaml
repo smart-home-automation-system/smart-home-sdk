@@ -10,10 +10,15 @@ components:
   schemas:
     SmartVendor:
       type: string
+      description: >-
+        Who made a device. The constant names are what the registry stores; a new one has to be
+        known to every reader of the whole registry before a device of it is stored. `gree`
+        (since 1.18.0) is the maker of the air conditioners of the house.
       enum:
         - "shelly"
         - "eaton"
         - "other"
+        - "gree"
     SmartDeviceType:
       type: string
       description: >-

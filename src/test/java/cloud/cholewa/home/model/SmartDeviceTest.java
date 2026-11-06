@@ -31,10 +31,12 @@ class SmartDeviceTest {
         assertEquals(
             Set.of(
                 "id", "name", "room", "kind", "enabled", "vendor", "shelly", "eaton", "bthome", "lightKind",
-                "placement", "positioning", "openingSensors", "appliance", "inverter"
+                "placement", "positioning", "openingSensors", "appliance", "inverter", "gree"
             ),
             JsonProperties.of(SmartDevice.class)
         );
+        //the key of a unit is never stored: aircon-service binds it when it starts
+        assertEquals(Set.of("address", "mac"), JsonProperties.of(GreeBinding.class));
         assertEquals(
             Set.of("brand", "serialNumber", "address", "registrationNumber", "loggerSerial", "batterySerialNumber"),
             JsonProperties.of(InverterBinding.class)
@@ -73,6 +75,7 @@ class SmartDeviceTest {
         assertNull(device.getPositioning());
         assertNull(device.getAppliance());
         assertNull(device.getInverter());
+        assertNull(device.getGree());
 
         InverterBinding inverter = new InverterBinding();
         assertNull(inverter.getBrand());
@@ -104,7 +107,7 @@ class SmartDeviceTest {
             assertNotNull(SmartDevice.class.getMethod(getter).getAnnotation(NotNull.class), getter);
         }
         for (String getter : new String[] {"getId", "getShelly", "getEaton", "getBthome", "getLightKind",
-                "getPlacement", "getPositioning", "getOpeningSensors", "getAppliance", "getInverter"}) {
+                "getPlacement", "getPositioning", "getOpeningSensors", "getAppliance", "getInverter", "getGree"}) {
             assertNull(SmartDevice.class.getMethod(getter).getAnnotation(NotNull.class), getter);
         }
     }
@@ -272,6 +275,32 @@ class SmartDeviceTest {
         }
         String address = InverterBinding.class.getMethod("getAddress").getAnnotation(Pattern.class).regexp();
         assertEquals(ShellyBinding.class.getMethod("getAddress").getAnnotation(Pattern.class).regexp(), address);
+    }
+
+    // The Gree part (HAS-377): a unit is reached by its address and named by its MAC in every
+    // command, so both are required; validated with the device.
+    @Test
+    void shouldRequireTheAddressAndTheMacOfAGreeUnit() throws NoSuchMethodException {
+        assertNotNull(SmartDevice.class.getMethod("getGree").getAnnotation(Valid.class));
+        assertEquals(GreeBinding.class, SmartDevice.class.getMethod("getGree").getReturnType());
+        for (String getter : new String[] {"getAddress", "getMac"}) {
+            assertNotNull(GreeBinding.class.getMethod(getter).getAnnotation(NotNull.class), getter);
+        }
+        String address = GreeBinding.class.getMethod("getAddress").getAnnotation(Pattern.class).regexp();
+        assertEquals(ShellyBinding.class.getMethod("getAddress").getAnnotation(Pattern.class).regexp(), address);
+    }
+
+    // The MAC as the unit gives it in its answers: twelve hex digits in lower case, no separators.
+    @Test
+    void shouldTakeTheMacOfAGreeUnitAsTheUnitGivesIt() throws NoSuchMethodException {
+        String pattern = GreeBinding.class.getMethod("getMac").getAnnotation(Pattern.class).regexp();
+
+        assertTrue("02005e0000a1".matches(pattern));
+        assertFalse("02005E0000A1".matches(pattern));
+        assertFalse("02:00:5e:00:00:a1".matches(pattern));
+        assertFalse("02005e0000a".matches(pattern));
+        assertFalse("02005e0000a1f".matches(pattern));
+        assertFalse("02005e0000g1".matches(pattern));
     }
 
     // The Solarman protocol carries the logger serial as four bytes in every frame.
