@@ -134,6 +134,68 @@ components:
           description: The MAC address of the device, lowercase and colon separated as reported by UniFi
           format: mac
           pattern: ^([0-9a-f]{2}:){5}[0-9a-f]{2}$
+    MemberRequest:
+      type: object
+      description: >-
+        An errand one household member writes for another (since 1.17.0, HAS-407) - "buy bread",
+        "take the parcel" - kept by database-service on endpoints of its own and texted to its
+        recipient once, the next morning. A model of its own and never a field of HouseholdMember:
+        a whole write of a member must not drop the requests, and the read of the registry stays
+        as it is. A client sends text and author only; the rest is the server's, and a body that
+        carries it is accepted with the rest ignored.
+      required:
+        - text
+        - author
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+          description: Given by the server; a client leaves it out
+        member:
+          type: string
+          description: >-
+            The recipient - a member of the registry, set by the server from the address of the
+            request; the one sent in a body is ignored
+          minLength: 3
+          maxLength: 50
+        text:
+          type: string
+          description: >-
+            What is to be done, one line of 1 to 100 characters with something else than spaces in
+            it - no line break, tab or other control character, so the SMS that carries it stays
+            one line per request
+          minLength: 1
+          maxLength: 100
+          pattern: ^(?=.*\S)[^\p{Cc}\p{Zl}\p{Zp}]+$
+          example: 'Buy bread and milk'
+        author:
+          type: string
+          description: >-
+            Who wrote it - the name of the member of the profile of the dashboard. The server
+            checks it is a member of the registry
+          minLength: 3
+          maxLength: 50
+        createdAt:
+          type: string
+          format: date-time
+          description: When the server stored it, in the local time of the house; ignored when sent
+        sentAt:
+          type: string
+          format: date-time
+          description: >-
+            When the SMS that carried it was accepted, in the local time of the house; left out
+            until then - a request is texted once. Set by the server
+        doneAt:
+          type: string
+          format: date-time
+          description: When it was ticked off, in the local time of the house; left out while it is pending. Set by the server
+        doneBy:
+          type: string
+          description: Who ticked it off - a member of the registry; left out while it is pending. Set by the server
+          minLength: 3
+          maxLength: 50
+
     PushSubscription:
       type: object
       description: >-

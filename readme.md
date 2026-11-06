@@ -26,7 +26,8 @@ days off (`CalendarDay`) and the event of an AMX device (`DeviceEvent`), and - s
 the settings of an appliance (`ApplianceSettings`), the household notification
 (`HouseholdNotification`) and the push subscription of a browser (`PushSubscription`), and - since
 1.15.0 - the inverter as a device of the registry (`InverterBinding`, `InverterBrand`), and - since
-1.16.0 - the water valve as a device kind (`DeviceKind.WATER_VALVE`).
+1.16.0 - the water valve as a device kind (`DeviceKind.WATER_VALVE`), and - since 1.17.0 - the
+errand of one household member for another (`MemberRequest`).
 
 Current consumers: `amx-service`, `appliance-service`, `blinds-service`, `boiler-service`, `database-service`,
 `energy-service`, `heating-service`, `light-service`, `notification-service`, `presence-service`,
@@ -41,7 +42,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.16.0</version>
+    <version>1.17.0</version>
 </dependency>
 ```
 
@@ -386,6 +387,36 @@ to `PushManager.subscribe`, as the installed application hands it over.
   call one inside the network.
 - **Never log a subscription whole.** The generated `toString` prints `p256dh` and `auth` in
   clear; log the endpoint.
+
+### Member request: an errand for a household member
+
+Since 1.17.0 `MemberRequest` is an errand one member writes for another - "buy bread" - which
+`database-service` keeps and `notification-service` texts to its recipient once, the next morning
+(epic HAS-407).
+
+| Field | Type | Who sets it | Notes |
+|---|---|---|---|
+| `id` | `Long` | the server | read only - a constructor argument, no setter |
+| `member` | `String`, 3-50 | the server | the recipient, from the address of the request |
+| `text` | `String`, 1-100 | **the client** | required; one line - no line break, tab or other control character, not only spaces |
+| `author` | `String`, 3-50 | **the client** | required; the member of the profile of the dashboard, checked by the server |
+| `createdAt` | `LocalDateTime` | the server | when it was stored, house time |
+| `sentAt` | `LocalDateTime` | the server | when the SMS that carried it was accepted; left out until then |
+| `doneAt` | `LocalDateTime` | the server | when it was ticked off; left out while pending |
+| `doneBy` | `String`, 3-50 | the server | who ticked it off; left out while pending |
+
+- **A client sends `text` and `author` only.** A body that carries the other fields is accepted
+  and they are ignored - the server owns them; the model cannot tell them apart from what a
+  client sends (`readOnly` keeps a setter away from `id`, not a value).
+- **A model of its own, never a field of `HouseholdMember`**, like `PushSubscription`: a whole
+  write of a member cannot drop the requests, and the read of the registry stays as it is.
+- **The bounds of `text` are those of a Java `String`**: `@Size` counts UTF-16 code units, so an
+  emoji outside the basic plane takes two of the 100 - the same count as `length` of a JavaScript
+  string. The pattern uses Unicode classes (`\p{Cc}`, `\p{Zl}`, `\p{Zp}`): a JavaScript copy of the
+  rule needs the `u` flag, without it `\p` is the letter `p`.
+- **Spaces around the text pass the model**: trimming is the server's (`database-service`), the model
+  only refuses a text of spaces alone.
+- No new enum value: the readers of the registries need no move.
 
 To add or change a model, edit the relevant schema in `swagger/` and reference it from
 `swagger/smart-home.yaml`; `mvn verify` regenerates the sources in
