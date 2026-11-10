@@ -17,7 +17,9 @@ import lombok.experimental.SuperBuilder;
 
 @JsonPropertyOrder({MemberRequest.JSON_PROPERTY_ID, MemberRequest.JSON_PROPERTY_MEMBER,
         MemberRequest.JSON_PROPERTY_TEXT, MemberRequest.JSON_PROPERTY_AUTHOR, MemberRequest.JSON_PROPERTY_CREATED_AT,
-        MemberRequest.JSON_PROPERTY_SENT_AT, MemberRequest.JSON_PROPERTY_DONE_AT, MemberRequest.JSON_PROPERTY_DONE_BY})
+        MemberRequest.JSON_PROPERTY_SENT_AT, MemberRequest.JSON_PROPERTY_DONE_AT, MemberRequest.JSON_PROPERTY_DONE_BY,
+        MemberRequest.JSON_PROPERTY_REMINDED_AT, MemberRequest.JSON_PROPERTY_DONE_ANNOUNCED_AT,
+        MemberRequest.JSON_PROPERTY_STALE_ANNOUNCED_AT})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -39,6 +41,12 @@ public class MemberRequest {
     private LocalDateTime doneAt;
     public static final String JSON_PROPERTY_DONE_BY = "doneBy";
     private String doneBy;
+    public static final String JSON_PROPERTY_REMINDED_AT = "remindedAt";
+    private LocalDateTime remindedAt;
+    public static final String JSON_PROPERTY_DONE_ANNOUNCED_AT = "doneAnnouncedAt";
+    private LocalDateTime doneAnnouncedAt;
+    public static final String JSON_PROPERTY_STALE_ANNOUNCED_AT = "staleAnnouncedAt";
+    private LocalDateTime staleAnnouncedAt;
 
     @JsonCreator
     public MemberRequest(@JsonProperty(JSON_PROPERTY_ID) Long id) {
@@ -189,6 +197,63 @@ public class MemberRequest {
         this.doneBy = doneBy;
     }
 
+    public MemberRequest remindedAt(LocalDateTime remindedAt) {
+        this.remindedAt = remindedAt;
+        return this;
+    }
+
+    @Nullable
+    @Valid
+    @JsonProperty(JSON_PROPERTY_REMINDED_AT)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public LocalDateTime getRemindedAt() {
+        return remindedAt;
+    }
+
+    @JsonProperty(JSON_PROPERTY_REMINDED_AT)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setRemindedAt(LocalDateTime remindedAt) {
+        this.remindedAt = remindedAt;
+    }
+
+    public MemberRequest doneAnnouncedAt(LocalDateTime doneAnnouncedAt) {
+        this.doneAnnouncedAt = doneAnnouncedAt;
+        return this;
+    }
+
+    @Nullable
+    @Valid
+    @JsonProperty(JSON_PROPERTY_DONE_ANNOUNCED_AT)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public LocalDateTime getDoneAnnouncedAt() {
+        return doneAnnouncedAt;
+    }
+
+    @JsonProperty(JSON_PROPERTY_DONE_ANNOUNCED_AT)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setDoneAnnouncedAt(LocalDateTime doneAnnouncedAt) {
+        this.doneAnnouncedAt = doneAnnouncedAt;
+    }
+
+    public MemberRequest staleAnnouncedAt(LocalDateTime staleAnnouncedAt) {
+        this.staleAnnouncedAt = staleAnnouncedAt;
+        return this;
+    }
+
+    @Nullable
+    @Valid
+    @JsonProperty(JSON_PROPERTY_STALE_ANNOUNCED_AT)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public LocalDateTime getStaleAnnouncedAt() {
+        return staleAnnouncedAt;
+    }
+
+    @JsonProperty(JSON_PROPERTY_STALE_ANNOUNCED_AT)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setStaleAnnouncedAt(LocalDateTime staleAnnouncedAt) {
+        this.staleAnnouncedAt = staleAnnouncedAt;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -203,12 +268,16 @@ public class MemberRequest {
                 && Objects.equals(this.createdAt, memberRequest.createdAt)
                 && Objects.equals(this.sentAt, memberRequest.sentAt)
                 && Objects.equals(this.doneAt, memberRequest.doneAt)
-                && Objects.equals(this.doneBy, memberRequest.doneBy);
+                && Objects.equals(this.doneBy, memberRequest.doneBy)
+                && Objects.equals(this.remindedAt, memberRequest.remindedAt)
+                && Objects.equals(this.doneAnnouncedAt, memberRequest.doneAnnouncedAt)
+                && Objects.equals(this.staleAnnouncedAt, memberRequest.staleAnnouncedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, member, text, author, createdAt, sentAt, doneAt, doneBy);
+        return Objects.hash(id, member, text, author, createdAt, sentAt, doneAt, doneBy, remindedAt, doneAnnouncedAt,
+                staleAnnouncedAt);
     }
 
     @Override
@@ -223,6 +292,9 @@ public class MemberRequest {
         sb.append("    sentAt: ").append(toIndentedString(sentAt)).append("\n");
         sb.append("    doneAt: ").append(toIndentedString(doneAt)).append("\n");
         sb.append("    doneBy: ").append(toIndentedString(doneBy)).append("\n");
+        sb.append("    remindedAt: ").append(toIndentedString(remindedAt)).append("\n");
+        sb.append("    doneAnnouncedAt: ").append(toIndentedString(doneAnnouncedAt)).append("\n");
+        sb.append("    staleAnnouncedAt: ").append(toIndentedString(staleAnnouncedAt)).append("\n");
         sb.append("}");
         return sb.toString();
     }

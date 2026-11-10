@@ -25,7 +25,8 @@ class MemberRequestTest {
 
     @Test
     void shouldPublishTheseJsonPropertiesAndNoOther() {
-        assertEquals(Set.of("id", "member", "text", "author", "createdAt", "sentAt", "doneAt", "doneBy"),
+        assertEquals(Set.of("id", "member", "text", "author", "createdAt", "sentAt", "doneAt", "doneBy", "remindedAt",
+                "doneAnnouncedAt", "staleAnnouncedAt"),
             JsonProperties.of(MemberRequest.class));
     }
 
@@ -42,7 +43,8 @@ class MemberRequestTest {
     void shouldRequireTheTextAndTheAuthorOnly() throws NoSuchMethodException {
         assertNotNull(MemberRequest.class.getMethod("getText").getAnnotation(NotNull.class));
         assertNotNull(MemberRequest.class.getMethod("getAuthor").getAnnotation(NotNull.class));
-        for (String getter : new String[] {"getId", "getMember", "getCreatedAt", "getSentAt", "getDoneAt", "getDoneBy"}) {
+        for (String getter : new String[] {"getId", "getMember", "getCreatedAt", "getSentAt", "getDoneAt", "getDoneBy",
+            "getRemindedAt", "getDoneAnnouncedAt", "getStaleAnnouncedAt"}) {
             assertNull(MemberRequest.class.getMethod(getter).getAnnotation(NotNull.class), getter);
         }
     }
@@ -57,9 +59,25 @@ class MemberRequestTest {
 
     @Test
     void shouldTypeTheTimesAsHouseTimes() throws NoSuchMethodException {
-        for (String getter : new String[] {"getCreatedAt", "getSentAt", "getDoneAt"}) {
+        for (String getter : new String[] {"getCreatedAt", "getSentAt", "getDoneAt", "getRemindedAt", "getDoneAnnouncedAt",
+            "getStaleAnnouncedAt"}) {
             assertEquals(LocalDateTime.class, MemberRequest.class.getMethod(getter).getReturnType(), getter);
         }
+    }
+
+    // The marks of the reminders and the announcements (HAS-414): the server sets them, a client
+    // reads them as they come - every one optional, so a consumer on 1.18.0 ignores them.
+    @Test
+    void shouldCarryTheMarksOfTheRemindersAndTheAnnouncements() {
+        LocalDateTime evening = LocalDateTime.of(2026, 11, 10, 20, 0);
+        MemberRequest request = new MemberRequest(7L)
+            .remindedAt(evening)
+            .doneAnnouncedAt(evening.plusMinutes(5))
+            .staleAnnouncedAt(evening.plusMinutes(10));
+
+        assertEquals(evening, request.getRemindedAt());
+        assertEquals(evening.plusMinutes(5), request.getDoneAnnouncedAt());
+        assertEquals(evening.plusMinutes(10), request.getStaleAnnouncedAt());
     }
 
     // The names of the registry: 3-50, as HouseholdMember.name.
