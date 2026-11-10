@@ -99,7 +99,9 @@ the org's `organization.md`; this file holds what is specific to this repository
   member would drop it, and the routed read of the household would hand it out. A test pins it.
 - **The errands of a member stay off the household models too** (`MemberRequest`, 1.17.0, HAS-408): a
   model of its own, served on endpoints of their own by `database-service`; a client sends `text` and
-  `author`, the server sets the rest. A test pins both.
+  `author`, the server sets the rest. A test pins both. Since 1.19.0 (HAS-414) it carries three
+  optional server marks - `remindedAt`, `doneAnnouncedAt`, `staleAnnouncedAt` - for the evening
+  reminders of `notification-service` and what the author was told.
 - **Empty collections are omitted from JSON** (`@JsonInclude(NON_EMPTY)` on every class): a
   reader of the JSON treats a missing array as empty.
 - **Bounds belong in the schema** (`required`, `minLength`, `pattern`, `enum`, `uniqueItems`):
