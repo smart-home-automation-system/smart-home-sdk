@@ -142,7 +142,8 @@ components:
         recipient once, the next morning. A model of its own and never a field of HouseholdMember:
         a whole write of a member must not drop the requests, and the read of the registry stays
         as it is. A client sends text and author only; the rest is the server's, and a body that
-        carries it is accepted with the rest ignored.
+        carries it is accepted with the rest ignored. Since 1.19.0 (HAS-414) it also carries the
+        marks of its evening reminders and of what its author was told, all set by the server.
       required:
         - text
         - author
@@ -195,6 +196,26 @@ components:
           description: Who ticked it off - a member of the registry; left out while it is pending. Set by the server
           minLength: 3
           maxLength: 50
+        remindedAt:
+          type: string
+          format: date-time
+          description: >-
+            When the last evening reminder that carried it was accepted (since 1.19.0, HAS-414), in
+            the local time of the house; left out until the first one. Set by the server
+        doneAnnouncedAt:
+          type: string
+          format: date-time
+          description: >-
+            When its author was told it was ticked off (since 1.19.0, HAS-414), in the local time of
+            the house; left out until then, and set at once when the author ticked it off. Set by the
+            server
+        staleAnnouncedAt:
+          type: string
+          format: date-time
+          description: >-
+            When its author was told it is still open some days after its SMS (since 1.19.0,
+            HAS-414; how many is notification-service's), in the local time of the house; left out
+            until then - told once. Set by the server
 
     PushSubscription:
       type: object

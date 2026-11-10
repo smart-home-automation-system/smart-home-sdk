@@ -29,7 +29,8 @@ the settings of an appliance (`ApplianceSettings`), the household notification
 1.16.0 - the water valve as a device kind (`DeviceKind.WATER_VALVE`), and - since 1.17.0 - the
 errand of one household member for another (`MemberRequest`), and - since 1.18.0 - the air
 conditioner as a device of the registry (`DeviceKind.AIR_CONDITIONER`, `GreeBinding`,
-`SmartVendor.GREE`).
+`SmartVendor.GREE`), and - since 1.19.0 - the marks of the reminders and announcements of a
+`MemberRequest`.
 
 Current consumers: `amx-service`, `appliance-service`, `blinds-service`, `boiler-service`, `database-service`,
 `energy-service`, `heating-service`, `light-service`, `notification-service`, `presence-service`,
@@ -44,7 +45,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.18.0</version>
+    <version>1.19.0</version>
 </dependency>
 ```
 
@@ -427,6 +428,9 @@ Since 1.17.0 `MemberRequest` is an errand one member writes for another - "buy b
 | `sentAt` | `LocalDateTime` | the server | when the SMS that carried it was accepted; left out until then |
 | `doneAt` | `LocalDateTime` | the server | when it was ticked off; left out while pending |
 | `doneBy` | `String`, 3-50 | the server | who ticked it off; left out while pending |
+| `remindedAt` | `LocalDateTime` | the server | since 1.19.0: when the last evening reminder that carried it was accepted; left out until the first |
+| `doneAnnouncedAt` | `LocalDateTime` | the server | since 1.19.0: when its author was told it was ticked off; set at once when the author ticked it |
+| `staleAnnouncedAt` | `LocalDateTime` | the server | since 1.19.0: when its author was told it is still open some days after its SMS (how many is notification-service's); told once |
 
 - **A client sends `text` and `author` only.** A body that carries the other fields is accepted
   and they are ignored - the server owns them; the model cannot tell them apart from what a
@@ -440,6 +444,10 @@ Since 1.17.0 `MemberRequest` is an errand one member writes for another - "buy b
 - **Spaces around the text pass the model**: trimming is the server's (`database-service`), the model
   only refuses a text of spaces alone.
 - No new enum value: the readers of the registries need no move.
+- **The three marks of 1.19.0 (HAS-414) are optional and the server's**: `notification-service`
+  reminds the recipient at 20:00 and tells the author, `database-service` stores when. A consumer
+  still on 1.18.0 ignores them (Jackson leaves unknown properties alone), so the services move in
+  their own order: `database-service` first, then `notification-service`.
 
 To add or change a model, edit the relevant schema in `swagger/` and reference it from
 `swagger/smart-home.yaml`; `mvn verify` regenerates the sources in
