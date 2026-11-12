@@ -14,9 +14,9 @@ components:
         One device of the house as the registry holds it: what it is, where it is and how it is
         reached. The registry lives in database-service; the services of the domains (weather,
         blinds, light, heating) and the dashboard read it. A device is reached through exactly
-        one binding - `shelly`, `eaton`, `bthome`, `inverter` or `gree` - and which one has to be
-        there follows from the vendor and the kind; the model cannot say it, the registry checks
-        it when the device is stored. The fields at the end describe one kind only and are left out for the others.
+        one binding - `shelly`, `eaton`, `bthome`, `inverter`, `gree` or `blebox` - and which one
+        has to be there follows from the vendor and the kind; the model cannot say it, the
+        registry checks it when the device is stored. The fields at the end describe one kind only and are left out for the others.
       required:
         - name
         - room
@@ -88,6 +88,8 @@ components:
           $ref: '#/components/schemas/InverterBinding'
         gree:
           $ref: '#/components/schemas/GreeBinding'
+        blebox:
+          $ref: '#/components/schemas/BleboxBinding'
 
     DeviceKind:
       type: string
@@ -109,7 +111,10 @@ components:
         consumption and can close the main - a Shelly Gen2+ device read by water-service. An
         `air conditioner` (since 1.18.0) is an indoor unit of a split air conditioner, driven by
         aircon-service over the local network; a Gree unit is reached by its `gree` binding and
-        nothing else, and its vendor is `gree`.
+        nothing else, and its vendor is `gree`. An `air quality sensor` (since 1.20.0) measures
+        the particulate matter of the air - today the one outside the house, read by
+        weather-service; a BleBox
+        sensor is reached by its `blebox` binding and nothing else, and its vendor is `blebox`.
       enum:
         - "blinds"
         - "light"
@@ -124,6 +129,7 @@ components:
         - "inverter"
         - "water valve"
         - "air conditioner"
+        - "air quality sensor"
 
     InverterBinding:
       type: object
@@ -220,6 +226,35 @@ components:
           maxLength: 12
           pattern: ^[0-9a-f]{12}$
           example: '02005e0000a1'
+
+    BleboxBinding:
+      type: object
+      description: >-
+        BleBox air quality sensors only (since 1.20.0): how weather-service reaches the sensor -
+        over HTTP at its address, polled, since it pushes nothing - and the id it gives in
+        `GET /info`, which tells the sensor from another device answering at the same address.
+        That the part is there exactly for a BleBox `air quality sensor` is a rule of the
+        registry, not of this model.
+      required:
+        - address
+        - deviceId
+      properties:
+        address:
+          type: string
+          description: The IPv4 address of the sensor on the home network, reserved for it in DHCP
+          format: ipv4
+          maxLength: 15
+          pattern: ^((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])$
+          example: '192.0.2.23'
+        deviceId:
+          type: string
+          description: >-
+            The id of the sensor as `GET /info` of the device gives it: twelve hexadecimal digits
+            in lower case.
+          minLength: 12
+          maxLength: 12
+          pattern: ^[0-9a-f]{12}$
+          example: '0123456789ab'
 
     ApplianceSettings:
       type: object

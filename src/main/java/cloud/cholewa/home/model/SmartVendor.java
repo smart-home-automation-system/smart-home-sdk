@@ -8,7 +8,8 @@ public enum SmartVendor {
     SHELLY("shelly"),
     EATON("eaton"),
     OTHER("other"),
-    GREE("gree");
+    GREE("gree"),
+    BLEBOX("blebox");
 
     private String value;
 

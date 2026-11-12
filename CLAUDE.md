@@ -69,11 +69,15 @@ the org's `organization.md`; this file holds what is specific to this repository
   reads an id a client sends. "The registry gives the id" is a rule of the registry, not of
   the model.
 - **A device is described by optional parts the model does not tie together** (HAS-221):
-  `SmartDevice` has five bindings (`inverter` since 1.15.0, HAS-326; `gree` since 1.18.0,
-  HAS-377) and fields of one kind only, all optional. Which of
+  `SmartDevice` has six bindings (`inverter` since 1.15.0, HAS-326; `gree` since 1.18.0,
+  HAS-377; `blebox` since 1.20.0, HAS-424) and fields of one kind only, all optional. Which of
   them a device must have follows from its vendor and kind, and the schema does not say it
   (`oneOf` was not tried - one flat class is what the registry stores a row of). So the rule
   lives in the registry, and the README says so to every consumer.
+- **A new kind or vendor is not additive for a reader of the whole registry** (HAS-377, HAS-424):
+  `database-service` and the dashboard read every device, so they move to the SDK that has the value
+  first and the registry stores no device of it before; the domain services read by `?kind=` and
+  move with their next task.
 - **1.8.0 took a field away from a model of 1.7.0** (`BthomeBinding.gatewayDeviceId`, HAS-222) and
   was still a minor: no service had been released on 1.7.0, so nothing could send or expect
   it. That is the only case in which removing a field is not a major - check the consumer

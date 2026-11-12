@@ -30,7 +30,8 @@ the settings of an appliance (`ApplianceSettings`), the household notification
 errand of one household member for another (`MemberRequest`), and - since 1.18.0 - the air
 conditioner as a device of the registry (`DeviceKind.AIR_CONDITIONER`, `GreeBinding`,
 `SmartVendor.GREE`), and - since 1.19.0 - the marks of the reminders and announcements of a
-`MemberRequest`.
+`MemberRequest`, and - since 1.20.0 - the air quality sensor as a device of the registry
+(`DeviceKind.AIR_QUALITY_SENSOR`, `BleboxBinding`, `SmartVendor.BLEBOX`).
 
 Current consumers: `amx-service`, `appliance-service`, `blinds-service`, `boiler-service`, `database-service`,
 `energy-service`, `heating-service`, `light-service`, `notification-service`, `presence-service`,
@@ -45,7 +46,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.19.0</version>
+    <version>1.20.0</version>
 </dependency>
 ```
 
@@ -174,9 +175,9 @@ and the dashboard read it.
 | `id` | `Long` | given by the registry; left out of the JSON until it has one |
 | `name` | `String`, 3-50 | required |
 | `room` | `RoomName` | required |
-| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway`, `temperature sensor` (since 1.8.0), `push button` (since 1.9.0), `appliance` (since 1.13.0), `inverter` (since 1.15.0), `water valve` (since 1.16.0), `air conditioner` (since 1.18.0) |
+| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway`, `temperature sensor` (since 1.8.0), `push button` (since 1.9.0), `appliance` (since 1.13.0), `inverter` (since 1.15.0), `water valve` (since 1.16.0), `air conditioner` (since 1.18.0), `air quality sensor` (since 1.20.0) |
 | `enabled` | `Boolean` | required, **no default** |
-| `vendor` | `SmartVendor` | required: `shelly`, `eaton`, `other`, `gree` (since 1.18.0) |
+| `vendor` | `SmartVendor` | required: `shelly`, `eaton`, `other`, `gree` (since 1.18.0), `blebox` (since 1.20.0) |
 | `shelly` | `ShellyBinding` | `address` (IPv4) and `generation` (1-4) required; `deviceId`, `channel` (0-299, since 1.12.0; 0-3 before) optional |
 | `eaton` | `EatonBinding` | `gateway` (`EatonGatewayType`) and `point` (1-99) |
 | `bthome` | `BthomeBinding` | `address` (Bluetooth MAC, lowercase, colons) - and no gateway, since 1.8.0 |
@@ -187,6 +188,7 @@ and the dashboard read it.
 | `appliance` | `ApplianceSettings` | appliances only (since 1.13.0): how a cycle is read from the power draw and how the household is reminded |
 | `inverter` | `InverterBinding` | inverters only (since 1.15.0): the brand, the serial number and how the inverter is reached |
 | `gree` | `GreeBinding` | Gree air conditioners only (since 1.18.0): the address and the MAC of the unit |
+| `blebox` | `BleboxBinding` | BleBox air quality sensors only (since 1.20.0): the address and the id of the sensor |
 
 ```json
 {"id":17,"name":"Office window","room":"office","kind":"blinds","enabled":true,"vendor":"shelly",
@@ -197,7 +199,7 @@ and the dashboard read it.
 What a consumer has to know:
 
 - **The model does not check which binding belongs to a device.** One of `shelly`, `eaton`,
-  `bthome`, `inverter` (since 1.15.0) and `gree` (since 1.18.0) is expected, by the vendor and the kind; so is `lightKind` for a light only. `@Valid`
+  `bthome`, `inverter` (since 1.15.0), `gree` (since 1.18.0) and `blebox` (since 1.20.0) is expected, by the vendor and the kind; so is `lightKind` for a light only. `@Valid`
   checks each binding that is there and nothing between the fields - the rule is the
   registry's to keep when a device is stored.
 - **Nothing has a default**, so a partial update can tell "not sent" from a value. `enabled` is
@@ -297,7 +299,7 @@ What a consumer has to know:
   other service ever gets a Gree device - nor a `DeviceEvent` of one. `database-service` (HAS-378) and
   the dashboard (its copy of the enums and its devices form) move first, before the first unit is stored.
 - **`GreeBinding` (since 1.18.0)** - the part of a Gree `air conditioner`, and its only binding: a unit
-  has no `shelly`, `eaton`, `bthome` or `inverter`, and its vendor is `gree`.
+  has no `shelly`, `eaton`, `bthome`, `inverter` or `blebox`, and its vendor is `gree`.
 
   | Field | Bounds | Meaning |
   |---|---|---|
@@ -311,6 +313,25 @@ What a consumer has to know:
   ```json
   {"id":140,"name":"Air conditioner","room":"office","kind":"air conditioner","enabled":true,
    "vendor":"gree","gree":{"address":"192.0.2.59","mac":"02005e0000a1"}}
+  ```
+- **`air quality sensor` and the vendor `blebox` (1.20.0, HAS-424) follow the same rule**, for the
+  second new value of `SmartVendor` too: weather-service reads the registry by
+  `?kind=air quality sensor`, and no other service ever gets a BleBox device. `database-service`
+  (HAS-425) and the dashboard (its copy of the enums and its devices form, HAS-426) move first -
+  no sensor is stored until both run 1.20.0.
+- **`BleboxBinding` (since 1.20.0)** - the part of a BleBox `air quality sensor`, and its only
+  binding: a sensor has no `shelly`, `eaton`, `bthome`, `inverter` or `gree`, and its vendor is `blebox`.
+
+  | Field | Bounds | Meaning |
+  |---|---|---|
+  | `address` | IPv4 | required; the address of the sensor, reserved for it in DHCP - weather-service polls it there over HTTP, the sensor pushes nothing |
+  | `deviceId` | 12 hex digits, lower case | required; the id `GET /info` of the device gives - it tells the sensor from another device answering at the same address |
+
+  That the part is there exactly for a BleBox `air quality sensor` is a rule of the registry.
+
+  ```json
+  {"id":145,"name":"Air sensor","room":"garden","kind":"air quality sensor","enabled":true,
+   "vendor":"blebox","blebox":{"address":"192.0.2.23","deviceId":"0123456789ab"}}
   ```
 - **`InverterBinding` (since 1.15.0)** - the part of a device of the kind `inverter`, and its only
   binding: an inverter has no `shelly`, `eaton` or `bthome`, and its vendor is `other`.
