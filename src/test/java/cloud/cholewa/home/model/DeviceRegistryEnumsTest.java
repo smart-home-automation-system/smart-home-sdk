@@ -35,7 +35,8 @@ class DeviceRegistryEnumsTest {
                 "APPLIANCE", "appliance",
                 "INVERTER", "inverter",
                 "WATER_VALVE", "water valve",
-                "AIR_CONDITIONER", "air conditioner"
+                "AIR_CONDITIONER", "air conditioner",
+                "AIR_QUALITY_SENSOR", "air quality sensor"
             ),
             namesAndValues(DeviceKind.values(), DeviceKind::getValue)
         );
@@ -51,12 +52,13 @@ class DeviceRegistryEnumsTest {
         );
     }
 
-    // The vendor decides which binding a device has (HAS-377: `gree` for the air conditioners); the
-    // registry stores the name, and every reader of the whole registry has to know it first.
+    // The vendor decides which binding a device has (HAS-377: `gree` for the air conditioners,
+    // HAS-424: `blebox` for the air quality sensor); the registry stores the name, and every
+    // reader of the whole registry has to know it first.
     @Test
     void shouldKnowExactlyTheseVendors() {
         assertEquals(
-            ordered("SHELLY", "shelly", "EATON", "eaton", "OTHER", "other", "GREE", "gree"),
+            ordered("SHELLY", "shelly", "EATON", "eaton", "OTHER", "other", "GREE", "gree", "BLEBOX", "blebox"),
             namesAndValues(SmartVendor.values(), SmartVendor::getValue)
         );
     }

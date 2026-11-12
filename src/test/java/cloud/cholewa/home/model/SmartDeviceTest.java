@@ -13,6 +13,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import java.lang.reflect.AnnotatedParameterizedType;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
@@ -31,12 +32,14 @@ class SmartDeviceTest {
         assertEquals(
             Set.of(
                 "id", "name", "room", "kind", "enabled", "vendor", "shelly", "eaton", "bthome", "lightKind",
-                "placement", "positioning", "openingSensors", "appliance", "inverter", "gree"
+                "placement", "positioning", "openingSensors", "appliance", "inverter", "gree",
+                "blebox"
             ),
             JsonProperties.of(SmartDevice.class)
         );
         //the key of a unit is never stored: aircon-service binds it when it starts
         assertEquals(Set.of("address", "mac"), JsonProperties.of(GreeBinding.class));
+        assertEquals(Set.of("address", "deviceId"), JsonProperties.of(BleboxBinding.class));
         assertEquals(
             Set.of("brand", "serialNumber", "address", "registrationNumber", "loggerSerial", "batterySerialNumber"),
             JsonProperties.of(InverterBinding.class)
@@ -76,6 +79,7 @@ class SmartDeviceTest {
         assertNull(device.getAppliance());
         assertNull(device.getInverter());
         assertNull(device.getGree());
+        assertNull(device.getBlebox());
 
         InverterBinding inverter = new InverterBinding();
         assertNull(inverter.getBrand());
@@ -107,7 +111,8 @@ class SmartDeviceTest {
             assertNotNull(SmartDevice.class.getMethod(getter).getAnnotation(NotNull.class), getter);
         }
         for (String getter : new String[] {"getId", "getShelly", "getEaton", "getBthome", "getLightKind",
-                "getPlacement", "getPositioning", "getOpeningSensors", "getAppliance", "getInverter", "getGree"}) {
+                "getPlacement", "getPositioning", "getOpeningSensors", "getAppliance", "getInverter", "getGree",
+                "getBlebox"}) {
             assertNull(SmartDevice.class.getMethod(getter).getAnnotation(NotNull.class), getter);
         }
     }
@@ -301,6 +306,33 @@ class SmartDeviceTest {
         assertFalse("02005e0000a".matches(pattern));
         assertFalse("02005e0000a1f".matches(pattern));
         assertFalse("02005e0000g1".matches(pattern));
+    }
+
+    // The BleBox part (HAS-424): the sensor is polled at its address and known by the id of its
+    // GET /info, so both are required; validated with the device.
+    @Test
+    void shouldRequireTheAddressAndTheIdOfABleboxSensor() throws NoSuchMethodException {
+        assertNotNull(SmartDevice.class.getMethod("getBlebox").getAnnotation(Valid.class));
+        assertEquals(BleboxBinding.class, SmartDevice.class.getMethod("getBlebox").getReturnType());
+        for (String getter : new String[] {"getAddress", "getDeviceId"}) {
+            assertNotNull(BleboxBinding.class.getMethod(getter).getAnnotation(NotNull.class), getter);
+        }
+        String address = BleboxBinding.class.getMethod("getAddress").getAnnotation(Pattern.class).regexp();
+        assertEquals(ShellyBinding.class.getMethod("getAddress").getAnnotation(Pattern.class).regexp(), address);
+        assertEquals(15, BleboxBinding.class.getMethod("getAddress").getAnnotation(Size.class).max());
+    }
+
+    // The id as GET /info of the sensor gives it: twelve hex digits in lower case.
+    @Test
+    void shouldTakeTheIdOfABleboxSensorAsTheSensorGivesIt() throws NoSuchMethodException {
+        String pattern = BleboxBinding.class.getMethod("getDeviceId").getAnnotation(Pattern.class).regexp();
+
+        assertTrue("0123456789ab".matches(pattern));
+        assertFalse("0123456789AB".matches(pattern));
+        assertFalse("01:23:45:67:89:ab".matches(pattern));
+        assertFalse("0123456789a".matches(pattern));
+        assertFalse("0123456789abc".matches(pattern));
+        assertFalse("0123456789ag".matches(pattern));
     }
 
     // The Solarman protocol carries the logger serial as four bytes in every frame.
