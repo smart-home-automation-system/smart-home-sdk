@@ -65,13 +65,16 @@ class DeviceRegistryEnumsTest {
 
     // What appliance-service publishes and notification-service words (HAS-271): the two share
     // the names, and notification-service has to know a value before anybody publishes it.
+    // The smog of weather-service since 1.21.0 (HAS-429).
     @Test
     void shouldKnowExactlyTheseHouseholdEvents() {
         assertEquals(
             ordered(
                 "APPLIANCE_FINISHED", "appliance finished",
                 "APPLIANCE_REMINDER", "appliance reminder",
-                "APPLIANCE_ACKNOWLEDGED", "appliance acknowledged"
+                "APPLIANCE_ACKNOWLEDGED", "appliance acknowledged",
+                "SMOG_WARNING", "smog warning",
+                "SMOG_OVER", "smog over"
             ),
             namesAndValues(HouseholdEvent.values(), HouseholdEvent::getValue)
         );

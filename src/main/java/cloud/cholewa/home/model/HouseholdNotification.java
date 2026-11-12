@@ -19,7 +19,8 @@ import lombok.experimental.SuperBuilder;
 @JsonPropertyOrder({HouseholdNotification.JSON_PROPERTY_EVENT, HouseholdNotification.JSON_PROPERTY_SUBJECT,
         HouseholdNotification.JSON_PROPERTY_DEVICE_ID, HouseholdNotification.JSON_PROPERTY_OCCURRED_AT,
         HouseholdNotification.JSON_PROPERTY_REMINDER, HouseholdNotification.JSON_PROPERTY_ACKNOWLEDGE_PATH,
-        HouseholdNotification.JSON_PROPERTY_MEMBER})
+        HouseholdNotification.JSON_PROPERTY_MEMBER, HouseholdNotification.JSON_PROPERTY_PM10,
+        HouseholdNotification.JSON_PROPERTY_PM25})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -39,6 +40,10 @@ public class HouseholdNotification {
     private String acknowledgePath;
     public static final String JSON_PROPERTY_MEMBER = "member";
     private String member;
+    public static final String JSON_PROPERTY_PM10 = "pm10";
+    private Integer pm10;
+    public static final String JSON_PROPERTY_PM25 = "pm25";
+    private Integer pm25;
 
     public HouseholdNotification event(HouseholdEvent event) {
         this.event = event;
@@ -180,6 +185,44 @@ public class HouseholdNotification {
         this.member = member;
     }
 
+    public HouseholdNotification pm10(Integer pm10) {
+        this.pm10 = pm10;
+        return this;
+    }
+
+    @Nullable
+    @Min(0)
+    @JsonProperty(JSON_PROPERTY_PM10)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public Integer getPm10() {
+        return pm10;
+    }
+
+    @JsonProperty(JSON_PROPERTY_PM10)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setPm10(Integer pm10) {
+        this.pm10 = pm10;
+    }
+
+    public HouseholdNotification pm25(Integer pm25) {
+        this.pm25 = pm25;
+        return this;
+    }
+
+    @Nullable
+    @Min(0)
+    @JsonProperty(JSON_PROPERTY_PM25)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public Integer getPm25() {
+        return pm25;
+    }
+
+    @JsonProperty(JSON_PROPERTY_PM25)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setPm25(Integer pm25) {
+        this.pm25 = pm25;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -195,12 +238,14 @@ public class HouseholdNotification {
                 && Objects.equals(this.occurredAt, householdNotification.occurredAt)
                 && Objects.equals(this.reminder, householdNotification.reminder)
                 && Objects.equals(this.acknowledgePath, householdNotification.acknowledgePath)
-                && Objects.equals(this.member, householdNotification.member);
+                && Objects.equals(this.member, householdNotification.member)
+                && Objects.equals(this.pm10, householdNotification.pm10)
+                && Objects.equals(this.pm25, householdNotification.pm25);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(event, subject, deviceId, occurredAt, reminder, acknowledgePath, member);
+        return Objects.hash(event, subject, deviceId, occurredAt, reminder, acknowledgePath, member, pm10, pm25);
     }
 
     @Override
@@ -214,6 +259,8 @@ public class HouseholdNotification {
         sb.append("    reminder: ").append(toIndentedString(reminder)).append("\n");
         sb.append("    acknowledgePath: ").append(toIndentedString(acknowledgePath)).append("\n");
         sb.append("    member: ").append(toIndentedString(member)).append("\n");
+        sb.append("    pm10: ").append(toIndentedString(pm10)).append("\n");
+        sb.append("    pm25: ").append(toIndentedString(pm25)).append("\n");
         sb.append("}");
         return sb.toString();
     }

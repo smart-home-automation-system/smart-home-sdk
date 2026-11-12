@@ -31,7 +31,8 @@ errand of one household member for another (`MemberRequest`), and - since 1.18.0
 conditioner as a device of the registry (`DeviceKind.AIR_CONDITIONER`, `GreeBinding`,
 `SmartVendor.GREE`), and - since 1.19.0 - the marks of the reminders and announcements of a
 `MemberRequest`, and - since 1.20.0 - the air quality sensor as a device of the registry
-(`DeviceKind.AIR_QUALITY_SENSOR`, `BleboxBinding`, `SmartVendor.BLEBOX`).
+(`DeviceKind.AIR_QUALITY_SENSOR`, `BleboxBinding`, `SmartVendor.BLEBOX`), and - since 1.21.0 - the smog
+of the household (`HouseholdEvent.SMOG_WARNING`, `SMOG_OVER`, `HouseholdNotification.pm10` / `pm25`).
 
 Current consumers: `amx-service`, `appliance-service`, `blinds-service`, `boiler-service`, `database-service`,
 `energy-service`, `heating-service`, `light-service`, `notification-service`, `presence-service`,
@@ -46,7 +47,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.20.0</version>
+    <version>1.21.0</version>
 </dependency>
 ```
 
@@ -395,20 +396,28 @@ channel, SMS and Web Push. **No text travels in the payload.**
 
 | Field | Type | Notes |
 |---|---|---|
-| `event` | `HouseholdEvent` | required: `appliance finished`, `appliance reminder`, `appliance acknowledged` |
+| `event` | `HouseholdEvent` | required: `appliance finished`, `appliance reminder`, `appliance acknowledged`, `smog warning` and `smog over` (since 1.21.0 - the start and the end of an episode of bad air outside, published by weather-service; the subject is the air quality sensor) |
 | `subject` | `String`, 3-50 | required; the name of the device as the registry has it |
 | `deviceId` | `Long`, from 1 | required; the id of the device in the registry |
 | `occurredAt` | `LocalDateTime` | required; a local date-time of the house, like `DeviceEvent.at` |
 | `reminder` | `Integer`, 0-10 | required; the reminders before this message - 0 for `appliance finished`, and for `appliance acknowledged` the number that had been sent |
 | `acknowledgePath` | `String`, up to 200 | optional; the path of the application where the household acknowledges it - segments of letters, digits, `-` and `_` only, so no host, `//`, `..` or query |
 | `member` | `String`, 3-50 | optional (since 1.14.0); the household member who did it, by their registry name - for `appliance acknowledged` who acknowledged it in the application. Information for the message, not a proof of the chore |
+| `pm10`, `pm25` | `Integer`, from 0 | optional (since 1.21.0); the PM10 and PM2.5 outside in ug/m3 the smog message quotes - the reading that opened the episode for `smog warning`, the one that closed it for `smog over`; left out for every other event |
 
 ```json
 {"event":"appliance reminder","subject":"Zmywarka","deviceId":64,"occurredAt":"2026-10-23T19:40:00",
  "reminder":1,"acknowledgePath":"/room"}
 ```
 
-A new `HouseholdEvent` is read by `notification-service` before anybody publishes it.
+A new `HouseholdEvent` is read by `notification-service` before anybody publishes it: the two of the smog
+(1.21.0, HAS-429) are worded by notification-service in HAS-430, and weather-service publishes them only
+once that runs - an event it does not know fails its read of the message.
+
+```json
+{"event":"smog warning","subject":"Air quality sensor","deviceId":145,"occurredAt":"2026-11-12T18:20:00",
+ "reminder":0,"pm10":112,"pm25":78}
+```
 
 ### Push subscription: a browser of a household member
 
