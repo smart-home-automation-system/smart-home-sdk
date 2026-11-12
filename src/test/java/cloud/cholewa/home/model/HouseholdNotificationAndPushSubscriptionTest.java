@@ -27,9 +27,22 @@ class HouseholdNotificationAndPushSubscriptionTest {
     @Test
     void shouldPublishTheseJsonPropertiesOfANotificationAndNoOther() {
         assertEquals(
-            Set.of("event", "subject", "deviceId", "occurredAt", "reminder", "acknowledgePath", "member"),
+            Set.of("event", "subject", "deviceId", "occurredAt", "reminder", "acknowledgePath", "member", "pm10", "pm25"),
             JsonProperties.of(HouseholdNotification.class)
         );
+    }
+
+    // The values a smog message quotes (HAS-429): optional, whole ug/m3, never negative.
+    @Test
+    void shouldCarryTheParticlesOfASmogMessageOptionally() throws NoSuchMethodException {
+        for (String getter : new String[] {"getPm10", "getPm25"}) {
+            assertNull(HouseholdNotification.class.getMethod(getter).getAnnotation(NotNull.class), getter);
+            assertEquals(Integer.class, HouseholdNotification.class.getMethod(getter).getReturnType(), getter);
+            assertEquals(0L, HouseholdNotification.class.getMethod(getter).getAnnotation(Min.class).value(), getter);
+        }
+        HouseholdNotification empty = new HouseholdNotification();
+        assertNull(empty.getPm10());
+        assertNull(empty.getPm25());
     }
 
     // Who acknowledged it (HAS-347): optional, a name of the household registry with its bounds.

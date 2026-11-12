@@ -65,14 +65,30 @@ components:
           minLength: 3
           maxLength: 50
           example: 'Anna'
+        pm10:
+          type: integer
+          description: >-
+            The PM10 of the air outside the house in ug/m3 (since 1.21.0) - for `smog warning` the reading that
+            opened the episode, for `smog over` the one that closed it; left out for every other event.
+          minimum: 0
+          example: 112
+        pm25:
+          type: integer
+          description: >-
+            The PM2.5 of the air outside the house in ug/m3 (since 1.21.0), as pm10; left out for every other event.
+          minimum: 0
+          example: 78
 
     HouseholdEvent:
       type: string
       description: >-
         What the household is told. The constant names are what the publishers and
         notification-service share; a new one is read by notification-service before anybody
-        publishes it.
+        publishes it. `smog warning` and `smog over` (since 1.21.0) are the start and the end of an episode
+        of bad air outside the house, published by weather-service - the subject is the air quality sensor.
       enum:
         - "appliance finished"
         - "appliance reminder"
         - "appliance acknowledged"
+        - "smog warning"
+        - "smog over"

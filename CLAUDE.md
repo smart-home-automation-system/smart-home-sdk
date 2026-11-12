@@ -106,6 +106,10 @@ the org's `organization.md`; this file holds what is specific to this repository
   `author`, the server sets the rest. A test pins both. Since 1.19.0 (HAS-414) it carries three
   optional server marks - `remindedAt`, `doneAnnouncedAt`, `staleAnnouncedAt` - for the evening
   reminders of `notification-service` and what the author was told.
+- **The smog of the household** (1.21.0, HAS-429): `HouseholdEvent` gains `smog warning` / `smog over` and
+  `HouseholdNotification` the optional `pm10` / `pm25` (whole ug/m3, from 0) - fields of the one payload, not a
+  model of their own, left out for the appliance events. notification-service reads a new event before
+  weather-service publishes it.
 - **Empty collections are omitted from JSON** (`@JsonInclude(NON_EMPTY)` on every class): a
   reader of the JSON treats a missing array as empty.
 - **Bounds belong in the schema** (`required`, `minLength`, `pattern`, `enum`, `uniqueItems`):

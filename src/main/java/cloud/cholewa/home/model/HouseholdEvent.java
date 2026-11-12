@@ -7,7 +7,9 @@ public enum HouseholdEvent {
 
     APPLIANCE_FINISHED("appliance finished"),
     APPLIANCE_REMINDER("appliance reminder"),
-    APPLIANCE_ACKNOWLEDGED("appliance acknowledged");
+    APPLIANCE_ACKNOWLEDGED("appliance acknowledged"),
+    SMOG_WARNING("smog warning"),
+    SMOG_OVER("smog over");
 
     private String value;
 
