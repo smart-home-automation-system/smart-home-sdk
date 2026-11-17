@@ -9,7 +9,8 @@ public enum SmartVendor {
     EATON("eaton"),
     OTHER("other"),
     GREE("gree"),
-    BLEBOX("blebox");
+    BLEBOX("blebox"),
+    HIKVISION("hikvision");
 
     private String value;
 

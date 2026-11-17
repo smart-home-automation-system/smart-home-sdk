@@ -33,13 +33,15 @@ class SmartDeviceTest {
             Set.of(
                 "id", "name", "room", "kind", "enabled", "vendor", "shelly", "eaton", "bthome", "lightKind",
                 "placement", "positioning", "openingSensors", "appliance", "inverter", "gree",
-                "blebox"
+                "blebox", "hikvision"
             ),
             JsonProperties.of(SmartDevice.class)
         );
         //the key of a unit is never stored: aircon-service binds it when it starts
         assertEquals(Set.of("address", "mac"), JsonProperties.of(GreeBinding.class));
         assertEquals(Set.of("address", "deviceId"), JsonProperties.of(BleboxBinding.class));
+        //no account of the station: the bridge logs in with a secret of the cluster
+        assertEquals(Set.of("address", "serialNumber"), JsonProperties.of(HikvisionBinding.class));
         assertEquals(
             Set.of("brand", "serialNumber", "address", "registrationNumber", "loggerSerial", "batterySerialNumber"),
             JsonProperties.of(InverterBinding.class)
@@ -80,6 +82,7 @@ class SmartDeviceTest {
         assertNull(device.getInverter());
         assertNull(device.getGree());
         assertNull(device.getBlebox());
+        assertNull(device.getHikvision());
 
         InverterBinding inverter = new InverterBinding();
         assertNull(inverter.getBrand());
@@ -112,7 +115,7 @@ class SmartDeviceTest {
         }
         for (String getter : new String[] {"getId", "getShelly", "getEaton", "getBthome", "getLightKind",
                 "getPlacement", "getPositioning", "getOpeningSensors", "getAppliance", "getInverter", "getGree",
-                "getBlebox"}) {
+                "getBlebox", "getHikvision"}) {
             assertNull(SmartDevice.class.getMethod(getter).getAnnotation(NotNull.class), getter);
         }
     }
@@ -333,6 +336,36 @@ class SmartDeviceTest {
         assertFalse("0123456789a".matches(pattern));
         assertFalse("0123456789abc".matches(pattern));
         assertFalse("0123456789ag".matches(pattern));
+    }
+
+    // The Hikvision part (HAS-445): the station is reached at its address and known by the serial
+    // number of its System/deviceInfo, so both are required; validated with the device.
+    @Test
+    void shouldRequireTheAddressAndTheSerialNumberOfAHikvisionStation() throws NoSuchMethodException {
+        assertNotNull(SmartDevice.class.getMethod("getHikvision").getAnnotation(Valid.class));
+        assertEquals(HikvisionBinding.class, SmartDevice.class.getMethod("getHikvision").getReturnType());
+        for (String getter : new String[] {"getAddress", "getSerialNumber"}) {
+            assertNotNull(HikvisionBinding.class.getMethod(getter).getAnnotation(NotNull.class), getter);
+        }
+        String address = HikvisionBinding.class.getMethod("getAddress").getAnnotation(Pattern.class).regexp();
+        assertEquals(ShellyBinding.class.getMethod("getAddress").getAnnotation(Pattern.class).regexp(), address);
+        assertEquals(15, HikvisionBinding.class.getMethod("getAddress").getAnnotation(Size.class).max());
+    }
+
+    // The serial number as System/deviceInfo gives it: the model with its hyphens and parentheses,
+    // the date of manufacture and the serial in one word.
+    @Test
+    void shouldTakeTheSerialNumberOfAHikvisionStationAsTheStationGivesIt() throws NoSuchMethodException {
+        var method = HikvisionBinding.class.getMethod("getSerialNumber");
+        String pattern = method.getAnnotation(Pattern.class).regexp();
+
+        assertTrue("DS-KV0000-WE1(B)0120200101RRA00000001".matches(pattern));
+        assertFalse("DS-KV0000 WE1".matches(pattern));
+        assertFalse("DS-KV0000/WE1".matches(pattern));
+        assertFalse("---------".matches(pattern));
+        assertFalse("(DS-KV0000)".matches(pattern));
+        assertEquals(9, method.getAnnotation(Size.class).min());
+        assertEquals(64, method.getAnnotation(Size.class).max());
     }
 
     // The Solarman protocol carries the logger serial as four bytes in every frame.

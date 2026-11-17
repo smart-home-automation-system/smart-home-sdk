@@ -57,6 +57,8 @@ components:
       $ref: './household-notification.yaml#/components/schemas/HouseholdNotification'
     HouseholdEvent:
       $ref: './household-notification.yaml#/components/schemas/HouseholdEvent'
+    GateOpenSource:
+      $ref: './household-notification.yaml#/components/schemas/GateOpenSource'
 
     # ======== Device Registry Models ========
     SmartDevice:

@@ -110,6 +110,13 @@ the org's `organization.md`; this file holds what is specific to this repository
   `HouseholdNotification` the optional `pm10` / `pm25` (whole ug/m3, from 0) - fields of the one payload, not a
   model of their own, left out for the appliance events. notification-service reads a new event before
   weather-service publishes it.
+- **The intercom and the gate** (1.22.0, HAS-445, epic HAS-442): `DeviceKind` gains `intercom` (the door
+  station, vendor `hikvision` - the third new `SmartVendor` - with `HikvisionBinding`: address and serial number,
+  no account) and `gate` (the Shelly that opens the gate, an ordinary `shelly` device); `HouseholdEvent` gains
+  `doorbell ringing` / `gate opened` and `HouseholdNotification` the optional `source` (`GateOpenSource`:
+  `screen`, `dashboard`). Both registry values are read by `database-service` and the dashboard before a device
+  of them is stored; the events by notification-service before gate-service publishes them. No picture travels:
+  the station gives none (HAS-444).
 - **Empty collections are omitted from JSON** (`@JsonInclude(NON_EMPTY)` on every class): a
   reader of the JSON treats a missing array as empty.
 - **Bounds belong in the schema** (`required`, `minLength`, `pattern`, `enum`, `uniqueItems`):

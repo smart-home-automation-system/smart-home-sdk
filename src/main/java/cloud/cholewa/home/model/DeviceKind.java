@@ -18,7 +18,9 @@ public enum DeviceKind {
     INVERTER("inverter"),
     WATER_VALVE("water valve"),
     AIR_CONDITIONER("air conditioner"),
-    AIR_QUALITY_SENSOR("air quality sensor");
+    AIR_QUALITY_SENSOR("air quality sensor"),
+    INTERCOM("intercom"),
+    GATE("gate");
 
     private String value;
 
