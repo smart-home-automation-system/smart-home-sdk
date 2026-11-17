@@ -27,7 +27,8 @@ class HouseholdNotificationAndPushSubscriptionTest {
     @Test
     void shouldPublishTheseJsonPropertiesOfANotificationAndNoOther() {
         assertEquals(
-            Set.of("event", "subject", "deviceId", "occurredAt", "reminder", "acknowledgePath", "member", "pm10", "pm25"),
+            Set.of("event", "subject", "deviceId", "occurredAt", "reminder", "acknowledgePath", "member", "pm10", "pm25",
+                "source"),
             JsonProperties.of(HouseholdNotification.class)
         );
     }
@@ -43,6 +44,16 @@ class HouseholdNotificationAndPushSubscriptionTest {
         HouseholdNotification empty = new HouseholdNotification();
         assertNull(empty.getPm10());
         assertNull(empty.getPm25());
+    }
+
+    // Where the gate was opened from (HAS-445): optional, left out for every event but `gate opened`.
+    @Test
+    void shouldCarryTheSourceOfAnOpeningOptionally() throws NoSuchMethodException {
+        var getter = HouseholdNotification.class.getMethod("getSource");
+
+        assertNull(getter.getAnnotation(NotNull.class));
+        assertEquals(GateOpenSource.class, getter.getReturnType());
+        assertNull(new HouseholdNotification().getSource());
     }
 
     // Who acknowledged it (HAS-347): optional, a name of the household registry with its bounds.

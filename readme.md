@@ -32,7 +32,10 @@ conditioner as a device of the registry (`DeviceKind.AIR_CONDITIONER`, `GreeBind
 `SmartVendor.GREE`), and - since 1.19.0 - the marks of the reminders and announcements of a
 `MemberRequest`, and - since 1.20.0 - the air quality sensor as a device of the registry
 (`DeviceKind.AIR_QUALITY_SENSOR`, `BleboxBinding`, `SmartVendor.BLEBOX`), and - since 1.21.0 - the smog
-of the household (`HouseholdEvent.SMOG_WARNING`, `SMOG_OVER`, `HouseholdNotification.pm10` / `pm25`).
+of the household (`HouseholdEvent.SMOG_WARNING`, `SMOG_OVER`, `HouseholdNotification.pm10` / `pm25`), and -
+since 1.22.0 - the intercom and the gate as devices of the registry (`DeviceKind.INTERCOM`, `GATE`,
+`HikvisionBinding`, `SmartVendor.HIKVISION`) and their household events (`HouseholdEvent.DOORBELL_RINGING`,
+`GATE_OPENED`, `HouseholdNotification.source`, `GateOpenSource`).
 
 Current consumers: `amx-service`, `appliance-service`, `blinds-service`, `boiler-service`, `database-service`,
 `energy-service`, `heating-service`, `light-service`, `notification-service`, `presence-service`,
@@ -47,7 +50,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.21.0</version>
+    <version>1.22.0</version>
 </dependency>
 ```
 
@@ -176,9 +179,9 @@ and the dashboard read it.
 | `id` | `Long` | given by the registry; left out of the JSON until it has one |
 | `name` | `String`, 3-50 | required |
 | `room` | `RoomName` | required |
-| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway`, `temperature sensor` (since 1.8.0), `push button` (since 1.9.0), `appliance` (since 1.13.0), `inverter` (since 1.15.0), `water valve` (since 1.16.0), `air conditioner` (since 1.18.0), `air quality sensor` (since 1.20.0) |
+| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway`, `temperature sensor` (since 1.8.0), `push button` (since 1.9.0), `appliance` (since 1.13.0), `inverter` (since 1.15.0), `water valve` (since 1.16.0), `air conditioner` (since 1.18.0), `air quality sensor` (since 1.20.0), `intercom`, `gate` (since 1.22.0) |
 | `enabled` | `Boolean` | required, **no default** |
-| `vendor` | `SmartVendor` | required: `shelly`, `eaton`, `other`, `gree` (since 1.18.0), `blebox` (since 1.20.0) |
+| `vendor` | `SmartVendor` | required: `shelly`, `eaton`, `other`, `gree` (since 1.18.0), `blebox` (since 1.20.0), `hikvision` (since 1.22.0) |
 | `shelly` | `ShellyBinding` | `address` (IPv4) and `generation` (1-4) required; `deviceId`, `channel` (0-299, since 1.12.0; 0-3 before) optional |
 | `eaton` | `EatonBinding` | `gateway` (`EatonGatewayType`) and `point` (1-99) |
 | `bthome` | `BthomeBinding` | `address` (Bluetooth MAC, lowercase, colons) - and no gateway, since 1.8.0 |
@@ -190,6 +193,7 @@ and the dashboard read it.
 | `inverter` | `InverterBinding` | inverters only (since 1.15.0): the brand, the serial number and how the inverter is reached |
 | `gree` | `GreeBinding` | Gree air conditioners only (since 1.18.0): the address and the MAC of the unit |
 | `blebox` | `BleboxBinding` | BleBox air quality sensors only (since 1.20.0): the address and the id of the sensor |
+| `hikvision` | `HikvisionBinding` | Hikvision door stations only (since 1.22.0): the address and the serial number of the station |
 
 ```json
 {"id":17,"name":"Office window","room":"office","kind":"blinds","enabled":true,"vendor":"shelly",
@@ -200,7 +204,7 @@ and the dashboard read it.
 What a consumer has to know:
 
 - **The model does not check which binding belongs to a device.** One of `shelly`, `eaton`,
-  `bthome`, `inverter` (since 1.15.0), `gree` (since 1.18.0) and `blebox` (since 1.20.0) is expected, by the vendor and the kind; so is `lightKind` for a light only. `@Valid`
+  `bthome`, `inverter` (since 1.15.0), `gree` (since 1.18.0), `blebox` (since 1.20.0) and `hikvision` (since 1.22.0) is expected, by the vendor and the kind; so is `lightKind` for a light only. `@Valid`
   checks each binding that is there and nothing between the fields - the rule is the
   registry's to keep when a device is stored.
 - **Nothing has a default**, so a partial update can tell "not sent" from a value. `enabled` is
@@ -334,6 +338,27 @@ What a consumer has to know:
   {"id":145,"name":"Air sensor","room":"garden","kind":"air quality sensor","enabled":true,
    "vendor":"blebox","blebox":{"address":"192.0.2.23","deviceId":"0123456789ab"}}
   ```
+- **`intercom`, `gate` and the vendor `hikvision` (1.22.0, HAS-445) follow the same rule**, for the
+  third new value of `SmartVendor` too: gate-service reads the registry by `?kind=intercom` and
+  `?kind=gate`. An `intercom` is the door station at the gate, a Hikvision one with its `hikvision`
+  binding only; a `gate` is the Shelly that gives the drive of the gate its pulse, with its `shelly`
+  binding and the vendor `shelly`. `database-service` and the dashboard (its copy of the enums and its
+  devices form) move first - neither device is stored until both run 1.22.0.
+- **`HikvisionBinding` (since 1.22.0)** - the part of a Hikvision `intercom`, and its only binding: a
+  station has no `shelly`, `eaton`, `bthome`, `inverter`, `gree` or `blebox`, and its vendor is `hikvision`.
+
+  | Field | Bounds | Meaning |
+  |---|---|---|
+  | `address` | IPv4 | required; the address of the station, reserved for it in DHCP |
+  | `serialNumber` | 9-64, letters, digits, `-`, `(`, `)`, starting with a letter or a digit | required; as `System/deviceInfo` of the station gives it - the model, the date of manufacture and the serial in one word |
+
+  No account of the station is in the model: the bridge of the cluster logs in with a secret. That the
+  part is there exactly for a Hikvision `intercom` is a rule of the registry.
+
+  ```json
+  {"id":901,"name":"Intercom","room":"garden","kind":"intercom","enabled":true,"vendor":"hikvision",
+   "hikvision":{"address":"192.0.2.93","serialNumber":"DS-KV0000-WE1(B)0120200101RRA00000001"}}
+  ```
 - **`InverterBinding` (since 1.15.0)** - the part of a device of the kind `inverter`, and its only
   binding: an inverter has no `shelly`, `eaton` or `bthome`, and its vendor is `other`.
 
@@ -396,7 +421,7 @@ channel, SMS and Web Push. **No text travels in the payload.**
 
 | Field | Type | Notes |
 |---|---|---|
-| `event` | `HouseholdEvent` | required: `appliance finished`, `appliance reminder`, `appliance acknowledged`, `smog warning` and `smog over` (since 1.21.0 - the start and the end of an episode of bad air outside, published by weather-service; the subject is the air quality sensor) |
+| `event` | `HouseholdEvent` | required: `appliance finished`, `appliance reminder`, `appliance acknowledged`, `smog warning` and `smog over` (since 1.21.0 - the start and the end of an episode of bad air outside, published by weather-service; the subject is the air quality sensor), `doorbell ringing` and `gate opened` (since 1.22.0 - a ring at the gate and an opening of the gate, published by gate-service; the subject of a ring is the `intercom`, of an opening the `gate`) |
 | `subject` | `String`, 3-50 | required; the name of the device as the registry has it |
 | `deviceId` | `Long`, from 1 | required; the id of the device in the registry |
 | `occurredAt` | `LocalDateTime` | required; a local date-time of the house, like `DeviceEvent.at` |
@@ -404,6 +429,7 @@ channel, SMS and Web Push. **No text travels in the payload.**
 | `acknowledgePath` | `String`, up to 200 | optional; the path of the application where the household acknowledges it - segments of letters, digits, `-` and `_` only, so no host, `//`, `..` or query |
 | `member` | `String`, 3-50 | optional (since 1.14.0); the household member who did it, by their registry name - for `appliance acknowledged` who acknowledged it in the application. Information for the message, not a proof of the chore |
 | `pm10`, `pm25` | `Integer`, from 0 | optional (since 1.21.0); the PM10 and PM2.5 outside in ug/m3 the smog message quotes - the reading that opened the episode for `smog warning`, the one that closed it for `smog over`; left out for every other event |
+| `source` | `GateOpenSource` | optional (since 1.22.0); where the gate was opened from - `screen` (the indoor screen of the intercom) or `dashboard` (the application, with the `member` who opened it); for `gate opened` only |
 
 ```json
 {"event":"appliance reminder","subject":"Zmywarka","deviceId":64,"occurredAt":"2026-10-23T19:40:00",
@@ -412,11 +438,18 @@ channel, SMS and Web Push. **No text travels in the payload.**
 
 A new `HouseholdEvent` is read by `notification-service` before anybody publishes it: the two of the smog
 (1.21.0, HAS-429) are worded by notification-service in HAS-430, and weather-service publishes them only
-once that runs - an event it does not know fails its read of the message.
+once that runs - an event it does not know fails its read of the message. The same holds for the ring and the
+opening of the gate (1.22.0, HAS-445) and for a new `GateOpenSource`: notification-service (HAS-451) reads them
+before gate-service publishes them (HAS-452).
 
 ```json
 {"event":"smog warning","subject":"Air quality sensor","deviceId":145,"occurredAt":"2026-11-12T18:20:00",
  "reminder":0,"pm10":112,"pm25":78}
+```
+
+```json
+{"event":"gate opened","subject":"Gate","deviceId":902,"occurredAt":"2026-11-17T16:29:06",
+ "reminder":0,"source":"dashboard","member":"Anna"}
 ```
 
 ### Push subscription: a browser of a household member

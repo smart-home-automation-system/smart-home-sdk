@@ -22,7 +22,7 @@ import lombok.experimental.SuperBuilder;
         SmartDevice.JSON_PROPERTY_LIGHT_KIND, SmartDevice.JSON_PROPERTY_PLACEMENT,
         SmartDevice.JSON_PROPERTY_POSITIONING, SmartDevice.JSON_PROPERTY_OPENING_SENSORS,
         SmartDevice.JSON_PROPERTY_APPLIANCE, SmartDevice.JSON_PROPERTY_INVERTER, SmartDevice.JSON_PROPERTY_GREE,
-        SmartDevice.JSON_PROPERTY_BLEBOX})
+        SmartDevice.JSON_PROPERTY_BLEBOX, SmartDevice.JSON_PROPERTY_HIKVISION})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -62,6 +62,8 @@ public class SmartDevice {
     private GreeBinding gree;
     public static final String JSON_PROPERTY_BLEBOX = "blebox";
     private BleboxBinding blebox;
+    public static final String JSON_PROPERTY_HIKVISION = "hikvision";
+    private HikvisionBinding hikvision;
 
     @JsonCreator
     public SmartDevice(@JsonProperty(JSON_PROPERTY_ID) Long id) {
@@ -390,6 +392,25 @@ public class SmartDevice {
         this.blebox = blebox;
     }
 
+    public SmartDevice hikvision(HikvisionBinding hikvision) {
+        this.hikvision = hikvision;
+        return this;
+    }
+
+    @Nullable
+    @Valid
+    @JsonProperty(JSON_PROPERTY_HIKVISION)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public HikvisionBinding getHikvision() {
+        return hikvision;
+    }
+
+    @JsonProperty(JSON_PROPERTY_HIKVISION)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setHikvision(HikvisionBinding hikvision) {
+        this.hikvision = hikvision;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -410,13 +431,14 @@ public class SmartDevice {
                 && Objects.equals(this.openingSensors, smartDevice.openingSensors)
                 && Objects.equals(this.appliance, smartDevice.appliance)
                 && Objects.equals(this.inverter, smartDevice.inverter) && Objects.equals(this.gree, smartDevice.gree)
-                && Objects.equals(this.blebox, smartDevice.blebox);
+                && Objects.equals(this.blebox, smartDevice.blebox)
+                && Objects.equals(this.hikvision, smartDevice.hikvision);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, name, room, kind, enabled, vendor, shelly, eaton, bthome, lightKind, placement,
-                positioning, openingSensors, appliance, inverter, gree, blebox);
+                positioning, openingSensors, appliance, inverter, gree, blebox, hikvision);
     }
 
     @Override
@@ -440,6 +462,7 @@ public class SmartDevice {
         sb.append("    inverter: ").append(toIndentedString(inverter)).append("\n");
         sb.append("    gree: ").append(toIndentedString(gree)).append("\n");
         sb.append("    blebox: ").append(toIndentedString(blebox)).append("\n");
+        sb.append("    hikvision: ").append(toIndentedString(hikvision)).append("\n");
         sb.append("}");
         return sb.toString();
     }

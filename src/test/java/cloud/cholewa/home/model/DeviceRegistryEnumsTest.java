@@ -36,7 +36,9 @@ class DeviceRegistryEnumsTest {
                 "INVERTER", "inverter",
                 "WATER_VALVE", "water valve",
                 "AIR_CONDITIONER", "air conditioner",
-                "AIR_QUALITY_SENSOR", "air quality sensor"
+                "AIR_QUALITY_SENSOR", "air quality sensor",
+                "INTERCOM", "intercom",
+                "GATE", "gate"
             ),
             namesAndValues(DeviceKind.values(), DeviceKind::getValue)
         );
@@ -53,19 +55,22 @@ class DeviceRegistryEnumsTest {
     }
 
     // The vendor decides which binding a device has (HAS-377: `gree` for the air conditioners,
-    // HAS-424: `blebox` for the air quality sensor); the registry stores the name, and every
+    // HAS-424: `blebox` for the air quality sensor, HAS-445: `hikvision` for the door station at the
+    // gate); the registry stores the name, and every
     // reader of the whole registry has to know it first.
     @Test
     void shouldKnowExactlyTheseVendors() {
         assertEquals(
-            ordered("SHELLY", "shelly", "EATON", "eaton", "OTHER", "other", "GREE", "gree", "BLEBOX", "blebox"),
+            ordered("SHELLY", "shelly", "EATON", "eaton", "OTHER", "other", "GREE", "gree", "BLEBOX", "blebox",
+                "HIKVISION", "hikvision"),
             namesAndValues(SmartVendor.values(), SmartVendor::getValue)
         );
     }
 
     // What appliance-service publishes and notification-service words (HAS-271): the two share
     // the names, and notification-service has to know a value before anybody publishes it.
-    // The smog of weather-service since 1.21.0 (HAS-429).
+    // The smog of weather-service since 1.21.0 (HAS-429), the ring and the opening of the gate of
+    // gate-service since 1.22.0 (HAS-445).
     @Test
     void shouldKnowExactlyTheseHouseholdEvents() {
         assertEquals(
@@ -74,11 +79,24 @@ class DeviceRegistryEnumsTest {
                 "APPLIANCE_REMINDER", "appliance reminder",
                 "APPLIANCE_ACKNOWLEDGED", "appliance acknowledged",
                 "SMOG_WARNING", "smog warning",
-                "SMOG_OVER", "smog over"
+                "SMOG_OVER", "smog over",
+                "DOORBELL_RINGING", "doorbell ringing",
+                "GATE_OPENED", "gate opened"
             ),
             namesAndValues(HouseholdEvent.values(), HouseholdEvent::getValue)
         );
         assertEquals(HouseholdEvent.APPLIANCE_FINISHED, HouseholdEvent.fromValue("Appliance Finished"));
+    }
+
+    // Where the gate was opened from (HAS-445): gate-service publishes it with `gate opened`,
+    // notification-service words it, so it has to know a value before anybody publishes it.
+    @Test
+    void shouldKnowExactlyTheseSourcesOfAnOpening() {
+        assertEquals(
+            ordered("SCREEN", "screen", "DASHBOARD", "dashboard"),
+            namesAndValues(GateOpenSource.values(), GateOpenSource::getValue)
+        );
+        assertEquals(GateOpenSource.SCREEN, GateOpenSource.fromValue("Screen"));
     }
 
     // The vocabulary of the Eaton configuration, which amx-service reads a datagram by and

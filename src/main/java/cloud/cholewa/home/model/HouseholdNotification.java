@@ -20,7 +20,7 @@ import lombok.experimental.SuperBuilder;
         HouseholdNotification.JSON_PROPERTY_DEVICE_ID, HouseholdNotification.JSON_PROPERTY_OCCURRED_AT,
         HouseholdNotification.JSON_PROPERTY_REMINDER, HouseholdNotification.JSON_PROPERTY_ACKNOWLEDGE_PATH,
         HouseholdNotification.JSON_PROPERTY_MEMBER, HouseholdNotification.JSON_PROPERTY_PM10,
-        HouseholdNotification.JSON_PROPERTY_PM25})
+        HouseholdNotification.JSON_PROPERTY_PM25, HouseholdNotification.JSON_PROPERTY_SOURCE})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -44,6 +44,8 @@ public class HouseholdNotification {
     private Integer pm10;
     public static final String JSON_PROPERTY_PM25 = "pm25";
     private Integer pm25;
+    public static final String JSON_PROPERTY_SOURCE = "source";
+    private GateOpenSource source;
 
     public HouseholdNotification event(HouseholdEvent event) {
         this.event = event;
@@ -223,6 +225,25 @@ public class HouseholdNotification {
         this.pm25 = pm25;
     }
 
+    public HouseholdNotification source(GateOpenSource source) {
+        this.source = source;
+        return this;
+    }
+
+    @Nullable
+    @Valid
+    @JsonProperty(JSON_PROPERTY_SOURCE)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public GateOpenSource getSource() {
+        return source;
+    }
+
+    @JsonProperty(JSON_PROPERTY_SOURCE)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setSource(GateOpenSource source) {
+        this.source = source;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -240,12 +261,14 @@ public class HouseholdNotification {
                 && Objects.equals(this.acknowledgePath, householdNotification.acknowledgePath)
                 && Objects.equals(this.member, householdNotification.member)
                 && Objects.equals(this.pm10, householdNotification.pm10)
-                && Objects.equals(this.pm25, householdNotification.pm25);
+                && Objects.equals(this.pm25, householdNotification.pm25)
+                && Objects.equals(this.source, householdNotification.source);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(event, subject, deviceId, occurredAt, reminder, acknowledgePath, member, pm10, pm25);
+        return Objects.hash(event, subject, deviceId, occurredAt, reminder, acknowledgePath, member, pm10, pm25,
+                source);
     }
 
     @Override
@@ -261,6 +284,7 @@ public class HouseholdNotification {
         sb.append("    member: ").append(toIndentedString(member)).append("\n");
         sb.append("    pm10: ").append(toIndentedString(pm10)).append("\n");
         sb.append("    pm25: ").append(toIndentedString(pm25)).append("\n");
+        sb.append("    source: ").append(toIndentedString(source)).append("\n");
         sb.append("}");
         return sb.toString();
     }

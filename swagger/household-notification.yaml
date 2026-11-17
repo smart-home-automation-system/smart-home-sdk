@@ -78,6 +78,8 @@ components:
             The PM2.5 of the air outside the house in ug/m3 (since 1.21.0), as pm10; left out for every other event.
           minimum: 0
           example: 78
+        source:
+          $ref: '#/components/schemas/GateOpenSource'
 
     HouseholdEvent:
       type: string
@@ -86,9 +88,25 @@ components:
         notification-service share; a new one is read by notification-service before anybody
         publishes it. `smog warning` and `smog over` (since 1.21.0) are the start and the end of an episode
         of bad air outside the house, published by weather-service - the subject is the air quality sensor.
+        `doorbell ringing` and `gate opened` (since 1.22.0) are a ring at the gate and an opening of the gate,
+        published by gate-service - the subject of a ring is the `intercom`, of an opening the `gate` of the
+        registry; an opening carries its `source`, and `member` when it was opened from the dashboard.
       enum:
         - "appliance finished"
         - "appliance reminder"
         - "appliance acknowledged"
         - "smog warning"
         - "smog over"
+        - "doorbell ringing"
+        - "gate opened"
+
+    GateOpenSource:
+      type: string
+      description: >-
+        Where the gate was opened from (since 1.22.0), carried by `gate opened` and left out for every other
+        event: `screen` - the button of the indoor screen of the intercom, `dashboard` - the application, by
+        the member it names. The constant names are what gate-service and notification-service share; a new
+        one is read by notification-service before anybody publishes it.
+      enum:
+        - "screen"
+        - "dashboard"
