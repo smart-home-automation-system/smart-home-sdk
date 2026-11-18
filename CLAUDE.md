@@ -117,6 +117,15 @@ the org's `organization.md`; this file holds what is specific to this repository
   `screen`, `dashboard`). Both registry values are read by `database-service` and the dashboard before a device
   of them is stored; the events by notification-service before gate-service publishes them. No picture travels:
   the station gives none (HAS-444).
+- **A garage gate left open** (1.23.0, HAS-470, epic HAS-442): `HouseholdEvent` gains `garage gate open cold`,
+  `garage gate open empty house` (both alarms), `garage gate open long` (a warning) and `garage gate closed`;
+  `HouseholdNotification` the optional `openSince` and `temperature` (a `Double`, -60 to 60 - **the first decimal
+  bound of the library**: `model.mustache` imports `DecimalMin` / `DecimalMax` since then, and the import sorter
+  drops them from every class without one, so no other class changed). `reminder` keeps its 0-10: the publisher
+  of the garage events stops repeating at 10. `openingSensors` is allowed for a `gate` too - its description
+  only, no new field: a gate with sensors is a garage gate. notification-service (HAS-472) reads the events
+  before gate-service publishes them (HAS-475); database-service (HAS-471) and the dashboard accept the list on
+  a gate before one is stored.
 - **Empty collections are omitted from JSON** (`@JsonInclude(NON_EMPTY)` on every class): a
   reader of the JSON treats a missing array as empty.
 - **Bounds belong in the schema** (`required`, `minLength`, `pattern`, `enum`, `uniqueItems`):

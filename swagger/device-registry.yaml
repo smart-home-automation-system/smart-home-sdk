@@ -70,10 +70,12 @@ components:
         openingSensors:
           type: array
           description: >-
-            Blinds only (since 1.11.0): the ids of the devices of the kind `opening sensor` on
+            Blinds and gates only. Blinds (since 1.11.0): the ids of the devices of the kind `opening sensor` on
             the window these blinds cover - two for a window with two sashes, none for a window
             without a sensor, which counts as closed. The sensor belongs to the window of one
-            blinds, not to the room. Missing means none: like every array it starts empty and
+            blinds, not to the room. A gate (since 1.23.0): the opening sensors on the gate itself - a gate
+            with sensors is a garage gate whose state is known, a gate without one is opened blind (the
+            driveway gate). Missing means none: like every array it starts empty and
             is left out of the JSON while empty, so a whole-device write that leaves it out
             removes the link. Each id once and each one an opening sensor of the registry - the
             registry checks it when the device is stored. (Not `uniqueItems`: that would make

@@ -11,7 +11,11 @@ public enum HouseholdEvent {
     SMOG_WARNING("smog warning"),
     SMOG_OVER("smog over"),
     DOORBELL_RINGING("doorbell ringing"),
-    GATE_OPENED("gate opened");
+    GATE_OPENED("gate opened"),
+    GARAGE_GATE_OPEN_COLD("garage gate open cold"),
+    GARAGE_GATE_OPEN_EMPTY_HOUSE("garage gate open empty house"),
+    GARAGE_GATE_OPEN_LONG("garage gate open long"),
+    GARAGE_GATE_CLOSED("garage gate closed");
 
     private String value;
 

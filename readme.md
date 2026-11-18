@@ -35,11 +35,14 @@ conditioner as a device of the registry (`DeviceKind.AIR_CONDITIONER`, `GreeBind
 of the household (`HouseholdEvent.SMOG_WARNING`, `SMOG_OVER`, `HouseholdNotification.pm10` / `pm25`), and -
 since 1.22.0 - the intercom and the gate as devices of the registry (`DeviceKind.INTERCOM`, `GATE`,
 `HikvisionBinding`, `SmartVendor.HIKVISION`) and their household events (`HouseholdEvent.DOORBELL_RINGING`,
-`GATE_OPENED`, `HouseholdNotification.source`, `GateOpenSource`).
+`GATE_OPENED`, `HouseholdNotification.source`, `GateOpenSource`), and - since 1.23.0 - a garage gate left
+open (`HouseholdEvent.GARAGE_GATE_OPEN_COLD`, `GARAGE_GATE_OPEN_EMPTY_HOUSE`, `GARAGE_GATE_OPEN_LONG`,
+`GARAGE_GATE_CLOSED`, `HouseholdNotification.openSince` / `temperature`) and the opening sensors of a gate
+(`SmartDevice.openingSensors` for the kind `gate`).
 
-Current consumers: `amx-service`, `appliance-service`, `blinds-service`, `boiler-service`, `database-service`,
-`energy-service`, `heating-service`, `light-service`, `notification-service`, `presence-service`,
-`shelly-cloud-service`, `water-service`, `weather-service`.
+Current consumers: `aircon-service`, `amx-service`, `appliance-service`, `blinds-service`, `boiler-service`,
+`database-service`, `energy-service`, `gate-service`, `heating-service`, `light-service`, `notification-service`,
+`presence-service`, `shelly-cloud-service`, `water-service`, `weather-service`.
 
 ## Installation
 
@@ -50,7 +53,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.22.0</version>
+    <version>1.23.0</version>
 </dependency>
 ```
 
@@ -188,7 +191,7 @@ and the dashboard read it.
 | `lightKind` | `LightKind` | lights only: `relay`, `dimmer`, `rgbw` |
 | `placement` | `BlindsPlacement` | blinds only: `external`, `internal` |
 | `positioning` | `Boolean` | blinds only, **no default** |
-| `openingSensors` | `List<Long>` | blinds only (since 1.11.0): the registry ids of the `opening sensor`s of the window; none when the window has no sensor |
+| `openingSensors` | `List<Long>` | blinds (since 1.11.0): the registry ids of the `opening sensor`s of the window, none when the window has no sensor; a gate (since 1.23.0): the sensors on the gate itself - a gate with them is a garage gate whose state is known |
 | `appliance` | `ApplianceSettings` | appliances only (since 1.13.0): how a cycle is read from the power draw and how the household is reminded |
 | `inverter` | `InverterBinding` | inverters only (since 1.15.0): the brand, the serial number and how the inverter is reached |
 | `gree` | `GreeBinding` | Gree air conditioners only (since 1.18.0): the address and the MAC of the unit |
@@ -229,6 +232,12 @@ What a consumer has to know:
   link**, so a client that writes blinds moves to 1.11.0 before any link is stored; a reader on
   an older release only ignores the field (the mapper of Spring Boot ignores unknown properties;
   a mapper built by hand has to be told to).
+- **A gate carries `openingSensors` too** (since 1.23.0, HAS-470): the sensors on the gate itself. A `gate`
+  with sensors is a garage gate - its state (open, closed) is known, and gate-service watches how long it
+  stands open; a `gate` without one is opened blind (the driveway gate). No new field, so a reader changes
+  nothing; the rule "only blinds carry the list" becomes "only blinds and gates" in the registry
+  (`database-service`, and the copy of its rules in the dashboard) - both move before a gate with sensors is
+  stored. What holds for blinds holds here: a whole-device write that leaves the list out removes the link.
 - **A relay with four outputs is four devices** of the registry, told apart by `channel`. Since
   1.12.0 a channel may also be a dynamic component of 200 to 299 - the zone of a presence sensor
   (`presencezone:200`); which kind may have which is the registry's rule, so a reader takes the
@@ -421,15 +430,17 @@ channel, SMS and Web Push. **No text travels in the payload.**
 
 | Field | Type | Notes |
 |---|---|---|
-| `event` | `HouseholdEvent` | required: `appliance finished`, `appliance reminder`, `appliance acknowledged`, `smog warning` and `smog over` (since 1.21.0 - the start and the end of an episode of bad air outside, published by weather-service; the subject is the air quality sensor), `doorbell ringing` and `gate opened` (since 1.22.0 - a ring at the gate and an opening of the gate, published by gate-service; the subject of a ring is the `intercom`, of an opening the `gate`) |
+| `event` | `HouseholdEvent` | required: `appliance finished`, `appliance reminder`, `appliance acknowledged`, `smog warning` and `smog over` (since 1.21.0 - the start and the end of an episode of bad air outside, published by weather-service; the subject is the air quality sensor), `doorbell ringing` and `gate opened` (since 1.22.0 - a ring at the gate and an opening of the gate, published by gate-service; the subject of a ring is the `intercom`, of an opening the `gate`), `garage gate open cold`, `garage gate open empty house`, `garage gate open long` and `garage gate closed` (since 1.23.0 - a garage gate left open while it is cold outside or while nobody is at home, both alarms, or simply for long, a warning, and the end of any of them; published by gate-service, the subject is the garage `gate`) |
 | `subject` | `String`, 3-50 | required; the name of the device as the registry has it |
 | `deviceId` | `Long`, from 1 | required; the id of the device in the registry |
 | `occurredAt` | `LocalDateTime` | required; a local date-time of the house, like `DeviceEvent.at` |
-| `reminder` | `Integer`, 0-10 | required; the reminders before this message - 0 for `appliance finished`, and for `appliance acknowledged` the number that had been sent |
+| `reminder` | `Integer`, 0-10 | required; the reminders before this message - 0 for `appliance finished`, and for `appliance acknowledged` the number that had been sent; for a `garage gate open ...` event 0 is the first message and 1 its first repeat, so its publisher stops repeating at 10 |
 | `acknowledgePath` | `String`, up to 200 | optional; the path of the application where the household acknowledges it - segments of letters, digits, `-` and `_` only, so no host, `//`, `..` or query |
 | `member` | `String`, 3-50 | optional (since 1.14.0); the household member who did it, by their registry name - for `appliance acknowledged` who acknowledged it in the application. Information for the message, not a proof of the chore |
 | `pm10`, `pm25` | `Integer`, from 0 | optional (since 1.21.0); the PM10 and PM2.5 outside in ug/m3 the smog message quotes - the reading that opened the episode for `smog warning`, the one that closed it for `smog over`; left out for every other event |
 | `source` | `GateOpenSource` | optional (since 1.22.0); where the gate was opened from - `screen` (the indoor screen of the intercom) or `dashboard` (the application, with the `member` who opened it); for `gate opened` only |
+| `openSince` | `LocalDateTime` | optional (since 1.23.0); since when the garage gate is open, a local date-time of the house - for the `garage gate open ...` events and `garage gate closed`; left out for every other event |
+| `temperature` | `Double`, -60 to 60 | optional (since 1.23.0); the temperature outside in degrees Celsius that made `garage gate open cold` an alarm; left out for every other event |
 
 ```json
 {"event":"appliance reminder","subject":"Zmywarka","deviceId":64,"occurredAt":"2026-10-23T19:40:00",
@@ -440,7 +451,8 @@ A new `HouseholdEvent` is read by `notification-service` before anybody publishe
 (1.21.0, HAS-429) are worded by notification-service in HAS-430, and weather-service publishes them only
 once that runs - an event it does not know fails its read of the message. The same holds for the ring and the
 opening of the gate (1.22.0, HAS-445) and for a new `GateOpenSource`: notification-service (HAS-451) reads them
-before gate-service publishes them (HAS-452).
+before gate-service publishes them (HAS-452). And for the four events of a garage gate (1.23.0, HAS-470):
+notification-service (HAS-472) words them before gate-service publishes them (HAS-475).
 
 ```json
 {"event":"smog warning","subject":"Air quality sensor","deviceId":145,"occurredAt":"2026-11-12T18:20:00",
@@ -450,6 +462,11 @@ before gate-service publishes them (HAS-452).
 ```json
 {"event":"gate opened","subject":"Gate","deviceId":902,"occurredAt":"2026-11-17T16:29:06",
  "reminder":0,"source":"dashboard","member":"Anna"}
+```
+
+```json
+{"event":"garage gate open cold","subject":"Garage gate left","deviceId":903,"occurredAt":"2026-11-18T18:45:00",
+ "reminder":0,"openSince":"2026-11-18T18:30:00","temperature":7.5}
 ```
 
 ### Push subscription: a browser of a household member

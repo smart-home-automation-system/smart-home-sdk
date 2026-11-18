@@ -201,7 +201,8 @@ class SmartDeviceTest {
     // The opening sensors of a blind (HAS-290): a list of registry ids in the order they were
     // given - a window with two sashes has two - and none for a window without a sensor. Like
     // every array it starts empty from the constructor and is null from the builder, so a reader
-    // treats both as "none". Each id is a registry id, never 0 or below.
+    // treats both as "none". Each id is a registry id, never 0 or below. Since 1.23.0 (HAS-470) a
+    // gate carries the same list for the sensors on the gate itself - the same field, no new one.
     @Test
     void shouldLinkTheBlindsToTheOpeningSensorsOfItsWindowByRegistryIds() throws NoSuchMethodException {
         assertEquals(List.of(), new SmartDevice().getOpeningSensors());
