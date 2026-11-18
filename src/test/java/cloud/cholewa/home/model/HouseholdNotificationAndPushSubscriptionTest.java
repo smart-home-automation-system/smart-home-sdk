@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -28,7 +30,7 @@ class HouseholdNotificationAndPushSubscriptionTest {
     void shouldPublishTheseJsonPropertiesOfANotificationAndNoOther() {
         assertEquals(
             Set.of("event", "subject", "deviceId", "occurredAt", "reminder", "acknowledgePath", "member", "pm10", "pm25",
-                "source"),
+                "source", "openSince", "temperature"),
             JsonProperties.of(HouseholdNotification.class)
         );
     }
@@ -54,6 +56,26 @@ class HouseholdNotificationAndPushSubscriptionTest {
         assertNull(getter.getAnnotation(NotNull.class));
         assertEquals(GateOpenSource.class, getter.getReturnType());
         assertNull(new HouseholdNotification().getSource());
+    }
+
+    // What a garage gate left open quotes (HAS-470): since when it is open, in the clock of the house like
+    // occurredAt, and for the cold alarm the temperature outside - both optional, the temperature a bounded
+    // decimal (a reading has a fraction).
+    @Test
+    void shouldCarryWhatAnOpenGarageGateQuotesOptionally() throws NoSuchMethodException {
+        var openSince = HouseholdNotification.class.getMethod("getOpenSince");
+        var temperature = HouseholdNotification.class.getMethod("getTemperature");
+
+        assertNull(openSince.getAnnotation(NotNull.class));
+        assertEquals(LocalDateTime.class, openSince.getReturnType());
+        assertNull(temperature.getAnnotation(NotNull.class));
+        assertEquals(Double.class, temperature.getReturnType());
+        assertEquals("-60", temperature.getAnnotation(DecimalMin.class).value());
+        assertEquals("60", temperature.getAnnotation(DecimalMax.class).value());
+
+        HouseholdNotification empty = new HouseholdNotification();
+        assertNull(empty.getOpenSince());
+        assertNull(empty.getTemperature());
     }
 
     // Who acknowledged it (HAS-347): optional, a name of the household registry with its bounds.

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -20,7 +22,8 @@ import lombok.experimental.SuperBuilder;
         HouseholdNotification.JSON_PROPERTY_DEVICE_ID, HouseholdNotification.JSON_PROPERTY_OCCURRED_AT,
         HouseholdNotification.JSON_PROPERTY_REMINDER, HouseholdNotification.JSON_PROPERTY_ACKNOWLEDGE_PATH,
         HouseholdNotification.JSON_PROPERTY_MEMBER, HouseholdNotification.JSON_PROPERTY_PM10,
-        HouseholdNotification.JSON_PROPERTY_PM25, HouseholdNotification.JSON_PROPERTY_SOURCE})
+        HouseholdNotification.JSON_PROPERTY_PM25, HouseholdNotification.JSON_PROPERTY_SOURCE,
+        HouseholdNotification.JSON_PROPERTY_OPEN_SINCE, HouseholdNotification.JSON_PROPERTY_TEMPERATURE})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -46,6 +49,10 @@ public class HouseholdNotification {
     private Integer pm25;
     public static final String JSON_PROPERTY_SOURCE = "source";
     private GateOpenSource source;
+    public static final String JSON_PROPERTY_OPEN_SINCE = "openSince";
+    private LocalDateTime openSince;
+    public static final String JSON_PROPERTY_TEMPERATURE = "temperature";
+    private Double temperature;
 
     public HouseholdNotification event(HouseholdEvent event) {
         this.event = event;
@@ -244,6 +251,45 @@ public class HouseholdNotification {
         this.source = source;
     }
 
+    public HouseholdNotification openSince(LocalDateTime openSince) {
+        this.openSince = openSince;
+        return this;
+    }
+
+    @Nullable
+    @Valid
+    @JsonProperty(JSON_PROPERTY_OPEN_SINCE)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public LocalDateTime getOpenSince() {
+        return openSince;
+    }
+
+    @JsonProperty(JSON_PROPERTY_OPEN_SINCE)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setOpenSince(LocalDateTime openSince) {
+        this.openSince = openSince;
+    }
+
+    public HouseholdNotification temperature(Double temperature) {
+        this.temperature = temperature;
+        return this;
+    }
+
+    @Nullable
+    @DecimalMin("-60")
+    @DecimalMax("60")
+    @JsonProperty(JSON_PROPERTY_TEMPERATURE)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public Double getTemperature() {
+        return temperature;
+    }
+
+    @JsonProperty(JSON_PROPERTY_TEMPERATURE)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setTemperature(Double temperature) {
+        this.temperature = temperature;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -262,13 +308,15 @@ public class HouseholdNotification {
                 && Objects.equals(this.member, householdNotification.member)
                 && Objects.equals(this.pm10, householdNotification.pm10)
                 && Objects.equals(this.pm25, householdNotification.pm25)
-                && Objects.equals(this.source, householdNotification.source);
+                && Objects.equals(this.source, householdNotification.source)
+                && Objects.equals(this.openSince, householdNotification.openSince)
+                && Objects.equals(this.temperature, householdNotification.temperature);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(event, subject, deviceId, occurredAt, reminder, acknowledgePath, member, pm10, pm25,
-                source);
+        return Objects.hash(event, subject, deviceId, occurredAt, reminder, acknowledgePath, member, pm10, pm25, source,
+                openSince, temperature);
     }
 
     @Override
@@ -285,6 +333,8 @@ public class HouseholdNotification {
         sb.append("    pm10: ").append(toIndentedString(pm10)).append("\n");
         sb.append("    pm25: ").append(toIndentedString(pm25)).append("\n");
         sb.append("    source: ").append(toIndentedString(source)).append("\n");
+        sb.append("    openSince: ").append(toIndentedString(openSince)).append("\n");
+        sb.append("    temperature: ").append(toIndentedString(temperature)).append("\n");
         sb.append("}");
         return sb.toString();
     }

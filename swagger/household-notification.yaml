@@ -44,7 +44,7 @@ components:
           description: >-
             How many reminders came before this message: 0 for `appliance finished`, 1 for the
             first `appliance reminder`, and for `appliance acknowledged` the number that had
-            been sent.
+            been sent. For a `garage gate open ...` event 0 is the first message and 1 its first repeat.
           minimum: 0
           maximum: 10
         acknowledgePath:
@@ -80,6 +80,22 @@ components:
           example: 78
         source:
           $ref: '#/components/schemas/GateOpenSource'
+        openSince:
+          type: string
+          format: date-time
+          description: >-
+            Since when the garage gate is open, in the local time of the house (since 1.23.0) - for the three
+            `garage gate open ...` events and for `garage gate closed` (how long it stood open is told from it and
+            `occurredAt`); left out for every other event.
+        temperature:
+          type: number
+          format: double
+          description: >-
+            The temperature outside the house in degrees Celsius (since 1.23.0) - for `garage gate open cold` the
+            reading that made it an alarm; left out for every other event.
+          minimum: -60
+          maximum: 60
+          example: 7.5
 
     HouseholdEvent:
       type: string
@@ -91,6 +107,12 @@ components:
         `doorbell ringing` and `gate opened` (since 1.22.0) are a ring at the gate and an opening of the gate,
         published by gate-service - the subject of a ring is the `intercom`, of an opening the `gate` of the
         registry; an opening carries its `source`, and `member` when it was opened from the dashboard.
+        The four `garage gate ...` events (since 1.23.0) are published by gate-service about a garage gate of the
+        registry - a `gate` with `openingSensors`, the subject: `garage gate open cold` (an alarm - it stands open
+        while it is cold outside, with `temperature`), `garage gate open empty house` (an alarm - it stands open
+        while nobody is at home), `garage gate open long` (a warning - it stands open for long) and
+        `garage gate closed` (the end of any of them). The three open ones carry `openSince` and count their
+        repeats in `reminder`, 0 for the first.
       enum:
         - "appliance finished"
         - "appliance reminder"
@@ -99,6 +121,10 @@ components:
         - "smog over"
         - "doorbell ringing"
         - "gate opened"
+        - "garage gate open cold"
+        - "garage gate open empty house"
+        - "garage gate open long"
+        - "garage gate closed"
 
     GateOpenSource:
       type: string

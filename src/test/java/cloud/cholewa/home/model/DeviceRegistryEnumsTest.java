@@ -70,7 +70,7 @@ class DeviceRegistryEnumsTest {
     // What appliance-service publishes and notification-service words (HAS-271): the two share
     // the names, and notification-service has to know a value before anybody publishes it.
     // The smog of weather-service since 1.21.0 (HAS-429), the ring and the opening of the gate of
-    // gate-service since 1.22.0 (HAS-445).
+    // gate-service since 1.22.0 (HAS-445), a garage gate left open since 1.23.0 (HAS-470).
     @Test
     void shouldKnowExactlyTheseHouseholdEvents() {
         assertEquals(
@@ -81,7 +81,11 @@ class DeviceRegistryEnumsTest {
                 "SMOG_WARNING", "smog warning",
                 "SMOG_OVER", "smog over",
                 "DOORBELL_RINGING", "doorbell ringing",
-                "GATE_OPENED", "gate opened"
+                "GATE_OPENED", "gate opened",
+                "GARAGE_GATE_OPEN_COLD", "garage gate open cold",
+                "GARAGE_GATE_OPEN_EMPTY_HOUSE", "garage gate open empty house",
+                "GARAGE_GATE_OPEN_LONG", "garage gate open long",
+                "GARAGE_GATE_CLOSED", "garage gate closed"
             ),
             namesAndValues(HouseholdEvent.values(), HouseholdEvent::getValue)
         );
