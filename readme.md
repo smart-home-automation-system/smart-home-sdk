@@ -38,7 +38,9 @@ since 1.22.0 - the intercom and the gate as devices of the registry (`DeviceKind
 `GATE_OPENED`, `HouseholdNotification.source`, `GateOpenSource`), and - since 1.23.0 - a garage gate left
 open (`HouseholdEvent.GARAGE_GATE_OPEN_COLD`, `GARAGE_GATE_OPEN_EMPTY_HOUSE`, `GARAGE_GATE_OPEN_LONG`,
 `GARAGE_GATE_CLOSED`, `HouseholdNotification.openSince` / `temperature`) and the opening sensors of a gate
-(`SmartDevice.openingSensors` for the kind `gate`).
+(`SmartDevice.openingSensors` for the kind `gate`), and - since 1.24.0 - the fire detectors as devices of the
+registry (`DeviceKind.SMOKE_DETECTOR`, `CO_DETECTOR`, `HEAT_DETECTOR`, `XsenseBinding`, `SmartVendor.XSENSE`)
+and their household events (`HouseholdEvent.FIRE_ALARM`, `FIRE_ALARM_OVER`, `HouseholdNotification.room`).
 
 Current consumers: `aircon-service`, `amx-service`, `appliance-service`, `blinds-service`, `boiler-service`,
 `database-service`, `energy-service`, `gate-service`, `heating-service`, `light-service`, `notification-service`,
@@ -53,7 +55,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.23.0</version>
+    <version>1.24.0</version>
 </dependency>
 ```
 
@@ -182,9 +184,9 @@ and the dashboard read it.
 | `id` | `Long` | given by the registry; left out of the JSON until it has one |
 | `name` | `String`, 3-50 | required |
 | `room` | `RoomName` | required |
-| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway`, `temperature sensor` (since 1.8.0), `push button` (since 1.9.0), `appliance` (since 1.13.0), `inverter` (since 1.15.0), `water valve` (since 1.16.0), `air conditioner` (since 1.18.0), `air quality sensor` (since 1.20.0), `intercom`, `gate` (since 1.22.0) |
+| `kind` | `DeviceKind` | required: `blinds`, `light`, `opening sensor`, `motion sensor`, `presence sensor`, `weather station`, `bthome gateway`, `temperature sensor` (since 1.8.0), `push button` (since 1.9.0), `appliance` (since 1.13.0), `inverter` (since 1.15.0), `water valve` (since 1.16.0), `air conditioner` (since 1.18.0), `air quality sensor` (since 1.20.0), `intercom`, `gate` (since 1.22.0), `smoke detector`, `co detector`, `heat detector` (since 1.24.0) |
 | `enabled` | `Boolean` | required, **no default** |
-| `vendor` | `SmartVendor` | required: `shelly`, `eaton`, `other`, `gree` (since 1.18.0), `blebox` (since 1.20.0), `hikvision` (since 1.22.0) |
+| `vendor` | `SmartVendor` | required: `shelly`, `eaton`, `other`, `gree` (since 1.18.0), `blebox` (since 1.20.0), `hikvision` (since 1.22.0), `xsense` (since 1.24.0) |
 | `shelly` | `ShellyBinding` | `address` (IPv4) and `generation` (1-4) required; `deviceId`, `channel` (0-299, since 1.12.0; 0-3 before) optional |
 | `eaton` | `EatonBinding` | `gateway` (`EatonGatewayType`) and `point` (1-99) |
 | `bthome` | `BthomeBinding` | `address` (Bluetooth MAC, lowercase, colons) - and no gateway, since 1.8.0 |
@@ -197,6 +199,7 @@ and the dashboard read it.
 | `gree` | `GreeBinding` | Gree air conditioners only (since 1.18.0): the address and the MAC of the unit |
 | `blebox` | `BleboxBinding` | BleBox air quality sensors only (since 1.20.0): the address and the id of the sensor |
 | `hikvision` | `HikvisionBinding` | Hikvision door stations only (since 1.22.0): the address and the serial number of the station |
+| `xsense` | `XsenseBinding` | X-Sense detectors only (since 1.24.0): `stationSerial` - the base station the detector is paired with, `SBS50` and eight upper-case hexadecimal digits - and `deviceId` - the id the base gives it, eight upper-case hexadecimal digits; what the base publishes the detector under on MQTT. The base itself is not a registry device |
 
 ```json
 {"id":17,"name":"Office window","room":"office","kind":"blinds","enabled":true,"vendor":"shelly",
@@ -238,6 +241,10 @@ What a consumer has to know:
   nothing; the rule "only blinds carry the list" becomes "only blinds and gates" in the registry
   (`database-service`, and the copy of its rules in the dashboard) - both move before a gate with sensors is
   stored. What holds for blinds holds here: a whole-device write that leaves the list out removes the link.
+- **The fire detectors** (since 1.24.0, HAS-456, epic HAS-455): three new `DeviceKind`s and the fourth new vendor
+  since the registry began, `xsense`, reached by `XsenseBinding` alone. The three kinds come at once so that a
+  reader of the whole registry moves only once - `database-service` (HAS-457) and the dashboard (HAS-458) take
+  1.24.0 before the first detector is stored; safety-service reads by `?kind=`.
 - **A relay with four outputs is four devices** of the registry, told apart by `channel`. Since
   1.12.0 a channel may also be a dynamic component of 200 to 299 - the zone of a presence sensor
   (`presencezone:200`); which kind may have which is the registry's rule, so a reader takes the
@@ -430,7 +437,7 @@ channel, SMS and Web Push. **No text travels in the payload.**
 
 | Field | Type | Notes |
 |---|---|---|
-| `event` | `HouseholdEvent` | required: `appliance finished`, `appliance reminder`, `appliance acknowledged`, `smog warning` and `smog over` (since 1.21.0 - the start and the end of an episode of bad air outside, published by weather-service; the subject is the air quality sensor), `doorbell ringing` and `gate opened` (since 1.22.0 - a ring at the gate and an opening of the gate, published by gate-service; the subject of a ring is the `intercom`, of an opening the `gate`), `garage gate open cold`, `garage gate open empty house`, `garage gate open long` and `garage gate closed` (since 1.23.0 - a garage gate left open while it is cold outside or while nobody is at home, both alarms, or simply for long, a warning, and the end of any of them; published by gate-service, the subject is the garage `gate`) |
+| `event` | `HouseholdEvent` | required: `appliance finished`, `appliance reminder`, `appliance acknowledged`, `smog warning` and `smog over` (since 1.21.0 - the start and the end of an episode of bad air outside, published by weather-service; the subject is the air quality sensor), `doorbell ringing` and `gate opened` (since 1.22.0 - a ring at the gate and an opening of the gate, published by gate-service; the subject of a ring is the `intercom`, of an opening the `gate`), `garage gate open cold`, `garage gate open empty house`, `garage gate open long` and `garage gate closed` (since 1.23.0 - a garage gate left open while it is cold outside or while nobody is at home, both alarms, or simply for long, a warning, and the end of any of them; published by gate-service, the subject is the garage `gate`), `fire alarm` and `fire alarm over` (since 1.24.0 - the start and the end of an alarm of a smoke, CO or heat detector, published by safety-service; the subject is the detector) |
 | `subject` | `String`, 3-50 | required; the name of the device as the registry has it |
 | `deviceId` | `Long`, from 1 | required; the id of the device in the registry |
 | `occurredAt` | `LocalDateTime` | required; a local date-time of the house, like `DeviceEvent.at` |
@@ -441,6 +448,7 @@ channel, SMS and Web Push. **No text travels in the payload.**
 | `source` | `GateOpenSource` | optional (since 1.22.0); where the gate was opened from - `screen` (the indoor screen of the intercom) or `dashboard` (the application, with the `member` who opened it); for `gate opened` only |
 | `openSince` | `LocalDateTime` | optional (since 1.23.0); since when the garage gate is open, a local date-time of the house - for the `garage gate open ...` events and `garage gate closed`; left out for every other event |
 | `temperature` | `Double`, -60 to 60 | optional (since 1.23.0); the temperature outside in degrees Celsius that made `garage gate open cold` an alarm; left out for every other event |
+| `room` | `RoomName` | optional (since 1.24.0); the room of the detector of a `fire alarm` / `fire alarm over`, so that notification-service words it without reading the registry; left out for every other event |
 
 ```json
 {"event":"appliance reminder","subject":"Zmywarka","deviceId":64,"occurredAt":"2026-10-23T19:40:00",
@@ -452,7 +460,8 @@ A new `HouseholdEvent` is read by `notification-service` before anybody publishe
 once that runs - an event it does not know fails its read of the message. The same holds for the ring and the
 opening of the gate (1.22.0, HAS-445) and for a new `GateOpenSource`: notification-service (HAS-451) reads them
 before gate-service publishes them (HAS-452). And for the four events of a garage gate (1.23.0, HAS-470):
-notification-service (HAS-472) words them before gate-service publishes them (HAS-475).
+notification-service (HAS-472) words them before gate-service publishes them (HAS-475). And for the fire alarm
+(1.24.0, HAS-456): notification-service (HAS-462) words it before safety-service publishes it (HAS-461).
 
 ```json
 {"event":"smog warning","subject":"Air quality sensor","deviceId":145,"occurredAt":"2026-11-12T18:20:00",

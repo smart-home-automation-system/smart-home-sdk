@@ -14,7 +14,7 @@ components:
         One device of the house as the registry holds it: what it is, where it is and how it is
         reached. The registry lives in database-service; the services of the domains (weather,
         blinds, light, heating) and the dashboard read it. A device is reached through exactly
-        one binding - `shelly`, `eaton`, `bthome`, `inverter`, `gree`, `blebox` or `hikvision` - and which one
+        one binding - `shelly`, `eaton`, `bthome`, `inverter`, `gree`, `blebox`, `hikvision` or `xsense` - and which one
         has to be there follows from the vendor and the kind; the model cannot say it, the
         registry checks it when the device is stored. The fields at the end describe one kind only and are left out for the others.
       required:
@@ -94,6 +94,8 @@ components:
           $ref: '#/components/schemas/BleboxBinding'
         hikvision:
           $ref: '#/components/schemas/HikvisionBinding'
+        xsense:
+          $ref: '#/components/schemas/XsenseBinding'
 
     DeviceKind:
       type: string
@@ -123,7 +125,10 @@ components:
         indoor screen it calls; a Hikvision station is reached by its `hikvision` binding and nothing
         else, and its vendor is `hikvision`. A `gate` (since 1.22.0) is what opens the gate of the
         house - a Shelly whose output gives the drive of the gate one pulse; both are read by
-        gate-service.
+        gate-service. A `smoke detector`, a `co detector` and a `heat detector` (since 1.24.0) are
+        the fire alarms of the house - smoke, carbon monoxide and heat; an X-Sense detector is reached
+        by its `xsense` binding and nothing else, and its vendor is `xsense`. The three are added at
+        once so that every reader of the whole registry moves only once; read by safety-service.
       enum:
         - "blinds"
         - "light"
@@ -141,6 +146,9 @@ components:
         - "air quality sensor"
         - "intercom"
         - "gate"
+        - "smoke detector"
+        - "co detector"
+        - "heat detector"
 
     InverterBinding:
       type: object
@@ -296,6 +304,36 @@ components:
           maxLength: 64
           pattern: ^[A-Za-z0-9][A-Za-z0-9()-]*$
           example: 'DS-KV0000-WE1(B)0120200101RRA00000001'
+
+    XsenseBinding:
+      type: object
+      description: >-
+        X-Sense detectors only (since 1.24.0): the base station a detector is paired with and the id the
+        base gives it - together what the base publishes the detector under on MQTT (its Home Assistant
+        discovery, `homeassistant.<component>.<stationSerial>_<deviceId>.<entity>`). The base itself is
+        not a registry device, and no account of the X-Sense cloud is stored here. That the part is
+        there exactly for an X-Sense detector is a rule of the registry, not of this model.
+      required:
+        - stationSerial
+        - deviceId
+      properties:
+        stationSerial:
+          type: string
+          description: >-
+            The serial number of the base station (an SBS50), the client id it connects to the broker
+            with: `SBS50` and eight hexadecimal digits in upper case.
+          minLength: 13
+          maxLength: 13
+          pattern: ^SBS50[0-9A-F]{8}$
+          example: 'SBS5000000001'
+        deviceId:
+          type: string
+          description: >-
+            The id the base station gives the detector: eight hexadecimal digits in upper case.
+          minLength: 8
+          maxLength: 8
+          pattern: ^[0-9A-F]{8}$
+          example: '00000006'
 
     ApplianceSettings:
       type: object

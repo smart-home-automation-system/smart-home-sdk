@@ -33,10 +33,12 @@ class SmartDeviceTest {
             Set.of(
                 "id", "name", "room", "kind", "enabled", "vendor", "shelly", "eaton", "bthome", "lightKind",
                 "placement", "positioning", "openingSensors", "appliance", "inverter", "gree",
-                "blebox", "hikvision"
+                "blebox", "hikvision", "xsense"
             ),
             JsonProperties.of(SmartDevice.class)
         );
+        //no account of the X-Sense cloud: the base publishes over MQTT
+        assertEquals(Set.of("stationSerial", "deviceId"), JsonProperties.of(XsenseBinding.class));
         //the key of a unit is never stored: aircon-service binds it when it starts
         assertEquals(Set.of("address", "mac"), JsonProperties.of(GreeBinding.class));
         assertEquals(Set.of("address", "deviceId"), JsonProperties.of(BleboxBinding.class));
@@ -83,6 +85,7 @@ class SmartDeviceTest {
         assertNull(device.getGree());
         assertNull(device.getBlebox());
         assertNull(device.getHikvision());
+        assertNull(device.getXsense());
 
         InverterBinding inverter = new InverterBinding();
         assertNull(inverter.getBrand());
@@ -115,7 +118,7 @@ class SmartDeviceTest {
         }
         for (String getter : new String[] {"getId", "getShelly", "getEaton", "getBthome", "getLightKind",
                 "getPlacement", "getPositioning", "getOpeningSensors", "getAppliance", "getInverter", "getGree",
-                "getBlebox", "getHikvision"}) {
+                "getBlebox", "getHikvision", "getXsense"}) {
             assertNull(SmartDevice.class.getMethod(getter).getAnnotation(NotNull.class), getter);
         }
     }
@@ -367,6 +370,49 @@ class SmartDeviceTest {
         assertFalse("(DS-KV0000)".matches(pattern));
         assertEquals(9, method.getAnnotation(Size.class).min());
         assertEquals(64, method.getAnnotation(Size.class).max());
+    }
+
+    // The X-Sense part (HAS-456): a detector is known by its base station and the id the base gives
+    // it - what the base publishes it under on MQTT - so both are required; validated with the device.
+    @Test
+    void shouldRequireTheBaseStationAndTheIdOfAnXsenseDetector() throws NoSuchMethodException {
+        assertNotNull(SmartDevice.class.getMethod("getXsense").getAnnotation(Valid.class));
+        assertEquals(XsenseBinding.class, SmartDevice.class.getMethod("getXsense").getReturnType());
+        for (String getter : new String[] {"getStationSerial", "getDeviceId"}) {
+            assertNotNull(XsenseBinding.class.getMethod(getter).getAnnotation(NotNull.class), getter);
+        }
+    }
+
+    // The client id of the base, SBS50 and eight hexadecimal digits in upper case, as the base connects with.
+    @Test
+    void shouldTakeTheSerialOfTheBaseStationAsItConnectsToTheBroker() throws NoSuchMethodException {
+        var method = XsenseBinding.class.getMethod("getStationSerial");
+        String pattern = method.getAnnotation(Pattern.class).regexp();
+
+        assertTrue("SBS5000000001".matches(pattern));
+        assertTrue("SBS50ABCDEF09".matches(pattern));
+        assertFalse("SBS50abcdef09".matches(pattern));
+        assertFalse("SBS500000001".matches(pattern));
+        assertFalse("SBS500000000001".matches(pattern));
+        assertFalse("SBS6000000001".matches(pattern));
+        assertEquals(13, method.getAnnotation(Size.class).min());
+        assertEquals(13, method.getAnnotation(Size.class).max());
+    }
+
+    // The id the base gives a detector: eight hexadecimal digits in upper case.
+    @Test
+    void shouldTakeTheIdOfADetectorAsTheBaseGivesIt() throws NoSuchMethodException {
+        var method = XsenseBinding.class.getMethod("getDeviceId");
+        String pattern = method.getAnnotation(Pattern.class).regexp();
+
+        assertTrue("00000006".matches(pattern));
+        assertTrue("0000ABCF".matches(pattern));
+        assertFalse("0000abcf".matches(pattern));
+        assertFalse("0000006".matches(pattern));
+        assertFalse("000000006".matches(pattern));
+        assertFalse("0000000G".matches(pattern));
+        assertEquals(8, method.getAnnotation(Size.class).min());
+        assertEquals(8, method.getAnnotation(Size.class).max());
     }
 
     // The Solarman protocol carries the logger serial as four bytes in every frame.

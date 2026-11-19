@@ -96,6 +96,8 @@ components:
           minimum: -60
           maximum: 60
           example: 7.5
+        room:
+          $ref: './home.yaml#/components/schemas/RoomName'
 
     HouseholdEvent:
       type: string
@@ -112,7 +114,10 @@ components:
         while it is cold outside, with `temperature`), `garage gate open empty house` (an alarm - it stands open
         while nobody is at home), `garage gate open long` (a warning - it stands open for long) and
         `garage gate closed` (the end of any of them). The three open ones carry `openSince` and count their
-        repeats in `reminder`, 0 for the first.
+        repeats in `reminder`, 0 for the first. `fire alarm` and `fire alarm over` (since 1.24.0) are the
+        start and the end of an alarm of a smoke, CO or heat detector, published by safety-service - the
+        subject is the detector, and `room` names its room so that notification-service words it without
+        reading the registry.
       enum:
         - "appliance finished"
         - "appliance reminder"
@@ -125,6 +130,8 @@ components:
         - "garage gate open empty house"
         - "garage gate open long"
         - "garage gate closed"
+        - "fire alarm"
+        - "fire alarm over"
 
     GateOpenSource:
       type: string

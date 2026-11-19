@@ -15,7 +15,8 @@ components:
         known to every reader of the whole registry before a device of it is stored. `gree`
         (since 1.18.0) is the maker of the air conditioners of the house, `blebox` (since 1.20.0)
         the maker of the air quality sensor outside the house, `hikvision` (since 1.22.0) the maker of
-        the door station at the gate.
+        the door station at the gate, `xsense` (since 1.24.0) the maker of the smoke, CO and heat
+        detectors of the house.
       enum:
         - "shelly"
         - "eaton"
@@ -23,6 +24,7 @@ components:
         - "gree"
         - "blebox"
         - "hikvision"
+        - "xsense"
     SmartDeviceType:
       type: string
       description: >-

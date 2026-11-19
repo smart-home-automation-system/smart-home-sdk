@@ -20,7 +20,10 @@ public enum DeviceKind {
     AIR_CONDITIONER("air conditioner"),
     AIR_QUALITY_SENSOR("air quality sensor"),
     INTERCOM("intercom"),
-    GATE("gate");
+    GATE("gate"),
+    SMOKE_DETECTOR("smoke detector"),
+    CO_DETECTOR("co detector"),
+    HEAT_DETECTOR("heat detector");
 
     private String value;
 

@@ -30,7 +30,7 @@ class HouseholdNotificationAndPushSubscriptionTest {
     void shouldPublishTheseJsonPropertiesOfANotificationAndNoOther() {
         assertEquals(
             Set.of("event", "subject", "deviceId", "occurredAt", "reminder", "acknowledgePath", "member", "pm10", "pm25",
-                "source", "openSince", "temperature"),
+                "source", "openSince", "temperature", "room"),
             JsonProperties.of(HouseholdNotification.class)
         );
     }
@@ -76,6 +76,17 @@ class HouseholdNotificationAndPushSubscriptionTest {
         HouseholdNotification empty = new HouseholdNotification();
         assertNull(empty.getOpenSince());
         assertNull(empty.getTemperature());
+    }
+
+    // The room of a fire alarm (HAS-456): the RoomName of the detector, so that notification-service words
+    // the room without reading the registry - optional, left out for every other event.
+    @Test
+    void shouldNameTheRoomOfAFireAlarmOptionally() throws NoSuchMethodException {
+        var room = HouseholdNotification.class.getMethod("getRoom");
+
+        assertNull(room.getAnnotation(NotNull.class));
+        assertEquals(RoomName.class, room.getReturnType());
+        assertNull(new HouseholdNotification().getRoom());
     }
 
     // Who acknowledged it (HAS-347): optional, a name of the household registry with its bounds.

@@ -69,8 +69,8 @@ the org's `organization.md`; this file holds what is specific to this repository
   reads an id a client sends. "The registry gives the id" is a rule of the registry, not of
   the model.
 - **A device is described by optional parts the model does not tie together** (HAS-221):
-  `SmartDevice` has six bindings (`inverter` since 1.15.0, HAS-326; `gree` since 1.18.0,
-  HAS-377; `blebox` since 1.20.0, HAS-424) and fields of one kind only, all optional. Which of
+  `SmartDevice` has eight bindings (`inverter` since 1.15.0, HAS-326; `gree` since 1.18.0,
+  HAS-377; `blebox` since 1.20.0, HAS-424; `hikvision` since 1.22.0, HAS-445; `xsense` since 1.24.0, HAS-456) and fields of one kind only, all optional. Which of
   them a device must have follows from its vendor and kind, and the schema does not say it
   (`oneOf` was not tried - one flat class is what the registry stores a row of). So the rule
   lives in the registry, and the README says so to every consumer.
@@ -126,6 +126,15 @@ the org's `organization.md`; this file holds what is specific to this repository
   only, no new field: a gate with sensors is a garage gate. notification-service (HAS-472) reads the events
   before gate-service publishes them (HAS-475); database-service (HAS-471) and the dashboard accept the list on
   a gate before one is stored.
+- **The fire detectors** (1.24.0, HAS-456, epic HAS-455): `DeviceKind` gains `smoke detector`, `co detector` and
+  `heat detector` at once (a reader of the whole registry moves only once), `SmartVendor` the fourth new vendor
+  `xsense`, `SmartDevice` the binding `xsense` (`XsenseBinding`: `stationSerial` `^SBS50[0-9A-F]{8}$` - the client id
+  of the base on the broker - and `deviceId` `^[0-9A-F]{8}$`; the base itself is not a registry device, no
+  account of the X-Sense cloud is stored). `HouseholdEvent` gains `fire alarm` and `fire alarm over`,
+  `HouseholdNotification` the optional `room` (`RoomName`). database-service (HAS-457) and the dashboard (HAS-458)
+  read the registry values before a detector is stored; notification-service (HAS-462) the events before
+  safety-service publishes them (HAS-461). The example serials of the schema are invented - the repository is
+  public.
 - **Empty collections are omitted from JSON** (`@JsonInclude(NON_EMPTY)` on every class): a
   reader of the JSON treats a missing array as empty.
 - **Bounds belong in the schema** (`required`, `minLength`, `pattern`, `enum`, `uniqueItems`):

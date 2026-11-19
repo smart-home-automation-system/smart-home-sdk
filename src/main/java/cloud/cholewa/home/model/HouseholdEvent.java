@@ -15,7 +15,9 @@ public enum HouseholdEvent {
     GARAGE_GATE_OPEN_COLD("garage gate open cold"),
     GARAGE_GATE_OPEN_EMPTY_HOUSE("garage gate open empty house"),
     GARAGE_GATE_OPEN_LONG("garage gate open long"),
-    GARAGE_GATE_CLOSED("garage gate closed");
+    GARAGE_GATE_CLOSED("garage gate closed"),
+    FIRE_ALARM("fire alarm"),
+    FIRE_ALARM_OVER("fire alarm over");
 
     private String value;
 
