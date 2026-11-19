@@ -23,7 +23,8 @@ import lombok.experimental.SuperBuilder;
         HouseholdNotification.JSON_PROPERTY_REMINDER, HouseholdNotification.JSON_PROPERTY_ACKNOWLEDGE_PATH,
         HouseholdNotification.JSON_PROPERTY_MEMBER, HouseholdNotification.JSON_PROPERTY_PM10,
         HouseholdNotification.JSON_PROPERTY_PM25, HouseholdNotification.JSON_PROPERTY_SOURCE,
-        HouseholdNotification.JSON_PROPERTY_OPEN_SINCE, HouseholdNotification.JSON_PROPERTY_TEMPERATURE})
+        HouseholdNotification.JSON_PROPERTY_OPEN_SINCE, HouseholdNotification.JSON_PROPERTY_TEMPERATURE,
+        HouseholdNotification.JSON_PROPERTY_ROOM})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -53,6 +54,8 @@ public class HouseholdNotification {
     private LocalDateTime openSince;
     public static final String JSON_PROPERTY_TEMPERATURE = "temperature";
     private Double temperature;
+    public static final String JSON_PROPERTY_ROOM = "room";
+    private RoomName room;
 
     public HouseholdNotification event(HouseholdEvent event) {
         this.event = event;
@@ -290,6 +293,25 @@ public class HouseholdNotification {
         this.temperature = temperature;
     }
 
+    public HouseholdNotification room(RoomName room) {
+        this.room = room;
+        return this;
+    }
+
+    @Nullable
+    @Valid
+    @JsonProperty(JSON_PROPERTY_ROOM)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public RoomName getRoom() {
+        return room;
+    }
+
+    @JsonProperty(JSON_PROPERTY_ROOM)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setRoom(RoomName room) {
+        this.room = room;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -310,13 +332,14 @@ public class HouseholdNotification {
                 && Objects.equals(this.pm25, householdNotification.pm25)
                 && Objects.equals(this.source, householdNotification.source)
                 && Objects.equals(this.openSince, householdNotification.openSince)
-                && Objects.equals(this.temperature, householdNotification.temperature);
+                && Objects.equals(this.temperature, householdNotification.temperature)
+                && Objects.equals(this.room, householdNotification.room);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(event, subject, deviceId, occurredAt, reminder, acknowledgePath, member, pm10, pm25, source,
-                openSince, temperature);
+                openSince, temperature, room);
     }
 
     @Override
@@ -335,6 +358,7 @@ public class HouseholdNotification {
         sb.append("    source: ").append(toIndentedString(source)).append("\n");
         sb.append("    openSince: ").append(toIndentedString(openSince)).append("\n");
         sb.append("    temperature: ").append(toIndentedString(temperature)).append("\n");
+        sb.append("    room: ").append(toIndentedString(room)).append("\n");
         sb.append("}");
         return sb.toString();
     }

@@ -38,7 +38,10 @@ class DeviceRegistryEnumsTest {
                 "AIR_CONDITIONER", "air conditioner",
                 "AIR_QUALITY_SENSOR", "air quality sensor",
                 "INTERCOM", "intercom",
-                "GATE", "gate"
+                "GATE", "gate",
+                "SMOKE_DETECTOR", "smoke detector",
+                "CO_DETECTOR", "co detector",
+                "HEAT_DETECTOR", "heat detector"
             ),
             namesAndValues(DeviceKind.values(), DeviceKind::getValue)
         );
@@ -56,13 +59,13 @@ class DeviceRegistryEnumsTest {
 
     // The vendor decides which binding a device has (HAS-377: `gree` for the air conditioners,
     // HAS-424: `blebox` for the air quality sensor, HAS-445: `hikvision` for the door station at the
-    // gate); the registry stores the name, and every
+    // gate, HAS-456: `xsense` for the fire detectors); the registry stores the name, and every
     // reader of the whole registry has to know it first.
     @Test
     void shouldKnowExactlyTheseVendors() {
         assertEquals(
             ordered("SHELLY", "shelly", "EATON", "eaton", "OTHER", "other", "GREE", "gree", "BLEBOX", "blebox",
-                "HIKVISION", "hikvision"),
+                "HIKVISION", "hikvision", "XSENSE", "xsense"),
             namesAndValues(SmartVendor.values(), SmartVendor::getValue)
         );
     }
@@ -70,7 +73,8 @@ class DeviceRegistryEnumsTest {
     // What appliance-service publishes and notification-service words (HAS-271): the two share
     // the names, and notification-service has to know a value before anybody publishes it.
     // The smog of weather-service since 1.21.0 (HAS-429), the ring and the opening of the gate of
-    // gate-service since 1.22.0 (HAS-445), a garage gate left open since 1.23.0 (HAS-470).
+    // gate-service since 1.22.0 (HAS-445), a garage gate left open since 1.23.0 (HAS-470), a fire alarm of
+    // safety-service since 1.24.0 (HAS-456).
     @Test
     void shouldKnowExactlyTheseHouseholdEvents() {
         assertEquals(
@@ -85,7 +89,9 @@ class DeviceRegistryEnumsTest {
                 "GARAGE_GATE_OPEN_COLD", "garage gate open cold",
                 "GARAGE_GATE_OPEN_EMPTY_HOUSE", "garage gate open empty house",
                 "GARAGE_GATE_OPEN_LONG", "garage gate open long",
-                "GARAGE_GATE_CLOSED", "garage gate closed"
+                "GARAGE_GATE_CLOSED", "garage gate closed",
+                "FIRE_ALARM", "fire alarm",
+                "FIRE_ALARM_OVER", "fire alarm over"
             ),
             namesAndValues(HouseholdEvent.values(), HouseholdEvent::getValue)
         );
