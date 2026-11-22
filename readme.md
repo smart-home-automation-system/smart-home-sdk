@@ -40,7 +40,8 @@ open (`HouseholdEvent.GARAGE_GATE_OPEN_COLD`, `GARAGE_GATE_OPEN_EMPTY_HOUSE`, `G
 `GARAGE_GATE_CLOSED`, `HouseholdNotification.openSince` / `temperature`) and the opening sensors of a gate
 (`SmartDevice.openingSensors` for the kind `gate`), and - since 1.24.0 - the fire detectors as devices of the
 registry (`DeviceKind.SMOKE_DETECTOR`, `CO_DETECTOR`, `HEAT_DETECTOR`, `XsenseBinding`, `SmartVendor.XSENSE`)
-and their household events (`HouseholdEvent.FIRE_ALARM`, `FIRE_ALARM_OVER`, `HouseholdNotification.room`).
+and their household events (`HouseholdEvent.FIRE_ALARM`, `FIRE_ALARM_OVER`, `HouseholdNotification.room`), and - since
+1.25.0 - the entrance panel as a source of an opening of the gate (`GateOpenSource.PANEL`).
 
 Current consumers: `aircon-service`, `amx-service`, `appliance-service`, `blinds-service`, `boiler-service`,
 `database-service`, `energy-service`, `gate-service`, `heating-service`, `light-service`, `notification-service`,
@@ -55,7 +56,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.24.0</version>
+    <version>1.25.0</version>
 </dependency>
 ```
 
@@ -445,7 +446,7 @@ channel, SMS and Web Push. **No text travels in the payload.**
 | `acknowledgePath` | `String`, up to 200 | optional; the path of the application where the household acknowledges it - segments of letters, digits, `-` and `_` only, so no host, `//`, `..` or query |
 | `member` | `String`, 3-50 | optional (since 1.14.0); the household member who did it, by their registry name - for `appliance acknowledged` who acknowledged it in the application. Information for the message, not a proof of the chore |
 | `pm10`, `pm25` | `Integer`, from 0 | optional (since 1.21.0); the PM10 and PM2.5 outside in ug/m3 the smog message quotes - the reading that opened the episode for `smog warning`, the one that closed it for `smog over`; left out for every other event |
-| `source` | `GateOpenSource` | optional (since 1.22.0); where the gate was opened from - `screen` (the indoor screen of the intercom) or `dashboard` (the application, with the `member` who opened it); for `gate opened` only |
+| `source` | `GateOpenSource` | optional (since 1.22.0); where the gate was opened from - `screen` (the indoor screen of the intercom), `dashboard` (the application, with the `member` who opened it) or `panel` (the entrance panel at the door, since 1.25.0); for `gate opened` only |
 | `openSince` | `LocalDateTime` | optional (since 1.23.0); since when the garage gate is open, a local date-time of the house - for the `garage gate open ...` events and `garage gate closed`; left out for every other event |
 | `temperature` | `Double`, -60 to 60 | optional (since 1.23.0); the temperature outside in degrees Celsius that made `garage gate open cold` an alarm; left out for every other event |
 | `room` | `RoomName` | optional (since 1.24.0); the room of the detector of a `fire alarm` / `fire alarm over`, so that notification-service words it without reading the registry; left out for every other event |
@@ -461,7 +462,9 @@ once that runs - an event it does not know fails its read of the message. The sa
 opening of the gate (1.22.0, HAS-445) and for a new `GateOpenSource`: notification-service (HAS-451) reads them
 before gate-service publishes them (HAS-452). And for the four events of a garage gate (1.23.0, HAS-470):
 notification-service (HAS-472) words them before gate-service publishes them (HAS-475). And for the fire alarm
-(1.24.0, HAS-456): notification-service (HAS-462) words it before safety-service publishes it (HAS-461).
+(1.24.0, HAS-456): notification-service (HAS-462) words it before safety-service publishes it (HAS-461). And for
+the source `panel` (1.25.0, HAS-480): notification-service (HAS-481) reads it before gate-service publishes it (HAS-483) -
+`GateOpenSource.fromValue` throws on a value it does not know, so an older reader refuses the whole `gate opened`.
 
 ```json
 {"event":"smog warning","subject":"Air quality sensor","deviceId":145,"occurredAt":"2026-11-12T18:20:00",
