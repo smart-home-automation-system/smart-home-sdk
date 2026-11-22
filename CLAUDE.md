@@ -135,6 +135,10 @@ the org's `organization.md`; this file holds what is specific to this repository
   read the registry values before a detector is stored; notification-service (HAS-462) the events before
   safety-service publishes them (HAS-461). The example serials of the schema are invented - the repository is
   public.
+- **The entrance panel** (1.25.0, HAS-480, epic HAS-479): `GateOpenSource` gains `panel` - the AMX panel at the door
+  as a third way to open the driveway gate. `fromValue` throws on a value it does not know, so notification-service
+  (HAS-481) reads it before gate-service publishes it (HAS-483); gate-service maps its own source onto the enum, and
+  the dashboard (HAS-482) prints a word it does not know as it comes.
 - **Empty collections are omitted from JSON** (`@JsonInclude(NON_EMPTY)` on every class): a
   reader of the JSON treats a missing array as empty.
 - **Bounds belong in the schema** (`required`, `minLength`, `pattern`, `enum`, `uniqueItems`):

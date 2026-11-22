@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum GateOpenSource {
 
     SCREEN("screen"),
-    DASHBOARD("dashboard");
+    DASHBOARD("dashboard"),
+    PANEL("panel");
 
     private String value;
 

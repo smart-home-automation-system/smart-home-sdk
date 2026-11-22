@@ -98,12 +98,12 @@ class DeviceRegistryEnumsTest {
         assertEquals(HouseholdEvent.APPLIANCE_FINISHED, HouseholdEvent.fromValue("Appliance Finished"));
     }
 
-    // Where the gate was opened from (HAS-445): gate-service publishes it with `gate opened`,
-    // notification-service words it, so it has to know a value before anybody publishes it.
+    // Where the gate was opened from (HAS-445; the entrance panel since HAS-480): gate-service publishes it with
+    // `gate opened`, notification-service words it, so it has to know a value before anybody publishes it.
     @Test
     void shouldKnowExactlyTheseSourcesOfAnOpening() {
         assertEquals(
-            ordered("SCREEN", "screen", "DASHBOARD", "dashboard"),
+            ordered("SCREEN", "screen", "DASHBOARD", "dashboard", "PANEL", "panel"),
             namesAndValues(GateOpenSource.values(), GateOpenSource::getValue)
         );
         assertEquals(GateOpenSource.SCREEN, GateOpenSource.fromValue("Screen"));

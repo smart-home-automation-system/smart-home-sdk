@@ -138,8 +138,9 @@ components:
       description: >-
         Where the gate was opened from (since 1.22.0), carried by `gate opened` and left out for every other
         event: `screen` - the button of the indoor screen of the intercom, `dashboard` - the application, by
-        the member it names. The constant names are what gate-service and notification-service share; a new
+        the member it names, `panel` - the entrance panel at the door (since 1.25.0, HAS-480). The constant names are what gate-service and notification-service share; a new
         one is read by notification-service before anybody publishes it.
       enum:
         - "screen"
         - "dashboard"
+        - "panel"
