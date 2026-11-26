@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum MemberPermission {
 
-    HEATING_SWITCH("heating_switch");
+    HEATING_SWITCH("heating_switch"),
+    AMPLIFIER_UNLOCK("amplifier_unlock");
 
     private String value;
 

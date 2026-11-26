@@ -139,6 +139,11 @@ the org's `organization.md`; this file holds what is specific to this repository
   as a third way to open the driveway gate. `fromValue` throws on a value it does not know, so notification-service
   (HAS-481) reads it before gate-service publishes it (HAS-483); gate-service maps its own source onto the enum, and
   the dashboard (HAS-482) prints a word it does not know as it comes.
+- **The amplifier unlock** (1.26.0, HAS-509, epic HAS-508): `MemberPermission` gains `amplifier_unlock`
+  (`AMPLIFIER_UNLOCK`) - the button of media-service that unhangs the amplifier after a loss of the grid. Not
+  additive for the readers of the household models: database-service (HAS-510), presence-service (HAS-511),
+  appliance-service (HAS-512), gate-service (HAS-513) and the dashboard take 1.26.0 before the permission is
+  granted to anybody; notification-service reads the registry with a model of its own.
 - **Empty collections are omitted from JSON** (`@JsonInclude(NON_EMPTY)` on every class): a
   reader of the JSON treats a missing array as empty.
 - **Bounds belong in the schema** (`required`, `minLength`, `pattern`, `enum`, `uniqueItems`):
