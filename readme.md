@@ -41,7 +41,8 @@ open (`HouseholdEvent.GARAGE_GATE_OPEN_COLD`, `GARAGE_GATE_OPEN_EMPTY_HOUSE`, `G
 (`SmartDevice.openingSensors` for the kind `gate`), and - since 1.24.0 - the fire detectors as devices of the
 registry (`DeviceKind.SMOKE_DETECTOR`, `CO_DETECTOR`, `HEAT_DETECTOR`, `XsenseBinding`, `SmartVendor.XSENSE`)
 and their household events (`HouseholdEvent.FIRE_ALARM`, `FIRE_ALARM_OVER`, `HouseholdNotification.room`), and - since
-1.25.0 - the entrance panel as a source of an opening of the gate (`GateOpenSource.PANEL`).
+1.25.0 - the entrance panel as a source of an opening of the gate (`GateOpenSource.PANEL`), and - since 1.26.0 -
+the permission to unhang the amplifier (`MemberPermission.AMPLIFIER_UNLOCK`).
 
 Current consumers: `aircon-service`, `amx-service`, `appliance-service`, `blinds-service`, `boiler-service`,
 `database-service`, `energy-service`, `gate-service`, `heating-service`, `light-service`, `notification-service`,
@@ -56,7 +57,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.25.0</version>
+    <version>1.26.0</version>
 </dependency>
 ```
 
@@ -130,14 +131,18 @@ What a consumer has to know:
   unless something was granted, left out of the JSON while empty, and not told apart from "not
   sent" - so a registry has to give them an operation of their own instead of honouring them in
   a partial update (`database-service` does from the release that takes 1.6.0; an older one
-  ignores the field). The one permission so far is `heating_switch`: the member may switch the
-  heating of the whole house from their own page of the dashboard. It decides what the
-  interface offers; nothing behind the gateway checks it.
+  ignores the field). Two permissions so far: `heating_switch` - the member may switch the
+  heating of the whole house from their own page of the dashboard - and (since 1.26.0)
+  `amplifier_unlock` - the member is offered the button that unhangs the amplifier after a loss
+  of the grid (media-service). A permission decides what the interface offers; nothing behind
+  the gateway checks it.
 - **A new value of `MemberPermission` is not additive for a reader.** A consumer whose model
   has the field fails on a value it does not know (below), and `presence-service` reads the
   whole registry in one call: one stored value it cannot read stops its detection. Every
   consumer that deserializes `HouseholdMember` or `HouseholdProfile` moves to the release with
-  the new value **before** the registry stores it for anybody.
+  the new value **before** the registry stores it for anybody. For `amplifier_unlock` (1.26.0)
+  these are `database-service`, `presence-service`, `appliance-service`, `gate-service` and the
+  dashboard; `notification-service` reads the registry with a model of its own.
 - **The model does not check the rooms for repetitions or for `null` items** - it is a plain
   list, which keeps the order. Refusing `["office","office"]` is the registry's job.
 - **An unknown role, room or permission does not deserialize**: `MemberRole.fromValue`,
