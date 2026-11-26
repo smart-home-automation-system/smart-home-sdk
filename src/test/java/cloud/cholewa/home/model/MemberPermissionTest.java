@@ -18,15 +18,20 @@ class MemberPermissionTest {
     // dashboard reads: renaming either needs a migration there and a release of the dashboard.
     @Test
     void shouldKnowExactlyThesePermissions() {
-        assertEquals(List.of("HEATING_SWITCH"), Arrays.stream(MemberPermission.values()).map(Enum::name).toList());
+        assertEquals(List.of("HEATING_SWITCH", "AMPLIFIER_UNLOCK"),
+            Arrays.stream(MemberPermission.values()).map(Enum::name).toList());
         assertEquals("heating_switch", MemberPermission.HEATING_SWITCH.getValue());
         assertEquals("heating_switch", MemberPermission.HEATING_SWITCH.toString());
+        assertEquals("amplifier_unlock", MemberPermission.AMPLIFIER_UNLOCK.getValue());
+        assertEquals("amplifier_unlock", MemberPermission.AMPLIFIER_UNLOCK.toString());
     }
 
     @Test
     void shouldReadAPermissionFromItsJsonValue() {
         assertEquals(MemberPermission.HEATING_SWITCH, MemberPermission.fromValue("heating_switch"));
         assertEquals(MemberPermission.HEATING_SWITCH, MemberPermission.fromValue("HEATING_SWITCH"));
+        assertEquals(MemberPermission.AMPLIFIER_UNLOCK, MemberPermission.fromValue("amplifier_unlock"));
+        assertEquals(MemberPermission.AMPLIFIER_UNLOCK, MemberPermission.fromValue("AMPLIFIER_UNLOCK"));
     }
 
     // Inside Jackson this is a payload that does not deserialize; turning it into a 400 with a
