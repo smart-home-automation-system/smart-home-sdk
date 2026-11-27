@@ -144,6 +144,13 @@ the org's `organization.md`; this file holds what is specific to this repository
   additive for the readers of the household models: database-service (HAS-510), presence-service (HAS-511),
   appliance-service (HAS-512), gate-service (HAS-513) and the dashboard take 1.26.0 before the permission is
   granted to anybody; notification-service reads the registry with a model of its own.
+- **Load shedding** (1.27.0, HAS-521, epic HAS-520): `HouseholdEvent` gains `load shedding started`,
+  `load shedding device running` and `load shedding over` - the loads kept off while the house runs on the battery,
+  published by energy-service; the subject is the inverter of the registry that tells the grid (the SOLAX).
+  `HouseholdNotification` the optional `devices` - a list of names (1-50 each, at most 20 - a short plug name never refuses the whole message) of the loads an event is
+  about: plugs of the configuration of energy-service, no subject of the registry. A list, not a set (no
+  `uniqueItems`); like every array it starts empty and is left out of the JSON then. notification-service (HAS-522)
+  reads the events before energy-service publishes them (HAS-525). They carry `reminder` 0: never repeated.
 - **Empty collections are omitted from JSON** (`@JsonInclude(NON_EMPTY)` on every class): a
   reader of the JSON treats a missing array as empty.
 - **Bounds belong in the schema** (`required`, `minLength`, `pattern`, `enum`, `uniqueItems`):

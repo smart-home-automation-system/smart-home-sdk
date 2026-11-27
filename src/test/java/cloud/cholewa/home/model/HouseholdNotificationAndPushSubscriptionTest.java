@@ -14,7 +14,9 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.lang.reflect.AnnotatedParameterizedType;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +32,7 @@ class HouseholdNotificationAndPushSubscriptionTest {
     void shouldPublishTheseJsonPropertiesOfANotificationAndNoOther() {
         assertEquals(
             Set.of("event", "subject", "deviceId", "occurredAt", "reminder", "acknowledgePath", "member", "pm10", "pm25",
-                "source", "openSince", "temperature", "room"),
+                "source", "openSince", "temperature", "room", "devices"),
             JsonProperties.of(HouseholdNotification.class)
         );
     }
@@ -87,6 +89,22 @@ class HouseholdNotificationAndPushSubscriptionTest {
         assertNull(room.getAnnotation(NotNull.class));
         assertEquals(RoomName.class, room.getReturnType());
         assertNull(new HouseholdNotification().getRoom());
+    }
+
+    // The loads of a load shedding event (HAS-521): a list of names, never a set - empty when not sent (an array
+    // always starts empty, and an empty one is left out of the JSON), at most twenty, each a name of 1 to 50.
+    @Test
+    void shouldNameTheDevicesOfALoadSheddingEventAsAList() throws NoSuchMethodException {
+        var devices = HouseholdNotification.class.getMethod("getDevices");
+
+        assertEquals(List.class, devices.getReturnType());
+        assertNull(devices.getAnnotation(NotNull.class));
+        assertEquals(20, devices.getAnnotation(Size.class).max());
+        assertTrue(new HouseholdNotification().getDevices().isEmpty());
+        var item = ((AnnotatedParameterizedType) devices.getAnnotatedReturnType()).getAnnotatedActualTypeArguments()[0]
+            .getAnnotation(Size.class);
+        assertEquals(1, item.min());
+        assertEquals(50, item.max());
     }
 
     // Who acknowledged it (HAS-347): optional, a name of the household registry with its bounds.

@@ -42,11 +42,13 @@ open (`HouseholdEvent.GARAGE_GATE_OPEN_COLD`, `GARAGE_GATE_OPEN_EMPTY_HOUSE`, `G
 registry (`DeviceKind.SMOKE_DETECTOR`, `CO_DETECTOR`, `HEAT_DETECTOR`, `XsenseBinding`, `SmartVendor.XSENSE`)
 and their household events (`HouseholdEvent.FIRE_ALARM`, `FIRE_ALARM_OVER`, `HouseholdNotification.room`), and - since
 1.25.0 - the entrance panel as a source of an opening of the gate (`GateOpenSource.PANEL`), and - since 1.26.0 -
-the permission to unhang the amplifier (`MemberPermission.AMPLIFIER_UNLOCK`).
+the permission to unhang the amplifier (`MemberPermission.AMPLIFIER_UNLOCK`), and - since 1.27.0 - the household
+events of load shedding during a grid outage (`HouseholdEvent.LOAD_SHEDDING_STARTED`, `LOAD_SHEDDING_DEVICE_RUNNING`,
+`LOAD_SHEDDING_OVER`, `HouseholdNotification.devices`).
 
 Current consumers: `aircon-service`, `amx-service`, `appliance-service`, `blinds-service`, `boiler-service`,
 `database-service`, `energy-service`, `gate-service`, `heating-service`, `light-service`, `notification-service`,
-`presence-service`, `shelly-cloud-service`, `water-service`, `weather-service`.
+`media-service`, `presence-service`, `shelly-cloud-service`, `water-service`, `weather-service`.
 
 ## Installation
 
@@ -57,7 +59,7 @@ workflow on release.
 <dependency>
     <groupId>cloud.cholewa</groupId>
     <artifactId>smart-home-sdk</artifactId>
-    <version>1.26.0</version>
+    <version>1.27.0</version>
 </dependency>
 ```
 

@@ -14,6 +14,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -24,7 +26,7 @@ import lombok.experimental.SuperBuilder;
         HouseholdNotification.JSON_PROPERTY_MEMBER, HouseholdNotification.JSON_PROPERTY_PM10,
         HouseholdNotification.JSON_PROPERTY_PM25, HouseholdNotification.JSON_PROPERTY_SOURCE,
         HouseholdNotification.JSON_PROPERTY_OPEN_SINCE, HouseholdNotification.JSON_PROPERTY_TEMPERATURE,
-        HouseholdNotification.JSON_PROPERTY_ROOM})
+        HouseholdNotification.JSON_PROPERTY_ROOM, HouseholdNotification.JSON_PROPERTY_DEVICES})
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @NoArgsConstructor
 @SuperBuilder
@@ -56,6 +58,8 @@ public class HouseholdNotification {
     private Double temperature;
     public static final String JSON_PROPERTY_ROOM = "room";
     private RoomName room;
+    public static final String JSON_PROPERTY_DEVICES = "devices";
+    private List<@Size(min = 1, max = 50) String> devices = new ArrayList<>();
 
     public HouseholdNotification event(HouseholdEvent event) {
         this.event = event;
@@ -312,6 +316,33 @@ public class HouseholdNotification {
         this.room = room;
     }
 
+    public HouseholdNotification devices(List<@Size(min = 1, max = 50) String> devices) {
+        this.devices = devices;
+        return this;
+    }
+
+    public HouseholdNotification addDevicesItem(String devicesItem) {
+        if (this.devices == null) {
+            this.devices = new ArrayList<>();
+        }
+        this.devices.add(devicesItem);
+        return this;
+    }
+
+    @Nullable
+    @Size(max = 20)
+    @JsonProperty(JSON_PROPERTY_DEVICES)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public List<@Size(min = 1, max = 50) String> getDevices() {
+        return devices;
+    }
+
+    @JsonProperty(JSON_PROPERTY_DEVICES)
+    @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+    public void setDevices(List<@Size(min = 1, max = 50) String> devices) {
+        this.devices = devices;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -333,13 +364,14 @@ public class HouseholdNotification {
                 && Objects.equals(this.source, householdNotification.source)
                 && Objects.equals(this.openSince, householdNotification.openSince)
                 && Objects.equals(this.temperature, householdNotification.temperature)
-                && Objects.equals(this.room, householdNotification.room);
+                && Objects.equals(this.room, householdNotification.room)
+                && Objects.equals(this.devices, householdNotification.devices);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(event, subject, deviceId, occurredAt, reminder, acknowledgePath, member, pm10, pm25, source,
-                openSince, temperature, room);
+                openSince, temperature, room, devices);
     }
 
     @Override
@@ -359,6 +391,7 @@ public class HouseholdNotification {
         sb.append("    openSince: ").append(toIndentedString(openSince)).append("\n");
         sb.append("    temperature: ").append(toIndentedString(temperature)).append("\n");
         sb.append("    room: ").append(toIndentedString(room)).append("\n");
+        sb.append("    devices: ").append(toIndentedString(devices)).append("\n");
         sb.append("}");
         return sb.toString();
     }

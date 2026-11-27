@@ -44,7 +44,8 @@ components:
           description: >-
             How many reminders came before this message: 0 for `appliance finished`, 1 for the
             first `appliance reminder`, and for `appliance acknowledged` the number that had
-            been sent. For a `garage gate open ...` event 0 is the first message and 1 its first repeat.
+            been sent. For a `garage gate open ...` event 0 is the first message and 1 its first repeat. A
+            `load shedding ...` event is never repeated and carries 0.
           minimum: 0
           maximum: 10
         acknowledgePath:
@@ -98,6 +99,21 @@ components:
           example: 7.5
         room:
           $ref: './home.yaml#/components/schemas/RoomName'
+        devices:
+          type: array
+          description: >-
+            The devices a load shedding event is about, by the names the household calls them (since 1.27.0,
+            HAS-521) - for `load shedding started` the loads cut, for `load shedding device running` the ones still
+            at work that should be switched off by hand, for `load shedding over` the ones switched back on. The
+            publisher names plugs of its own configuration, which are no subject of the registry - so any name of 1
+            to 50 characters, never one refused for being short and the whole message with it. Like every array
+            it starts empty: no devices, or an event of another kind.
+          maxItems: 20
+          items:
+            type: string
+            minLength: 1
+            maxLength: 50
+          example: ['Czajnik', 'Pralka']
 
     HouseholdEvent:
       type: string
@@ -117,7 +133,12 @@ components:
         repeats in `reminder`, 0 for the first. `fire alarm` and `fire alarm over` (since 1.24.0) are the
         start and the end of an alarm of a smoke, CO or heat detector, published by safety-service - the
         subject is the detector, and `room` names its room so that notification-service words it without
-        reading the registry.
+        reading the registry. The three `load shedding ...` events (since 1.27.0, HAS-521) are published by
+        energy-service while the grid is lost and the house runs on the battery - the subject is the inverter of
+        the registry that tells the grid (the SOLAX), and `devices` names the loads: `load shedding started` (the
+        loads kept off so that the battery lasts, those cut named), `load shedding device running` (a load still at
+        work that the household should switch off) and `load shedding over` (the grid back for long enough, the
+        loads switched back on).
       enum:
         - "appliance finished"
         - "appliance reminder"
@@ -132,6 +153,9 @@ components:
         - "garage gate closed"
         - "fire alarm"
         - "fire alarm over"
+        - "load shedding started"
+        - "load shedding device running"
+        - "load shedding over"
 
     GateOpenSource:
       type: string
